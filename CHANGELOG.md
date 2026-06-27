@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.1](https://github.com/r-shafi/open-movie-tracker/compare/v0.12.0...v0.12.1) (2026-06-27)
+
+
+### Bug Fixes
+
+* update distributionSha256Sum in gradle-wrapper.properties for integrity verification ([a977733](https://github.com/r-shafi/open-movie-tracker/commit/a977733e0b4a87bd8787da43a2ac9cb4d4394e5f))
+
 ## [0.12.0](https://github.com/r-shafi/open-movie-tracker/compare/v0.11.0...v0.12.0) (2026-05-26)
 
 
