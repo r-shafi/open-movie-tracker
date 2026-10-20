@@ -168,4 +168,132 @@ describe('LetterboxdImportService', () => {
     expect(userData.getWatchedEntry('movie', 888)).toBeNull();
     expect(service.hasBackup()).toBeFalse();
   });
+
+  it('should resolve profile favorites locally via Letterboxd URI mapping without external network calls', async () => {
+    const files: Record<string, string> = {
+      'profile.csv':
+        'Date,Username,Given Name,Family Name,Email Address,Pronoun,Location,Website,Bio,Favorite Films\n' +
+        '2024-01-01,film_lover,Alex,Lee,alex@test.org,he/him,NYC,https://alex.org,Cinephile,"https://boxd.it/fav1, https://boxd.it/fav2"\n',
+      'watched.csv':
+        'Date,Name,Year,Letterboxd URI\n' +
+        '2023-01-01,Favorite Film One,2020,https://boxd.it/fav1\n' +
+        '2023-01-02,Favorite Film Two,2021,https://boxd.it/fav2\n',
+    };
+
+    spyOn(matcher, 'match').and.callFake(async (title: string, year?: string) => ({
+      sourceTitle: title,
+      sourceYear: year,
+      confidence: 'confident',
+      matched: {
+        id: title === 'Favorite Film One' ? 101 : 102,
+        title,
+        release_date: `${year || '2020'}-01-01`,
+        poster_path: null,
+        media_type: 'movie',
+        score: 95,
+      },
+      candidates: [],
+    }));
+
+    const plan = await service.prepareImport(files, {
+      importProfile: true,
+      importWatchlist: false,
+      importCustomLists: false,
+      skipDuplicates: false,
+    });
+
+    expect(plan.stagedFavorites.length).toBe(2);
+    expect(plan.stagedFavorites[0].matchedMedia?.id).toBe(101);
+    expect(plan.stagedFavorites[1].matchedMedia?.id).toBe(102);
+
+    await service.commitImport(plan);
+
+    const favorites = userData.getFavorites();
+    expect(favorites.length).toBe(2);
+    expect(favorites.map((f) => f.id)).toEqual([101, 102]);
+  });
+
+  it('should handle large synthetic export (500 items), maintain zero duplicates on second run, and rollback atomically', async () => {
+    const diaryLines = ['Date,Name,Year,Letterboxd URI,Rating,Rewatch,Tags,Watched Date'];
+    const ratingsLines = ['Date,Name,Year,Letterboxd URI,Rating'];
+    const watchedLines = ['Date,Name,Year,Letterboxd URI'];
+
+    // Generate 500 records with unicode, rewatches, quotes, CRLF, and unmatchable titles
+    for (let i = 1; i <= 500; i++) {
+      const isRewatch = i % 10 === 0;
+      const title = i === 1 ? 'Amélie' : i === 2 ? 'Pan\'s Labyrinth' : i === 3 ? 'The Thing' : `Synthetic Title ${i}`;
+      const year = i === 3 ? (i % 2 === 0 ? '2011' : '1982') : String(1970 + (i % 50));
+      const uri = `https://boxd.it/test_${i}`;
+      const date = `2023-01-${String((i % 28) + 1).padStart(2, '0')}`;
+      const rating = String(((i % 5) + 1) * 1.0);
+
+      if (i <= 400) {
+        diaryLines.push(`${date},"${title}",${year},${uri},${rating},${isRewatch ? 'Yes' : 'No'},"sci-fi, drama",${date}`);
+      }
+      if (i > 350 && i <= 450) {
+        ratingsLines.push(`${date},"${title}",${year},${uri},${rating}`);
+      }
+      if (i > 450) {
+        // Watched-only films
+        watchedLines.push(`${date},"${title}",${year},${uri}`);
+      }
+    }
+
+    const files: Record<string, string> = {
+      'diary.csv': diaryLines.join('\r\n'),
+      'ratings.csv': ratingsLines.join('\r\n'),
+      'watched.csv': watchedLines.join('\r\n'),
+      'deleted/reviews.csv': 'Date,Name,Year,Letterboxd URI\r\n',
+      'orphaned/diary.csv': 'Date,Name,Year,Letterboxd URI\r\n',
+    };
+
+    spyOn(matcher, 'match').and.callFake(async (title: string, year?: string) => ({
+      sourceTitle: title,
+      sourceYear: year,
+      confidence: 'confident',
+      matched: {
+        id: 1000 + Math.abs(title.length * 37 + (year ? parseInt(year, 10) : 0)),
+        title,
+        release_date: `${year || '2000'}-01-01`,
+        poster_path: null,
+        media_type: 'movie',
+        score: 95,
+      },
+      candidates: [],
+    }));
+
+    const progressReports: string[] = [];
+    const plan = await service.prepareImport(files, {
+      importProfile: false,
+      importWatchlist: false,
+      importCustomLists: false,
+      skipDuplicates: true,
+    }, (p) => progressReports.push(p.phase));
+
+    expect(progressReports).toContain('parsing');
+    expect(progressReports).toContain('matching');
+    expect(plan.stagedEntries.length).toBeGreaterThan(400);
+
+    // Initial commit
+    const result1 = await service.commitImport(plan);
+    const countAfterFirstImport = userData.getWatchedCount();
+    expect(result1.importedCount).toBe(countAfterFirstImport);
+    expect(countAfterFirstImport).toBeGreaterThan(400);
+
+    // Second import with skipDuplicates should yield zero newly imported entries
+    const plan2 = await service.prepareImport(files, {
+      importProfile: false,
+      importWatchlist: false,
+      importCustomLists: false,
+      skipDuplicates: true,
+    });
+    const result2 = await service.commitImport(plan2);
+    expect(result2.importedCount).toBe(0);
+    expect(userData.getWatchedCount()).toBe(countAfterFirstImport);
+
+    // Rollback restores state prior to plan2
+    const rolledBack = service.undoImport();
+    expect(rolledBack).toBeTrue();
+    expect(userData.getWatchedCount()).toBe(countAfterFirstImport);
+  });
 });

@@ -60,6 +60,7 @@ export interface StagedProfile {
 }
 
 export interface ImportPlan {
+  options?: ImportOptions;
   stagedEntries: StagedFilmEntry[];
   stagedWatchlist: StagedWatchlistItem[];
   stagedLists: StagedList[];
@@ -593,6 +594,7 @@ export class LetterboxdImportService {
     notify(totalTitlesToMatch, totalTitlesToMatch, 'Import plan ready for review', 'ready');
 
     return {
+      options,
       stagedEntries,
       stagedWatchlist,
       stagedLists,
@@ -676,10 +678,22 @@ export class LetterboxdImportService {
 
     // 3. Batch commit watched entries
     let importedCount = 0;
+    const existingEntries = this.userData.getWatchedList();
     const entriesToSave = plan.stagedEntries.filter((e) => e.matchedMedia != null);
 
     entriesToSave.forEach((e) => {
       const media = e.matchedMedia!;
+      if (plan.options?.skipDuplicates) {
+        const isDuplicate = existingEntries.some((ex) => {
+          if (ex.media_type !== 'movie' || ex.id !== media.id) return false;
+          if (e.sourceUri && ex.sourceKey && ex.sourceKey === e.sourceUri) return true;
+          return ex.watchedAt === e.watchedAt;
+        });
+        if (isDuplicate) {
+          return;
+        }
+      }
+
       this.userData.logEntry({
         id: media.id,
         media_type: 'movie',
