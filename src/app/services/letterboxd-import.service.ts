@@ -8,6 +8,7 @@ export interface ImportOptions {
   importProfile: boolean; // Opt-in; default false
   importWatchlist: boolean;
   importCustomLists: boolean;
+  importFavorites?: boolean; // Opt-in or enabled with profile; default true
   skipDuplicates: boolean;
 }
 
@@ -34,6 +35,13 @@ export interface StagedWatchlistItem {
   matchedMedia?: TmdbMatchCandidate;
 }
 
+export interface StagedFavoriteItem {
+  sourceTitle: string;
+  sourceYear?: string;
+  sourceUri?: string;
+  matchedMedia?: TmdbMatchCandidate;
+}
+
 export interface StagedList {
   name: string;
   description: string;
@@ -55,6 +63,7 @@ export interface ImportPlan {
   stagedEntries: StagedFilmEntry[];
   stagedWatchlist: StagedWatchlistItem[];
   stagedLists: StagedList[];
+  stagedFavorites?: StagedFavoriteItem[];
   stagedProfile?: StagedProfile;
   ambiguousMatches: MatchResult[];
   unmatchedItems: Array<{ title: string; year?: string; uri?: string }>;
@@ -66,6 +75,7 @@ export interface ImportPlan {
     watchedOnlyCount: number;
     watchlistCount: number;
     listsCount: number;
+    favoritesCount?: number;
     confidentCount: number;
     ambiguousCount: number;
     unmatchedCount: number;
@@ -84,6 +94,7 @@ export interface ImportProgress {
 })
 export class LetterboxdImportService {
   private static readonly BACKUP_KEY = 'mva_import_backup';
+  public static readonly SESSION_KEY = 'mva_import_session';
 
   constructor(
     private userData: UserDataService,
@@ -92,6 +103,34 @@ export class LetterboxdImportService {
 
   public hasBackup(): boolean {
     return localStorage.getItem(LetterboxdImportService.BACKUP_KEY) !== null;
+  }
+
+  public saveSession(step: string, plan: ImportPlan): void {
+    try {
+      localStorage.setItem(
+        LetterboxdImportService.SESSION_KEY,
+        JSON.stringify({ step, plan, timestamp: new Date().toISOString() }),
+      );
+    } catch {
+      // Ignore if storage full
+    }
+  }
+
+  public loadSession(): { step: string; plan: ImportPlan; timestamp: string } | null {
+    try {
+      const raw = localStorage.getItem(LetterboxdImportService.SESSION_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  public clearSession(): void {
+    try {
+      localStorage.removeItem(LetterboxdImportService.SESSION_KEY);
+    } catch {
+      // Ignore
+    }
   }
 
   public undoImport(): boolean {
@@ -160,19 +199,61 @@ export class LetterboxdImportService {
       }
     });
 
-    // 2. Parse Profile (Privacy Guaranteed!)
+    // Build global URI-to-film map across all CSVs for local favorites & list resolution
+    const uriToFilm = new Map<string, { title: string; year?: string }>();
+    const registerUri = (row: any) => {
+      const uri = (row['Letterboxd URI'] || row.URL || '').trim();
+      const name = (row.Name || '').trim();
+      const year = (row.Year || '').trim();
+      if (uri && name) {
+        uriToFilm.set(uri, { title: name, year: year || undefined });
+      }
+    };
+    diaryRows.forEach(registerUri);
+    reviewRows.forEach(registerUri);
+    ratingRows.forEach(registerUri);
+    watchedRows.forEach(registerUri);
+    watchlistRows.forEach(registerUri);
+    likesRows.forEach(registerUri);
+
+    // 2. Parse Profile (Privacy Guaranteed!) & Resolve Favorites Locally
     let stagedProfile: StagedProfile | undefined;
-    if (options.importProfile && files['profile.csv']) {
+    const stagedFavorites: StagedFavoriteItem[] = [];
+
+    if (files['profile.csv']) {
       const parsedProfile = CsvParser.parse(files['profile.csv']).rows[0];
       if (parsedProfile) {
-        // STRICT PRIVACY: Only extract Username/Given Name and Bio.
-        // Explicitly NEVER touch Email, Family Name, Pronoun, Location, or Website.
-        const displayName = parsedProfile.Username || parsedProfile['Given Name'] || '';
-        const bio = parsedProfile.Bio || '';
-        stagedProfile = {
-          displayName: displayName.trim() || undefined,
-          bio: bio.trim() || undefined,
-        };
+        if (options.importProfile) {
+          // STRICT PRIVACY: Only extract Username/Given Name and Bio.
+          // Explicitly NEVER touch Email, Family Name, Pronoun, Location, or Website.
+          const displayName = parsedProfile.Username || parsedProfile['Given Name'] || '';
+          const bio = parsedProfile.Bio || '';
+          stagedProfile = {
+            displayName: displayName.trim() || undefined,
+            bio: bio.trim() || undefined,
+          };
+        }
+
+        // Resolve Favorite Films locally via URI map
+        if (options.importFavorites !== false && parsedProfile['Favorite Films']) {
+          const rawFavs = String(parsedProfile['Favorite Films']);
+          const favUris = rawFavs
+            .split(/[\s,]+/)
+            .map((u) => u.trim())
+            .filter((u) => u.length > 0)
+            .slice(0, 4);
+
+          for (const uri of favUris) {
+            const film = uriToFilm.get(uri);
+            if (film) {
+              stagedFavorites.push({
+                sourceTitle: film.title,
+                sourceYear: film.year,
+                sourceUri: uri,
+              });
+            }
+          }
+        }
       }
     }
 
@@ -431,6 +512,12 @@ export class LetterboxdImportService {
         }
       });
     });
+    stagedFavorites.forEach((f) => {
+      const key = `${f.sourceTitle.toLowerCase()}|${f.sourceYear || ''}`;
+      if (!uniqueFilmMap.has(key)) {
+        uniqueFilmMap.set(key, { title: f.sourceTitle, year: f.sourceYear });
+      }
+    });
 
     const uniqueTitles = Array.from(uniqueFilmMap.values());
     const totalTitlesToMatch = uniqueTitles.length;
@@ -495,12 +582,21 @@ export class LetterboxdImportService {
       });
     });
 
+    stagedFavorites.forEach((fav) => {
+      const key = `${fav.sourceTitle.toLowerCase()}|${fav.sourceYear || ''}`;
+      const res = matchLookup.get(key);
+      if (res && res.matched) {
+        fav.matchedMedia = res.matched;
+      }
+    });
+
     notify(totalTitlesToMatch, totalTitlesToMatch, 'Import plan ready for review', 'ready');
 
     return {
       stagedEntries,
       stagedWatchlist,
       stagedLists,
+      stagedFavorites,
       stagedProfile,
       ambiguousMatches,
       unmatchedItems,
@@ -512,6 +608,7 @@ export class LetterboxdImportService {
         watchedOnlyCount: stagedEntries.filter((e) => e.dateUnknown && e.rating === null).length,
         watchlistCount: stagedWatchlist.length,
         listsCount: stagedLists.length,
+        favoritesCount: stagedFavorites.length,
         confidentCount,
         ambiguousCount: ambiguousMatches.length,
         unmatchedCount: unmatchedItems.length,
@@ -529,6 +626,23 @@ export class LetterboxdImportService {
   ): Promise<{ importedCount: number; watchlistCount: number; listsCount: number }> {
     if (onProgress) {
       onProgress({ phase: 'committing', current: 0, total: 100, message: 'Creating pre-import backup...' });
+    }
+
+    // 0. Storage quota pre-check
+    const estimatedBytes =
+      plan.stagedEntries.length * 400 +
+      plan.stagedWatchlist.length * 200 +
+      plan.stagedLists.length * 500 +
+      (plan.stagedFavorites?.length || 0) * 200;
+    const available = this.userData.estimateRemainingQuota();
+    if (available < estimatedBytes) {
+      this.userData.purgeVolatileCache();
+      const postPurgeAvailable = this.userData.estimateRemainingQuota();
+      if (postPurgeAvailable < estimatedBytes) {
+        throw new Error(
+          `Insufficient storage space: import requires ~${Math.round(estimatedBytes / 1024)} KB, but only ~${Math.round(postPurgeAvailable / 1024)} KB is available.`,
+        );
+      }
     }
 
     // 1. Create atomic pre-import backup snapshot
@@ -628,6 +742,25 @@ export class LetterboxdImportService {
         bio: plan.stagedProfile.bio,
       });
     }
+
+    // 7. Commit favorites (up to 4)
+    if (plan.stagedFavorites && plan.stagedFavorites.length > 0) {
+      plan.stagedFavorites
+        .filter((f) => f.matchedMedia != null)
+        .slice(0, 4)
+        .forEach((f) => {
+          const media = f.matchedMedia!;
+          this.userData.addFavorite({
+            id: media.id,
+            media_type: 'movie',
+            title: media.title,
+            poster_path: media.poster_path,
+          });
+        });
+    }
+
+    // 8. Clear saved session on successful commit
+    this.clearSession();
 
     if (onProgress) {
       onProgress({ phase: 'done', current: 100, total: 100, message: 'Import completed successfully!' });

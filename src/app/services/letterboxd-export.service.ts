@@ -91,17 +91,57 @@ export class LetterboxdExportService {
     return CsvParser.stringify(headers, rows);
   }
 
+  public exportLikesCsv(): string {
+    const entries = this.userData.getWatchedList().filter((e) => e.liked);
+    const headers = ['Date', 'Name', 'Year', 'Letterboxd URI'];
+
+    const rows = entries.map((e) => {
+      const date = (e.watchedAt || new Date().toISOString()).split('T')[0];
+      const year = e.release_date ? e.release_date.substring(0, 4) : '';
+      return {
+        Date: date,
+        Name: e.title,
+        Year: year,
+        'Letterboxd URI': e.sourceKey || '',
+      };
+    });
+
+    return CsvParser.stringify(headers, rows);
+  }
+
+  public exportWatchedCsv(): string {
+    const entries = this.userData.getWatchedList();
+    const headers = ['Date', 'Name', 'Year', 'Letterboxd URI'];
+
+    const rows = entries.map((e) => {
+      const date = (e.watchedAt || new Date().toISOString()).split('T')[0];
+      const year = e.release_date ? e.release_date.substring(0, 4) : '';
+      return {
+        Date: date,
+        Name: e.title,
+        Year: year,
+        'Letterboxd URI': e.sourceKey || '',
+      };
+    });
+
+    return CsvParser.stringify(headers, rows);
+  }
+
   public exportZip(): Uint8Array {
     const diaryCsv = this.exportDiaryCsv();
     const ratingsCsv = this.exportRatingsCsv();
     const reviewsCsv = this.exportReviewsCsv();
     const watchlistCsv = this.exportWatchlistCsv();
+    const likesCsv = this.exportLikesCsv();
+    const watchedCsv = this.exportWatchedCsv();
 
     return zipSync({
       'diary.csv': strToU8(diaryCsv),
       'ratings.csv': strToU8(ratingsCsv),
       'reviews.csv': strToU8(reviewsCsv),
       'watchlist.csv': strToU8(watchlistCsv),
+      'watched.csv': strToU8(watchedCsv),
+      'likes/films.csv': strToU8(likesCsv),
     });
   }
 

@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ModalController, Platform } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 import {
   ImportOptions,
   ImportPlan,
@@ -18,16 +19,22 @@ export type ImportStep = 'configure' | 'matching' | 'resolve' | 'summary' | 'com
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class LetterboxdImportModalComponent implements OnInit {
+export class LetterboxdImportModalComponent implements OnInit, OnDestroy {
   @Input() files!: Record<string, string>;
 
   step: ImportStep = 'configure';
+
+  // Session resumption
+  canResume = false;
+  savedSession: { step: string; plan: ImportPlan; timestamp: string } | null = null;
+  private backButtonSub?: Subscription;
 
   // Options
   options: ImportOptions = {
     importProfile: false,
     importWatchlist: true,
     importCustomLists: true,
+    importFavorites: true,
     skipDuplicates: false,
   };
 
@@ -64,9 +71,21 @@ export class LetterboxdImportModalComponent implements OnInit {
     private exportService: LetterboxdExportService,
     private toast: ToastService,
     private cdr: ChangeDetectorRef,
+    private platform: Platform,
   ) {}
 
   ngOnInit(): void {
+    this.backButtonSub = this.platform.backButton.subscribeWithPriority(100, () => {
+      this.dismiss();
+    });
+
+    // Check for saved session from previous run
+    const session = this.importService.loadSession();
+    if (session && session.plan) {
+      this.savedSession = session;
+      this.canResume = true;
+    }
+
     if (!this.files) {
       return;
     }
@@ -81,6 +100,32 @@ export class LetterboxdImportModalComponent implements OnInit {
       listsCount: keys.filter((k) => k.startsWith('lists/') && k.endsWith('.csv')).length,
       profile: keys.includes('profile.csv'),
     };
+  }
+
+  ngOnDestroy(): void {
+    this.backButtonSub?.unsubscribe();
+  }
+
+  resumeSession(): void {
+    if (!this.savedSession) return;
+    this.plan = this.savedSession.plan;
+    if (this.savedSession.step === 'resolve' && this.plan.ambiguousMatches.length > 0) {
+      this.step = 'resolve';
+      this.ambiguousIndex = 0;
+      this.currentAmbiguous = this.plan.ambiguousMatches[0];
+    } else {
+      this.step = 'summary';
+    }
+    this.canResume = false;
+    this.toast.showToast('Resumed previous import session.');
+    this.cdr.markForCheck();
+  }
+
+  discardSession(): void {
+    this.importService.clearSession();
+    this.savedSession = null;
+    this.canResume = false;
+    this.cdr.markForCheck();
   }
 
   dismiss(data?: any): void {
@@ -111,6 +156,7 @@ export class LetterboxdImportModalComponent implements OnInit {
       } else {
         this.step = 'summary';
       }
+      this.importService.saveSession(this.step, this.plan);
       this.cdr.markForCheck();
     } catch (err: any) {
       this.toast.showToast(`Import preparation failed: ${err?.message || 'Unknown error'}`);
@@ -131,6 +177,36 @@ export class LetterboxdImportModalComponent implements OnInit {
     const key = `${this.currentAmbiguous.sourceTitle.toLowerCase()}|${this.currentAmbiguous.sourceYear || ''}`;
     this.ambiguousResolutions.set(key, null);
     this.nextAmbiguous();
+  }
+
+  acceptAllAmbiguousTop(): void {
+    if (!this.plan) return;
+    for (let i = this.ambiguousIndex; i < this.plan.ambiguousMatches.length; i++) {
+      const match = this.plan.ambiguousMatches[i];
+      const key = `${match.sourceTitle.toLowerCase()}|${match.sourceYear || ''}`;
+      if (match.candidates.length > 0) {
+        this.ambiguousResolutions.set(key, match.candidates[0]);
+      }
+    }
+    this.currentAmbiguous = null;
+    this.step = 'summary';
+    this.importService.saveSession(this.step, this.plan);
+    this.toast.showToast('Accepted all top matching candidates.');
+    this.cdr.markForCheck();
+  }
+
+  skipAllAmbiguous(): void {
+    if (!this.plan) return;
+    for (let i = this.ambiguousIndex; i < this.plan.ambiguousMatches.length; i++) {
+      const match = this.plan.ambiguousMatches[i];
+      const key = `${match.sourceTitle.toLowerCase()}|${match.sourceYear || ''}`;
+      this.ambiguousResolutions.set(key, null);
+    }
+    this.currentAmbiguous = null;
+    this.step = 'summary';
+    this.importService.saveSession(this.step, this.plan);
+    this.toast.showToast('Skipped all ambiguous titles.');
+    this.cdr.markForCheck();
   }
 
   private nextAmbiguous(): void {

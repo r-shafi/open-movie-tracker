@@ -295,5 +295,6 @@ MIT License — Copyright (c) 2024 R. Shafi. See [LICENSE](LICENSE) for details.
 
 <p align="center">
   Data provided by <a href="https://www.themoviedb.org/">The Movie Database (TMDb)</a>.
-  This product uses the TMDb API but is not endorsed or certified by TMDb.
+  This product uses the TMDb API but is not endorsed or certified by TMDb.<br />
+  Open Movie Tracker is not affiliated with, maintained, authorized, endorsed, or sponsored by Letterboxd Limited or any of its affiliates.
 </p>

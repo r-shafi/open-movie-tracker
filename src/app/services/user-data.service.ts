@@ -1176,15 +1176,32 @@ export class UserDataService {
     }
   }
 
-  private purgeVolatileCache(): void {
+  public purgeVolatileCache(): void {
     const toRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith('tmdb_cache_v2:')) {
+      if (key && (key.startsWith('tmdb_cache_v2:') || key.startsWith('mva_recent_lists'))) {
         toRemove.push(key);
       }
     }
     toRemove.forEach((k) => localStorage.removeItem(k));
+  }
+
+  public estimateRemainingQuota(): number {
+    try {
+      let totalUsage = 0;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key) {
+          const val = localStorage.getItem(key) || '';
+          totalUsage += (key.length + val.length) * 2;
+        }
+      }
+      const standardQuota = 5 * 1024 * 1024;
+      return Math.max(0, standardQuota - totalUsage);
+    } catch {
+      return 5 * 1024 * 1024;
+    }
   }
 
   private migrateToSchemaV2(): void {
