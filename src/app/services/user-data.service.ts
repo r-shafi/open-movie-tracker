@@ -620,7 +620,7 @@ export class UserDataService {
 
   // ── Analytics ────────────────────────────────────────────────────────────
 
-  getStats(): {
+  getStats(yearFilter?: string): {
     totalWatched: number;
     totalMovies: number;
     totalTv: number;
@@ -630,8 +630,30 @@ export class UserDataService {
     watchedByMonth: { month: string; count: number }[];
     topGenres: { name: string; count: number }[];
     likedCount: number;
+    rewatches: number;
+    firstWatches: number;
+    rewatchPercentage: number;
+    decades: { decade: string; count: number }[];
+    topDirectors: { name: string; count: number; avgRating: number | null }[];
+    topCast: { name: string; count: number; avgRating: number | null }[];
+    availableYears: string[];
   } {
-    const watched = Object.values(this.getWatched());
+    const allWatched = Object.values(this.getWatched());
+
+    // Compute all years for dropdown
+    const yearsSet = new Set<string>();
+    allWatched.forEach((e) => {
+      if (e.watchedAt) {
+        yearsSet.add(e.watchedAt.slice(0, 4));
+      }
+    });
+    const availableYears = Array.from(yearsSet).sort().reverse();
+
+    // Filter by year if requested
+    const watched = (yearFilter && yearFilter !== 'all')
+      ? allWatched.filter((e) => e.watchedAt && e.watchedAt.startsWith(yearFilter))
+      : allWatched;
+
     const totalWatched = watched.length;
     const totalMovies = watched.filter((e) => e.media_type === 'movie').length;
     const totalTv = watched.filter((e) => e.media_type === 'tv').length;
@@ -696,6 +718,62 @@ export class UserDataService {
 
     const likedCount = watched.filter((e) => e.liked).length;
 
+    // Rewatches
+    const rewatches = watched.filter((e) => e.rewatch).length;
+    const firstWatches = totalWatched - rewatches;
+    const rewatchPercentage = totalWatched > 0 ? Math.round((rewatches / totalWatched) * 100) : 0;
+
+    // Decades distribution
+    const decadeCounts: Record<string, number> = {};
+    watched.forEach((e) => {
+      const year = e.snapshot?.releaseYear || (e.release_date ? parseInt(e.release_date.slice(0, 4), 10) : undefined);
+      if (year && year >= 1900 && year <= 2099) {
+        const dec = `${Math.floor(year / 10) * 10}s`;
+        decadeCounts[dec] = (decadeCounts[dec] || 0) + 1;
+      }
+    });
+    const decades = Object.entries(decadeCounts)
+      .map(([decade, count]) => ({ decade, count }))
+      .sort((a, b) => a.decade.localeCompare(b.decade));
+
+    // Top Directors
+    const directorMap = new Map<string, { count: number; ratings: number[] }>();
+    watched.forEach((e) => {
+      e.snapshot?.directors?.forEach((d) => {
+        const current = directorMap.get(d.name) || { count: 0, ratings: [] };
+        current.count++;
+        if (e.rating !== null) current.ratings.push(e.rating);
+        directorMap.set(d.name, current);
+      });
+    });
+    const topDirectors = Array.from(directorMap.entries())
+      .map(([name, data]) => ({
+        name,
+        count: data.count,
+        avgRating: data.ratings.length ? Number((data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length).toFixed(1)) : null,
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    // Top Cast
+    const castMap = new Map<string, { count: number; ratings: number[] }>();
+    watched.forEach((e) => {
+      e.snapshot?.topCast?.forEach((c) => {
+        const current = castMap.get(c.name) || { count: 0, ratings: [] };
+        current.count++;
+        if (e.rating !== null) current.ratings.push(e.rating);
+        castMap.set(c.name, current);
+      });
+    });
+    const topCast = Array.from(castMap.entries())
+      .map(([name, data]) => ({
+        name,
+        count: data.count,
+        avgRating: data.ratings.length ? Number((data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length).toFixed(1)) : null,
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
     return {
       totalWatched,
       totalMovies,
@@ -706,6 +784,13 @@ export class UserDataService {
       watchedByMonth,
       topGenres,
       likedCount,
+      rewatches,
+      firstWatches,
+      rewatchPercentage,
+      decades,
+      topDirectors,
+      topCast,
+      availableYears,
     };
   }
 

@@ -93,8 +93,21 @@ export class ProfilePage {
     return this.userData.getProfile();
   }
 
+  selectedStatsYear = 'all';
+
   get stats() {
-    return this.userData.getStats();
+    return this.userData.getStats(this.selectedStatsYear);
+  }
+
+  setStatsYear(year: string): void {
+    this.selectedStatsYear = year;
+    this.cdr.markForCheck();
+  }
+
+  maxDecadeCount(): number {
+    const list = this.stats.decades || [];
+    if (!list.length) return 1;
+    return Math.max(...list.map((d) => d.count), 1);
   }
 
   get favorites(): FavoriteEntry[] {
