@@ -21,6 +21,7 @@ export class ListDetailPage implements OnInit {
   isLoading = true;
   isLoadingMore = false;
   coverPosters: string[] = [];
+  isLocalList = false;
   private savedScrollY = 0;
   private hasRestoredScroll = false;
 
@@ -53,6 +54,9 @@ export class ListDetailPage implements OnInit {
   }
 
   get hasMore(): boolean {
+    if (this.isLocalList) {
+      return false;
+    }
     return (
       this.currentTmdbPage < this.totalTmdbPages &&
       this.allItems.length < this.totalItemCount
@@ -60,11 +64,11 @@ export class ListDetailPage implements OnInit {
   }
 
   get isBookmarked(): boolean {
-    return this.list ? this.userData.isListBookmarked(this.list.id) : false;
+    return this.list && !this.isLocalList ? this.userData.isListBookmarked(this.list.id) : false;
   }
 
   toggleBookmark() {
-    if (!this.list) return;
+    if (!this.list || this.isLocalList) return;
     if (this.isBookmarked) {
       this.userData.unbookmarkList(this.list.id);
     } else {
@@ -82,6 +86,26 @@ export class ListDetailPage implements OnInit {
     this.currentTmdbPage = 1;
     this.allItems = [];
 
+    const localList = this.userData.getList(id);
+    if (localList) {
+      this.isLocalList = true;
+      this.list = {
+        id: localList.id,
+        name: localList.name,
+        description: localList.description,
+        item_count: localList.items.length,
+        favorite_count: 0,
+        created_by: { username: this.userData.getProfile().displayName || 'You' },
+      };
+      this.totalTmdbPages = 1;
+      this.totalItemCount = localList.items.length;
+      this.appendItems(localList.items || []);
+      this.buildCoverPosters({ items: localList.items });
+      this.isLoading = false;
+      return;
+    }
+
+    this.isLocalList = false;
     this.tmdb.getListDetail(id, 1).subscribe({
       next: (data: any) => {
         this.list = { ...data, items: undefined };

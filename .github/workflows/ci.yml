@@ -28,6 +28,9 @@ jobs:
       - name: Lint
         run: pnpm run lint
 
+      - name: Test
+        run: pnpm test
+
       - name: Build (production smoke test)
         run: pnpm exec ng build --configuration production
 

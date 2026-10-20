@@ -55,9 +55,11 @@
           <span>0</span>
         </div>
       </div>
-      <button class="bookmark-btn" (click)="toggleBookmark()">
-        <ion-icon [name]="isBookmarked ? 'bookmark' : 'bookmark-outline'"></ion-icon>
-      </button>
+      @if (!isLocalList) {
+        <button class="bookmark-btn" (click)="toggleBookmark()">
+          <ion-icon [name]="isBookmarked ? 'bookmark' : 'bookmark-outline'"></ion-icon>
+        </button>
+      }
     </div>
 
     <!-- Description -->
