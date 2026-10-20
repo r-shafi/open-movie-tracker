@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.0](https://github.com/r-shafi/open-movie-tracker/compare/v0.13.0...v0.14.0) (2026-10-20)
+
+
+### Features
+
+* **import:** fix Letterboxd import watch dates, isolate calendar dates, and repair existing imports ([c794765](https://github.com/r-shafi/open-movie-tracker/commit/c794765ec272258719b6254562b60612fb02e5f4))
+
 ## [0.13.0](https://github.com/r-shafi/open-movie-tracker/compare/v0.12.0...v0.13.0) (2026-10-20)
 
 
