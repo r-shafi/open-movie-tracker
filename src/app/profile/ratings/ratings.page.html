@@ -29,7 +29,7 @@
 
     @if (ratedEntries.length) {
     <div class="grid grid-cols-2 gap-3">
-      @for (entry of ratedEntries; track entry.media_type + ':' + entry.id) {
+      @for (entry of ratedEntries; track entry.entryId || (entry.media_type + ':' + entry.id)) {
       <a
         [routerLink]="detailLink(entry)"
         class="rounded-xl border p-2 no-underline"

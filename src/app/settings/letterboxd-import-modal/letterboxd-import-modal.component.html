@@ -83,6 +83,23 @@
           </div>
         }
 
+        @if (detected.watched) {
+          <div class="border-t border-step-100 pt-3">
+            <div class="flex items-center justify-between">
+              <div class="pr-2">
+                <p class="m-0 text-sm font-semibold">
+                  For films without a watch date, use the date Letterboxd recorded them as watched
+                  <span class="ml-1 inline-block rounded bg-amber-500/20 px-1 py-0.5 text-[0.65rem] font-bold text-amber-400">Approximate</span>
+                </p>
+                <p class="m-0 mt-0.5 text-xs text-medium">
+                  State: this is when the film was marked on Letterboxd, not necessarily when it was watched. Excluded from activity heatmap and streaks.
+                </p>
+              </div>
+              <ion-toggle [(ngModel)]="options.useLetterboxdWatchedDateAsApproximate"></ion-toggle>
+            </div>
+          </div>
+        }
+
         @if (detected.listsCount > 0) {
           <div class="flex items-center justify-between border-t border-step-100 pt-3">
             <div>

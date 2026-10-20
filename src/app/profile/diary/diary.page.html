@@ -16,7 +16,7 @@
       {{ group.month }}
     </p>
 
-    @for (entry of group.entries; track entry.media_type + ':' + entry.id) {
+    @for (entry of group.entries; track entry.entryId || (entry.media_type + ':' + entry.id)) {
     <div
       class="mb-2 flex items-center gap-2 rounded-xl border px-2 py-2"
       style="

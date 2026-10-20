@@ -49,7 +49,7 @@
 
     @if (filteredEntries.length) {
     <div class="grid grid-cols-3 gap-2.5">
-      @for (item of filteredEntries; track item.media_type + ':' + item.id) {
+      @for (item of filteredEntries; track item.entryId || (item.media_type + ':' + item.id)) {
       <div
         class="relative rounded-xl border p-1.5"
         style="

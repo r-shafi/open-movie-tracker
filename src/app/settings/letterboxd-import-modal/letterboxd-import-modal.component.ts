@@ -36,6 +36,7 @@ export class LetterboxdImportModalComponent implements OnInit, OnDestroy {
     importCustomLists: true,
     importFavorites: true,
     skipDuplicates: false,
+    useLetterboxdWatchedDateAsApproximate: false,
   };
 
   // Detected files summary

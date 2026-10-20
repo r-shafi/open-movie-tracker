@@ -25,9 +25,9 @@ describe('UserDataService', () => {
     sessionStorage.clear();
   });
 
-  it('should be created and initialize default schema v2', () => {
+  it('should be created and initialize default schema v3', () => {
     expect(service).toBeTruthy();
-    expect(localStorage.getItem(service.SCHEMA_VERSION_KEY)).toBe('2');
+    expect(localStorage.getItem(service.SCHEMA_VERSION_KEY)).toBe('3');
     const profile = service.getProfile();
     expect(profile.displayName).toBe('Movie Fan');
   });
@@ -38,7 +38,7 @@ describe('UserDataService', () => {
         id: 550,
         media_type: 'movie',
         title: 'Fight Club',
-        watchedAt: '2022-05-10T12:00:00Z',
+        watchedAt: '2022-05-10',
         rating: 4.5,
         review: 'Great first watch',
       });
@@ -52,7 +52,7 @@ describe('UserDataService', () => {
         id: 550,
         media_type: 'movie',
         title: 'Fight Club',
-        watchedAt: '2024-01-15T12:00:00Z',
+        watchedAt: '2024-01-15',
         rating: 5.0,
         review: 'Even better on rewatch',
         isNewRewatchLog: true,
@@ -64,8 +64,8 @@ describe('UserDataService', () => {
 
       const allFightClub = service.getAllWatchedEntriesFor('movie', 550);
       expect(allFightClub.length).toBe(2);
-      expect(allFightClub[0].watchedAt).toBe('2024-01-15T12:00:00Z');
-      expect(allFightClub[1].watchedAt).toBe('2022-05-10T12:00:00Z');
+      expect(allFightClub[0].watchedAt).toBe('2024-01-15');
+      expect(allFightClub[1].watchedAt).toBe('2022-05-10');
 
       // getWatchedEntry should return the latest entry
       const latest = service.getWatchedEntry('movie', 550);
@@ -210,7 +210,7 @@ describe('UserDataService', () => {
       const exportedJson = service.exportBackup();
       const parsed = JSON.parse(exportedJson);
 
-      expect(parsed.version).toBe(2);
+      expect(parsed.version).toBe(service.SCHEMA_VERSION);
       expect(parsed.app).toBe('Open Movie Tracker');
 
       // Clear local data and import back

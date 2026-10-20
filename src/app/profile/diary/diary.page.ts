@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionSheetController } from '@ionic/angular';
+import { CalendarDate } from 'src/app/services/calendar-date';
 import {
   UserDataService,
   WatchedEntry,
@@ -26,11 +27,7 @@ export class DiaryPage {
 
     const groups = new Map<string, WatchedEntry[]>();
     entries.forEach((entry) => {
-      const d = new Date(entry.watchedAt!);
-      const month = d.toLocaleDateString(undefined, {
-        month: 'long',
-        year: 'numeric',
-      });
+      const month = CalendarDate.formatMonthYear(entry.watchedAt);
       const prev = groups.get(month) || [];
       prev.push(entry);
       groups.set(month, prev);
@@ -53,25 +50,15 @@ export class DiaryPage {
   }
 
   watchDate(entry: WatchedEntry): string {
-    if (!entry.watchedAt) return 'Unknown date';
-    return new Date(entry.watchedAt).toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    return CalendarDate.formatDisplay(entry.watchedAt, 'Date unknown');
   }
 
   watchDay(entry: WatchedEntry): string {
-    if (!entry.watchedAt) return '--';
-    const day = new Date(entry.watchedAt).getDate();
-    return String(day).padStart(2, '0');
+    return CalendarDate.getDay(entry.watchedAt);
   }
 
   watchMonth(entry: WatchedEntry): string {
-    if (!entry.watchedAt) return '---';
-    return new Date(entry.watchedAt)
-      .toLocaleDateString(undefined, { month: 'short' })
-      .toUpperCase();
+    return CalendarDate.getMonthShort(entry.watchedAt);
   }
 
   goToDetail(entry: WatchedEntry) {

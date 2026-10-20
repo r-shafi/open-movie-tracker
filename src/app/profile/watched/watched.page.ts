@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionSheetController } from '@ionic/angular';
+import { CalendarDate } from 'src/app/services/calendar-date';
 import {
   UserDataService,
   WatchedEntry,
@@ -56,12 +57,7 @@ export class WatchedPage {
   }
 
   watchedDate(entry: WatchedEntry): string {
-    if (!entry.watchedAt) return 'Unknown date';
-    return new Date(entry.watchedAt).toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    return CalendarDate.formatDisplay(entry.watchedAt, 'Date unknown');
   }
 
   poster(entry: WatchedEntry): string {
@@ -119,14 +115,14 @@ export class WatchedPage {
       return sorted.sort((a, b) => {
         if (a.dateUnknown && !b.dateUnknown) return 1;
         if (!a.dateUnknown && b.dateUnknown) return -1;
-        return (b.watchedAt || '').localeCompare(a.watchedAt || '');
+        return CalendarDate.compare(b.watchedAt, a.watchedAt);
       });
     }
     if (this.sortBy === 'oldest') {
       return sorted.sort((a, b) => {
         if (a.dateUnknown && !b.dateUnknown) return 1;
         if (!a.dateUnknown && b.dateUnknown) return -1;
-        return (a.watchedAt || '').localeCompare(b.watchedAt || '');
+        return CalendarDate.compare(a.watchedAt, b.watchedAt);
       });
     }
     if (this.sortBy === 'rating') {

@@ -241,15 +241,33 @@ def generate_synthetic_catalog(count):
         in_watched = True
         liked = (i % 4 == 0)
         review = f"Review for {title}. Quite an engaging film." if (i % 3 == 0) else ""
+
+        log_m = (i % 12) + 1
+        log_d = (i % 25) + 4
+        watch_d = log_d - 2
+
+        if in_diary:
+            log_date = f"2023-{log_m:02d}-{log_d:02d}"
+            if i % 10 == 1:
+                # Empty Watched Date: falls back to Date marked approximate
+                watched_date = ""
+            else:
+                # Watched Date strictly distinct from logged Date
+                watched_date = f"2023-{log_m:02d}-{watch_d:02d}"
+        else:
+            # Watched/ratings only: Date is Letterboxd account creation date, no watched date
+            log_date = "2019-12-31"
+            watched_date = ""
+
         films.append({
-            "date": f"2023-{(i%12)+1:02d}-{(i%28)+1:02d}",
+            "date": log_date,
             "name": title,
             "year": year,
             "uri": f"https://boxd.it/synth{i+1}",
             "rating": rating,
             "rewatch": "Yes" if (i % 7 == 0) else "No",
             "tags": f"synth, {genres[i % len(genres)].lower()}",
-            "watched_date": f"2023-{(i%12)+1:02d}-{(i%28)+1:02d}",
+            "watched_date": watched_date,
             "review": review,
             "liked": liked,
             "in_diary": in_diary,

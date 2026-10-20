@@ -15,6 +15,7 @@ import {
   WatchedEntry,
   WatchlistEntry,
 } from '../services/user-data.service';
+import { CalendarDate } from '../services/calendar-date';
 import { ToastService } from '../services/toast.service';
 import { ImageViewerComponent } from '../shared-module/image-viewer/image-viewer.component';
 import { AddFavoriteModalComponent } from './add-favorite-modal/add-favorite-modal.component';
@@ -305,8 +306,9 @@ export class ProfilePage {
       if (!entry.watchedAt || entry.dateUnknown) {
         continue;
       }
-      const d = new Date(entry.watchedAt);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const parts = CalendarDate.parse(entry.watchedAt);
+      if (!parts) continue;
+      const key = `${parts.year}-${String(parts.month).padStart(2, '0')}`;
       if (!seen.has(key)) {
         seen.add(key);
         groups.push({ month: key, entries: [] });
@@ -317,6 +319,13 @@ export class ProfilePage {
       }
     }
     return groups;
+  }
+
+  formatRecentActivityDate(entry: WatchedEntry): string {
+    if (entry.dateUnknown || !entry.watchedAt) {
+      return 'Date unknown';
+    }
+    return CalendarDate.formatShort(entry.watchedAt, 'Date unknown');
   }
 
   loadMore(event: any) {

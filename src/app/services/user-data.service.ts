@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ToastService } from './toast.service';
+import { CalendarDate } from './calendar-date';
 
 export interface UserProfile {
   displayName: string;
@@ -29,9 +30,11 @@ export interface WatchedEntry {
   media_type: 'movie' | 'tv';
   title: string;
   poster_path: string | null;
-  watchedAt: string | null; // ISO 8601 string, or null when watch date is unknown
+  watchedAt: string | null; // Calendar date YYYY-MM-DD, or null when watch date is unknown
   dateUnknown?: boolean; // true if film was logged without a specific date
   approximateDate?: boolean; // true if date was inferred or fallback
+  importerCreated?: boolean; // true if entry was created by importer
+  userEdited?: boolean; // true if user manually modified the entry
   rewatch: boolean;
   rating: number | null; // 0.5 to 5.0 in 0.5 steps
   review: string;
@@ -156,7 +159,7 @@ export interface UserStats {
 
 @Injectable({ providedIn: 'root' })
 export class UserDataService {
-  readonly SCHEMA_VERSION = 2;
+  readonly SCHEMA_VERSION = 3;
   readonly SCHEMA_VERSION_KEY = 'mva_schema_version';
   readonly PROFILE_KEY = 'mva_profile';
   readonly WATCHED_KEY = 'mva_watched';
@@ -176,6 +179,7 @@ export class UserDataService {
   private initializeStorage(): void {
     this.migrateFromLegacy();
     this.migrateToSchemaV2();
+    this.migrateToSchemaV3();
   }
 
   // ── Profile ──────────────────────────────────────────────────────────────
@@ -256,6 +260,8 @@ export class UserDataService {
       watchedAt?: string | null;
       dateUnknown?: boolean;
       approximateDate?: boolean;
+      importerCreated?: boolean;
+      userEdited?: boolean;
       rewatch?: boolean;
       rating?: number | null;
       review?: string;
@@ -284,13 +290,18 @@ export class UserDataService {
 
     const existingTarget = watched[targetEntryId] || existingSameTitle;
 
-    const isDateUnknown =
-      entry.dateUnknown === true ||
-      (entry.watchedAt === null && entry.dateUnknown !== false);
+    const isExplicitlyUnknown = entry.dateUnknown === true || entry.watchedAt === null;
+    let watchedAt: string | null = null;
+    if (!isExplicitlyUnknown) {
+      if (entry.watchedAt) {
+        watchedAt = CalendarDate.toDateString(entry.watchedAt);
+      } else if (existingTarget && existingTarget.watchedAt && !existingTarget.dateUnknown) {
+        watchedAt = CalendarDate.toDateString(existingTarget.watchedAt);
+      }
+    }
 
-    const watchedAt = isDateUnknown
-      ? null
-      : entry.watchedAt || existingTarget?.watchedAt || new Date().toISOString();
+    const isDateUnknown = isExplicitlyUnknown || watchedAt === null;
+    const finalWatchedAt = isDateUnknown ? null : watchedAt;
 
     const rating = this.normalizeRating(
       entry.rating !== undefined ? entry.rating : (existingTarget?.rating ?? null),
@@ -302,9 +313,11 @@ export class UserDataService {
       media_type: entry.media_type,
       title: entry.title,
       poster_path: entry.poster_path !== undefined ? entry.poster_path : (existingTarget?.poster_path ?? null),
-      watchedAt,
+      watchedAt: finalWatchedAt,
       dateUnknown: isDateUnknown,
-      approximateDate: entry.approximateDate ?? existingTarget?.approximateDate ?? false,
+      approximateDate: isDateUnknown ? false : (entry.approximateDate ?? existingTarget?.approximateDate ?? false),
+      importerCreated: entry.importerCreated ?? existingTarget?.importerCreated ?? false,
+      userEdited: entry.userEdited !== undefined ? entry.userEdited : (existingTarget?.userEdited ?? false),
       rewatch: entry.rewatch ?? (existingSameTitle ? true : false),
       rating,
       review: entry.review ?? existingTarget?.review ?? '',
@@ -319,6 +332,106 @@ export class UserDataService {
     watched[targetEntryId] = fullEntry;
     this.writeJson(this.WATCHED_KEY, watched);
     return fullEntry;
+  }
+
+  logEntries(
+    entries: Array<{
+      entryId?: string;
+      id: number;
+      media_type: 'movie' | 'tv';
+      title: string;
+      poster_path?: string | null;
+      watchedAt?: string | null;
+      dateUnknown?: boolean;
+      approximateDate?: boolean;
+      importerCreated?: boolean;
+      userEdited?: boolean;
+      rewatch?: boolean;
+      rating?: number | null;
+      review?: string;
+      tags?: string[];
+      liked?: boolean;
+      sourceKey?: string;
+      release_date?: string;
+      first_air_date?: string;
+      snapshot?: MediaMetadataSnapshot;
+      isNewRewatchLog?: boolean;
+    }>,
+  ): WatchedEntry[] {
+    const watched = this.getWatched();
+    const result: WatchedEntry[] = [];
+
+    const existingById = new Map<string, WatchedEntry>();
+    Object.values(watched).forEach((w) => {
+      const key = `${w.media_type}:${w.id}`;
+      if (!existingById.has(key)) {
+        existingById.set(key, w);
+      }
+    });
+
+    for (const entry of entries) {
+      const sameTitleKey = `${entry.media_type}:${entry.id}`;
+      const existingSameTitle = existingById.get(sameTitleKey);
+
+      let targetEntryId = entry.entryId;
+      if (!targetEntryId) {
+        if (existingSameTitle && !entry.isNewRewatchLog) {
+          targetEntryId = existingSameTitle.entryId;
+        } else {
+          targetEntryId = crypto.randomUUID();
+        }
+      }
+
+      const existingTarget = watched[targetEntryId] || existingSameTitle;
+
+      const isExplicitlyUnknown = entry.dateUnknown === true || entry.watchedAt === null;
+      let watchedAt: string | null = null;
+      if (!isExplicitlyUnknown) {
+        if (entry.watchedAt) {
+          watchedAt = CalendarDate.toDateString(entry.watchedAt);
+        } else if (existingTarget && existingTarget.watchedAt && !existingTarget.dateUnknown) {
+          watchedAt = CalendarDate.toDateString(existingTarget.watchedAt);
+        }
+      }
+
+      const isDateUnknown = isExplicitlyUnknown || watchedAt === null;
+      const finalWatchedAt = isDateUnknown ? null : watchedAt;
+
+      const rating = this.normalizeRating(
+        entry.rating !== undefined ? entry.rating : (existingTarget?.rating ?? null),
+      );
+
+      const fullEntry: WatchedEntry = {
+        entryId: targetEntryId,
+        id: entry.id,
+        media_type: entry.media_type,
+        title: entry.title,
+        poster_path: entry.poster_path !== undefined ? entry.poster_path : (existingTarget?.poster_path ?? null),
+        watchedAt: finalWatchedAt,
+        dateUnknown: isDateUnknown,
+        approximateDate: isDateUnknown ? false : (entry.approximateDate ?? existingTarget?.approximateDate ?? false),
+        importerCreated: entry.importerCreated ?? existingTarget?.importerCreated ?? false,
+        userEdited: entry.userEdited !== undefined ? entry.userEdited : (existingTarget?.userEdited ?? false),
+        rewatch: entry.rewatch ?? (existingSameTitle ? true : false),
+        rating,
+        review: entry.review ?? existingTarget?.review ?? '',
+        tags: entry.tags ?? existingTarget?.tags ?? [],
+        liked: entry.liked ?? existingTarget?.liked ?? false,
+        sourceKey: entry.sourceKey ?? existingTarget?.sourceKey,
+        release_date: entry.release_date ?? existingTarget?.release_date,
+        first_air_date: entry.first_air_date ?? existingTarget?.first_air_date,
+        snapshot: entry.snapshot ?? existingTarget?.snapshot,
+      };
+
+      watched[targetEntryId] = fullEntry;
+      if (!existingById.has(sameTitleKey)) {
+        existingById.set(sameTitleKey, fullEntry);
+      }
+      result.push(fullEntry);
+    }
+
+    this.writeJson(this.WATCHED_KEY, watched);
+    return result;
   }
 
   removeWatched(mediaType: string, id: number, entryId?: string): void {
@@ -670,7 +783,7 @@ export class UserDataService {
       return { currentStreak: 0, longestStreak: 0 };
     }
     const uniqueDays = Array.from(
-      new Set(dates.map((d) => d.slice(0, 10)).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))),
+      new Set(dates.map((d) => CalendarDate.toDateString(d)).filter((d): d is string => !!d)),
     ).sort();
 
     if (!uniqueDays.length) {
@@ -681,9 +794,7 @@ export class UserDataService {
     let current = 1;
 
     for (let i = 1; i < uniqueDays.length; i++) {
-      const prev = new Date(uniqueDays[i - 1] + 'T00:00:00Z').getTime();
-      const curr = new Date(uniqueDays[i] + 'T00:00:00Z').getTime();
-      const diffDays = Math.round((curr - prev) / (1000 * 60 * 60 * 24));
+      const diffDays = CalendarDate.diffDays(uniqueDays[i - 1], uniqueDays[i]);
 
       if (diffDays === 1) {
         current++;
@@ -694,12 +805,10 @@ export class UserDataService {
     }
 
     const now = new Date();
-    const today = now.toISOString().slice(0, 10);
-    const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    const yesterday = yesterdayDate.toISOString().slice(0, 10);
-
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const lastDay = uniqueDays[uniqueDays.length - 1];
-    const isCurrentActive = lastDay === today || lastDay === yesterday;
+    const diffFromToday = CalendarDate.diffDays(lastDay, today);
+    const isCurrentActive = diffFromToday === 0 || diffFromToday === 1;
     const activeCurrentStreak = isCurrentActive ? current : 0;
 
     return { currentStreak: activeCurrentStreak, longestStreak: Math.max(longest, activeCurrentStreak) };
@@ -711,18 +820,33 @@ export class UserDataService {
   ): { date: string; count: number; level: number }[] {
     const dayCounts: Record<string, number> = {};
     watched.forEach((e) => {
-      if (e.watchedAt) {
-        const day = e.watchedAt.slice(0, 10);
-        dayCounts[day] = (dayCounts[day] || 0) + 1;
+      if (e.watchedAt && !e.dateUnknown && !e.approximateDate) {
+        const day = CalendarDate.toDateString(e.watchedAt);
+        if (day) {
+          dayCounts[day] = (dayCounts[day] || 0) + 1;
+        }
       }
     });
 
     const result: { date: string; count: number; level: number }[] = [];
     const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const todayEpoch = CalendarDate.toEpochDays(todayStr);
 
     for (let i = days - 1; i >= 0; i--) {
-      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-      const dateStr = d.toISOString().slice(0, 10);
+      const targetEpoch = todayEpoch - i;
+      // Convert epoch days to YYYY-MM-DD mathematically without timezone conversions
+      const a = targetEpoch + 2440588 + 32044;
+      const b = Math.floor((4 * a + 3) / 146097);
+      const c = a - Math.floor((146097 * b) / 4);
+      const d = Math.floor((4 * c + 3) / 1461);
+      const e = c - Math.floor((1461 * d) / 4);
+      const m = Math.floor((5 * e + 2) / 153);
+      const day = e - Math.floor((153 * m + 2) / 5) + 1;
+      const month = m + 3 - 12 * Math.floor(m / 10);
+      const year = 100 * b + d - 4800 + Math.floor(m / 10);
+      const dateStr = `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
       const count = dayCounts[dateStr] || 0;
       let level = 0;
       if (count === 1) level = 1;
@@ -743,12 +867,9 @@ export class UserDataService {
     const counts = [0, 0, 0, 0, 0, 0, 0];
 
     watched.forEach((e) => {
-      if (e.watchedAt) {
-        const d = new Date(e.watchedAt);
-        if (!isNaN(d.getTime())) {
-          const dayIdx = (d.getUTCDay() + 6) % 7;
-          counts[dayIdx]++;
-        }
+      if (e.watchedAt && !e.dateUnknown && !e.approximateDate) {
+        const dayIdx = CalendarDate.getWeekdayIndex(e.watchedAt);
+        counts[dayIdx]++;
       }
     });
 
@@ -815,7 +936,7 @@ export class UserDataService {
     // Compute all years for dropdown
     const yearsSet = new Set<string>();
     allWatched.forEach((e) => {
-      if (e.watchedAt) {
+      if (e.watchedAt && !e.dateUnknown && !e.approximateDate) {
         yearsSet.add(e.watchedAt.slice(0, 4));
       }
     });
@@ -823,13 +944,13 @@ export class UserDataService {
 
     // Filter by year if requested
     const watched = (yearFilter && yearFilter !== 'all')
-      ? allWatched.filter((e) => e.watchedAt && e.watchedAt.startsWith(yearFilter))
+      ? allWatched.filter((e) => e.watchedAt && !e.dateUnknown && !e.approximateDate && e.watchedAt.startsWith(yearFilter))
       : allWatched;
 
     const totalWatched = watched.length;
     const totalMovies = watched.filter((e) => e.media_type === 'movie').length;
     const totalTv = watched.filter((e) => e.media_type === 'tv').length;
-    const undatedCount = watched.filter((e) => e.dateUnknown || !e.watchedAt).length;
+    const undatedCount = allWatched.filter((e) => e.dateUnknown || !e.watchedAt || e.approximateDate).length;
 
     // Use actual snapshot runtimes where available, otherwise fall back to 1.8h (108 mins)
     let totalMinutes = 0;
@@ -980,7 +1101,9 @@ export class UserDataService {
 
     // Activity heatmap & streaks
     const activityHeatmap = UserDataService.calculateActivityHeatmap(watched);
-    const validDates = watched.filter((e) => e.watchedAt).map((e) => e.watchedAt!);
+    const validDates = watched
+      .filter((e) => e.watchedAt && !e.dateUnknown && !e.approximateDate)
+      .map((e) => e.watchedAt!);
     const { currentStreak, longestStreak } = UserDataService.calculateStreaks(validDates);
 
     // Weekdays
@@ -1407,14 +1530,14 @@ export class UserDataService {
     }
     const monthMap = new Map(result.map((m) => [m.month, m]));
     watched.forEach((entry) => {
-      if (!entry.watchedAt || entry.dateUnknown) {
+      if (!entry.watchedAt || entry.dateUnknown || entry.approximateDate) {
         return;
       }
-      const d = new Date(entry.watchedAt);
-      if (Number.isNaN(d.getTime())) {
+      const parts = CalendarDate.parse(entry.watchedAt);
+      if (!parts) {
         return;
       }
-      const key = this.monthKey(d);
+      const key = `${parts.year}-${String(parts.month).padStart(2, '0')}`;
       const target = monthMap.get(key);
       if (target) {
         target.count += 1;
@@ -1476,7 +1599,13 @@ export class UserDataService {
     const toRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && (key.startsWith('tmdb_cache_v2:') || key.startsWith('mva_recent_lists'))) {
+      if (
+        key &&
+        (key.startsWith('tmdb_cache_v2:') ||
+          key.startsWith('mva_recent_lists') ||
+          key === 'mva_import_session' ||
+          key === 'mva_import_match_cache')
+      ) {
         toRemove.push(key);
       }
     }
@@ -1488,21 +1617,21 @@ export class UserDataService {
       let totalUsage = 0;
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key) {
+        if (key && key !== 'mva_import_session') {
           const val = localStorage.getItem(key) || '';
           totalUsage += (key.length + val.length) * 2;
         }
       }
-      const standardQuota = 5 * 1024 * 1024;
+      const standardQuota = 10 * 1024 * 1024; // 10 MB (standard browser quota)
       return Math.max(0, standardQuota - totalUsage);
     } catch {
-      return 5 * 1024 * 1024;
+      return 10 * 1024 * 1024;
     }
   }
 
   private migrateToSchemaV2(): void {
     const currentVersion = Number(localStorage.getItem(this.SCHEMA_VERSION_KEY) || '1');
-    if (currentVersion >= this.SCHEMA_VERSION) {
+    if (currentVersion >= 2) {
       return;
     }
 
@@ -1535,7 +1664,46 @@ export class UserDataService {
     });
 
     this.writeJson(this.WATCHED_KEY, upgradedWatched);
-    localStorage.setItem(this.SCHEMA_VERSION_KEY, String(this.SCHEMA_VERSION));
+    localStorage.setItem(this.SCHEMA_VERSION_KEY, '2');
+  }
+
+  private migrateToSchemaV3(): void {
+    const currentVersion = Number(localStorage.getItem(this.SCHEMA_VERSION_KEY) || '1');
+    if (currentVersion >= 3) {
+      return;
+    }
+
+    const rawWatched = this.readJson<Record<string, any>>(this.WATCHED_KEY, {});
+    let modified = false;
+
+    Object.keys(rawWatched).forEach((key) => {
+      const item = rawWatched[key];
+      if (!item || typeof item.id !== 'number') return;
+
+      if (item.watchedAt && typeof item.watchedAt === 'string') {
+        const calendarDate = CalendarDate.toDateString(item.watchedAt);
+        if (calendarDate !== item.watchedAt) {
+          item.watchedAt = calendarDate;
+          modified = true;
+        }
+      }
+
+      if (item.sourceKey && item.importerCreated === undefined) {
+        item.importerCreated = true;
+        item.userEdited = false;
+        modified = true;
+      }
+
+      if (!item.watchedAt && item.dateUnknown !== true) {
+        item.dateUnknown = true;
+        modified = true;
+      }
+    });
+
+    if (modified) {
+      this.writeJson(this.WATCHED_KEY, rawWatched);
+    }
+    localStorage.setItem(this.SCHEMA_VERSION_KEY, '3');
   }
 
   private migrateFromLegacy(): void {

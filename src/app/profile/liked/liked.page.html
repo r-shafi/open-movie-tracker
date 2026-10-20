@@ -26,7 +26,7 @@
 
     @if (likedEntries.length) {
     <div class="grid grid-cols-3 gap-2.5">
-      @for (entry of likedEntries; track entry.media_type + ':' + entry.id) {
+      @for (entry of likedEntries; track entry.entryId || (entry.media_type + ':' + entry.id)) {
       <a
         [routerLink]="entry.media_type === 'tv' ? ['/tv', entry.id] : ['/movie', entry.id]"
         class="rounded-xl border p-1.5 no-underline"
