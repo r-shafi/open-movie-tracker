@@ -543,7 +543,7 @@
     >
       <div class="overflow-x-auto pb-1">
         <div class="flex gap-1 min-w-[540px]">
-          @for (week of stats.activityHeatmap; track week.weekIndex) {
+          @for (week of heatmapWeeks; track week.weekIndex) {
           <div class="flex flex-col gap-1">
             @for (day of week.days; track day.date) {
             <div
@@ -601,12 +601,12 @@
           <div class="h-16 w-full flex items-end justify-center my-1 bg-step-100/40 rounded">
             <div
               class="w-full rounded bg-primary"
-              [style.height.%]="item.percentage"
+              [style.height.%]="getDistributionPercent(item.count)"
               [style.min-height.px]="item.count > 0 ? 4 : 0"
             ></div>
           </div>
           <span class="text-[0.7rem] font-bold">{{ item.count }}</span>
-          <span class="text-[0.6rem] text-medium">{{ item.percentage }}%</span>
+          <span class="text-[0.6rem] text-medium">{{ getDistributionPercent(item.count) }}%</span>
         </div>
         }
       </div>
@@ -629,16 +629,16 @@
       "
     >
       <div class="space-y-2">
-        @for (item of stats.runtimeDistribution; track item.bucket) {
+        @for (item of stats.runtimeDistribution; track item.range) {
         <div class="flex items-center gap-2 text-xs">
-          <span class="w-24 text-medium font-semibold truncate">{{ item.bucket }}</span>
+          <span class="w-24 text-medium font-semibold truncate">{{ item.range }}</span>
           <div class="h-2.5 flex-1 overflow-hidden rounded-full bg-step-100">
             <div
               class="h-full rounded-full bg-primary"
-              [style.width.%]="item.percentage"
+              [style.width.%]="getDistributionPercent(item.count)"
             ></div>
           </div>
-          <span class="w-16 text-right font-bold">{{ item.count }} ({{ item.percentage }}%)</span>
+          <span class="w-16 text-right font-bold">{{ item.count }} ({{ getDistributionPercent(item.count) }}%)</span>
         </div>
         }
       </div>
@@ -726,13 +726,11 @@
             <span class="text-medium">You: ★{{ item.userRating }}</span>
             <span class="text-medium">TMDb: ★{{ item.tmdbRating }}</span>
             <span
-              class="font-bold rounded px-1.5 py-0.5 text-[0.65rem]"
-              [class.bg-green-500-20]="item.direction === 'higher'"
-              [class.text-green-400]="item.direction === 'higher'"
-              [class.bg-red-500-20]="item.direction === 'lower'"
-              [class.text-red-400]="item.direction === 'lower'"
+              class="font-bold rounded px-1.5 py-0.5 text-[0.65rem] bg-step-100"
+              [class.text-green-400]="item.delta > 0"
+              [class.text-red-400]="item.delta < 0"
             >
-              {{ item.direction === 'higher' ? '+' : '-' }}{{ item.delta }}
+              {{ item.delta > 0 ? '+' : '' }}{{ item.delta }}
             </span>
           </div>
         </div>
@@ -841,7 +839,7 @@
           <div class="min-w-0 flex-1">
             <p class="m-0 text-xs font-bold text-primary">🎲 Picked for you:</p>
             <p class="m-0 text-sm font-semibold truncate">{{ roulettePick.title }}</p>
-            <p class="m-0 text-[0.65rem] text-medium">{{ roulettePick.releaseDate | date:'yyyy' }} · {{ roulettePick.media_type | uppercase }}</p>
+            <p class="m-0 text-[0.65rem] text-medium">{{ roulettePick.release_date | date:'yyyy' }} · {{ roulettePick.media_type | uppercase }}</p>
           </div>
           <ion-button size="small" fill="solid" color="primary" [routerLink]="['/' + roulettePick.media_type, roulettePick.id]">
             View

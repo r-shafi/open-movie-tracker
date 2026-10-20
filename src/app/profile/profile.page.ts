@@ -99,6 +99,22 @@ export class ProfilePage {
   selectedStatsYear = 'all';
   roulettePick: WatchlistEntry | null = null;
 
+  get heatmapWeeks(): { weekIndex: number; days: { date: string; count: number; level: number }[] }[] {
+    const days = this.stats.activityHeatmap || [];
+    const weeks: { weekIndex: number; days: { date: string; count: number; level: number }[] }[] = [];
+    for (let i = 0; i < days.length; i += 7) {
+      weeks.push({
+        weekIndex: Math.floor(i / 7),
+        days: days.slice(i, i + 7),
+      });
+    }
+    return weeks;
+  }
+
+  getDistributionPercent(count: number): number {
+    return this.stats.totalWatched > 0 ? Math.round((count / this.stats.totalWatched) * 100) : 0;
+  }
+
   spinRoulette(): void {
     this.roulettePick = this.userData.pickWatchlistRoulette();
     if (!this.roulettePick) {
