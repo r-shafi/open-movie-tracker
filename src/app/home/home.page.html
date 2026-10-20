@@ -17,6 +17,7 @@
     ></ion-refresher-content>
   </ion-refresher>
 
+  <div class="max-w-4xl mx-auto">
   <!-- Loading skeleton -->
   @if (isLoading) {
   <app-hero-banner [items]="[]" [isLoading]="true"></app-hero-banner>
@@ -101,4 +102,5 @@
     [seeAllQueryParams]="{mode: 'list', title: 'Airing Today', tab: 'tv', sort: 'popularity.desc'}"
   ></app-media-carousel>
   }
+  </div>
 </ion-content>

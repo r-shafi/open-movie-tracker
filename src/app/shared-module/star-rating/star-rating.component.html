@@ -1,21 +1,21 @@
-<div class="flex items-center gap-1">
+<div class="flex items-center gap-0.5">
   @for (star of stars; track star) {
     <button
       type="button"
-      class="relative h-7 w-7 p-0 bg-transparent border-0 outline-none cursor-pointer"
+      class="relative flex items-center justify-center h-11 w-11 p-0 bg-transparent border-0 outline-none cursor-pointer touch-manipulation"
       [disabled]="readonly"
       (click)="selectRating($event, star)"
       [attr.aria-label]="'Rate ' + star"
     >
       <ion-icon
         name="star-outline"
-        class="absolute inset-0 text-[22px]"
+        class="text-[24px]"
         style="color: var(--ion-color-medium)"
       ></ion-icon>
       @if (fillPercent(star) > 0) {
         <ion-icon
           name="star"
-          class="absolute inset-0 text-[22px]"
+          class="absolute inset-0 m-auto text-[24px] pointer-events-none"
           style="color: var(--ion-color-warning)"
           [style.clipPath]="'inset(0 ' + (100 - fillPercent(star)) + '% 0 0)'"
         ></ion-icon>
