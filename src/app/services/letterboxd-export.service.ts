@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { zipSync, strToU8 } from 'fflate';
 import { CsvParser } from './csv-parser';
+import { CalendarDate } from './calendar-date';
 import { UserDataService, WatchedEntry, WatchlistEntry } from './user-data.service';
 
 @Injectable({
@@ -14,7 +15,7 @@ export class LetterboxdExportService {
     const headers = ['Date', 'Name', 'Year', 'Letterboxd URI', 'Rating', 'Rewatch', 'Tags', 'Watched Date'];
 
     const rows = entries.map((e) => {
-      const watchedDate = (e.watchedAt || '').split('T')[0];
+      const watchedDate = CalendarDate.toDateString(e.watchedAt) || '';
       const year = e.release_date ? e.release_date.substring(0, 4) : '';
       return {
         Date: watchedDate,
@@ -36,7 +37,7 @@ export class LetterboxdExportService {
     const headers = ['Date', 'Name', 'Year', 'Letterboxd URI', 'Rating'];
 
     const rows = entries.map((e) => {
-      const date = (e.watchedAt || new Date().toISOString()).split('T')[0];
+      const date = CalendarDate.toDateString(e.watchedAt) || CalendarDate.today();
       const year = e.release_date ? e.release_date.substring(0, 4) : '';
       return {
         Date: date,
@@ -55,10 +56,11 @@ export class LetterboxdExportService {
     const headers = ['Date', 'Name', 'Year', 'Letterboxd URI', 'Rating', 'Rewatch', 'Review', 'Tags', 'Watched Date'];
 
     const rows = entries.map((e) => {
-      const watchedDate = (e.watchedAt || new Date().toISOString()).split('T')[0];
+      const watchedDate = CalendarDate.toDateString(e.watchedAt) || '';
+      const logDate = watchedDate || CalendarDate.today();
       const year = e.release_date ? e.release_date.substring(0, 4) : '';
       return {
-        Date: watchedDate,
+        Date: logDate,
         Name: e.title,
         Year: year,
         'Letterboxd URI': e.sourceKey || '',
@@ -78,7 +80,7 @@ export class LetterboxdExportService {
     const headers = ['Date', 'Name', 'Year', 'Letterboxd URI'];
 
     const rows = watchlist.map((item) => {
-      const date = (item.addedAt || new Date().toISOString()).split('T')[0];
+      const date = CalendarDate.toDateString(item.addedAt) || CalendarDate.today();
       const year = item.release_date ? item.release_date.substring(0, 4) : '';
       return {
         Date: date,
@@ -96,7 +98,7 @@ export class LetterboxdExportService {
     const headers = ['Date', 'Name', 'Year', 'Letterboxd URI'];
 
     const rows = entries.map((e) => {
-      const date = (e.watchedAt || new Date().toISOString()).split('T')[0];
+      const date = CalendarDate.toDateString(e.watchedAt) || CalendarDate.today();
       const year = e.release_date ? e.release_date.substring(0, 4) : '';
       return {
         Date: date,
@@ -114,7 +116,7 @@ export class LetterboxdExportService {
     const headers = ['Date', 'Name', 'Year', 'Letterboxd URI'];
 
     const rows = entries.map((e) => {
-      const date = (e.watchedAt || new Date().toISOString()).split('T')[0];
+      const date = CalendarDate.toDateString(e.watchedAt) || CalendarDate.today();
       const year = e.release_date ? e.release_date.substring(0, 4) : '';
       return {
         Date: date,

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { CalendarDate } from 'src/app/services/calendar-date';
 import {
   UserDataService,
   WatchedEntry,
@@ -31,7 +32,11 @@ export class RatingsPage {
     if (this.sortBy === 'lowest') {
       return mediaFiltered.sort((a, b) => (a.rating || 0) - (b.rating || 0));
     }
-    return mediaFiltered.sort((a, b) => (b.watchedAt || '').localeCompare(a.watchedAt || ''));
+    return mediaFiltered.sort((a, b) => {
+      if (a.dateUnknown && !b.dateUnknown) return 1;
+      if (!a.dateUnknown && b.dateUnknown) return -1;
+      return CalendarDate.compare(b.watchedAt, a.watchedAt);
+    });
   }
 
   detailLink(entry: WatchedEntry): any[] {

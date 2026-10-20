@@ -865,7 +865,7 @@
     </p>
 
     @if (recentActivityEntries.length) { @for (entry of recentActivityEntries;
-    track entry.media_type + ':' + entry.id) {
+    track entry.entryId || (entry.media_type + ':' + entry.id)) {
     <div
       class="mb-2 flex cursor-pointer items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/5"
       [routerLink]="activityRoute(entry)"
@@ -877,7 +877,7 @@
       <div class="min-w-0 flex-1">
         <p class="m-0 truncate text-[0.85rem] font-bold">{{ entry.title }}</p>
         <p class="m-0 text-[0.7rem]" style="color: var(--ion-color-medium)">
-          {{ entry.watchedAt | date:'MMM dd' }} @if (entry.liked) {
+          {{ formatRecentActivityDate(entry) }} @if (entry.liked) {
           <span class="ml-1 text-red-400">♥</span>
           } @if (entry.rewatch) {
           <span class="ml-1">↺</span>

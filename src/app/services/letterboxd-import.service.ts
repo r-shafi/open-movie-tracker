@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CsvParser, LetterboxdListExport } from './csv-parser';
 import { LetterboxdArchive } from './letterboxd-archive';
+import { CalendarDate } from './calendar-date';
 import { MatchResult, TmdbMatchCandidate, TmdbMatcher } from './tmdb-matcher';
 import { UserDataService, WatchedEntry, WatchlistEntry, UserList } from './user-data.service';
 
@@ -10,12 +11,14 @@ export interface ImportOptions {
   importCustomLists: boolean;
   importFavorites?: boolean; // Opt-in or enabled with profile; default true
   skipDuplicates: boolean;
+  useLetterboxdWatchedDateAsApproximate?: boolean; // Opt-in; default false
 }
 
 export interface StagedFilmEntry {
   sourceTitle: string;
   sourceYear?: string;
   sourceUri?: string;
+  sourceKey?: string;
   watchedAt: string | null;
   dateUnknown: boolean;
   approximateDate: boolean;
@@ -265,27 +268,34 @@ export class LetterboxdImportService {
     const titleYearToEntryIndex = new Map<string, number>();
 
     // Process diary.csv (highest fidelity logs with specific dates)
-    for (const row of diaryRows) {
+    for (let diaryIdx = 0; diaryIdx < diaryRows.length; diaryIdx++) {
+      const row = diaryRows[diaryIdx];
       const name = (row.Name || '').trim();
       const year = (row.Year || '').trim();
       const uri = (row['Letterboxd URI'] || '').trim();
       const rawRating = parseFloat(row.Rating || '');
       const rating = isNaN(rawRating) ? null : Math.max(0.5, Math.min(5.0, rawRating));
       const rewatch = (row.Rewatch || '').trim().toLowerCase() === 'yes';
-      const watchedDate = (row['Watched Date'] || '').trim();
-      const logDate = (row.Date || '').trim();
+      const rawWatchedDate = (row['Watched Date'] || '').trim();
+      const rawLogDate = (row.Date || '').trim();
+
+      const watchedDate = CalendarDate.toDateString(rawWatchedDate);
+      const logDate = CalendarDate.toDateString(rawLogDate);
 
       const watchedAt = watchedDate || logDate || null;
       const approximateDate = !watchedDate && !!logDate;
+      const dateUnknown = !watchedAt;
 
       const rawTags = (row.Tags || '').split(',').map((t) => t.trim()).filter((t) => t.length > 0);
+      const canonicalKey = `${uri || `${name.toLowerCase()}|${year}`}#diary:${rawLogDate}:${rawWatchedDate}:${diaryIdx}`;
 
       const entry: StagedFilmEntry = {
         sourceTitle: name,
         sourceYear: year || undefined,
         sourceUri: uri || undefined,
+        sourceKey: canonicalKey,
         watchedAt,
-        dateUnknown: !watchedAt,
+        dateUnknown,
         approximateDate,
         rating,
         rewatch,
@@ -303,7 +313,8 @@ export class LetterboxdImportService {
     }
 
     // Process reviews.csv (attach reviews to matching diary entries or create entry)
-    for (const row of reviewRows) {
+    for (let reviewIdx = 0; reviewIdx < reviewRows.length; reviewIdx++) {
+      const row = reviewRows[reviewIdx];
       const uri = (row['Letterboxd URI'] || '').trim();
       const name = (row.Name || '').trim();
       const year = (row.Year || '').trim();
@@ -315,24 +326,35 @@ export class LetterboxdImportService {
         targetIdx = titleYearToEntryIndex.get(`${name.toLowerCase()}|${year}`);
       }
 
+      const rawWatchedDate = (row['Watched Date'] || '').trim();
+      const rawLogDate = (row.Date || '').trim();
+      const watchedDate = CalendarDate.toDateString(rawWatchedDate);
+      const logDate = CalendarDate.toDateString(rawLogDate);
+
       if (targetIdx !== undefined) {
         stagedEntries[targetIdx].review = cappedReview;
+        if (stagedEntries[targetIdx].dateUnknown && (watchedDate || logDate)) {
+          stagedEntries[targetIdx].watchedAt = watchedDate || logDate;
+          stagedEntries[targetIdx].dateUnknown = false;
+          stagedEntries[targetIdx].approximateDate = !watchedDate && !!logDate;
+        }
       } else if (name) {
         // Create an entry for the review if not already in diary
         const rawRating = parseFloat(row.Rating || '');
         const rating = isNaN(rawRating) ? null : Math.max(0.5, Math.min(5.0, rawRating));
-        const watchedDate = (row['Watched Date'] || '').trim();
-        const logDate = (row.Date || '').trim();
         const watchedAt = watchedDate || logDate || null;
+        const approximateDate = !watchedDate && !!logDate;
         const rawTags = (row.Tags || '').split(',').map((t) => t.trim()).filter((t) => t.length > 0);
+        const canonicalKey = `${uri || `${name.toLowerCase()}|${year}`}#review:${rawLogDate}:${rawWatchedDate}:${reviewIdx}`;
 
         const newEntry: StagedFilmEntry = {
           sourceTitle: name,
           sourceYear: year || undefined,
           sourceUri: uri || undefined,
+          sourceKey: canonicalKey,
           watchedAt,
           dateUnknown: !watchedAt,
-          approximateDate: !watchedDate && !!logDate,
+          approximateDate,
           rating,
           rewatch: (row.Rewatch || '').trim().toLowerCase() === 'yes',
           review: cappedReview,
@@ -365,10 +387,12 @@ export class LetterboxdImportService {
         }
       } else if (name && rating !== null) {
         // Film was rated but never dated in diary: imported with dateUnknown: true
+        const canonicalKey = `${uri || `${name.toLowerCase()}|${year}`}#rating`;
         const newEntry: StagedFilmEntry = {
           sourceTitle: name,
           sourceYear: year || undefined,
           sourceUri: uri || undefined,
+          sourceKey: canonicalKey,
           watchedAt: null,
           dateUnknown: true,
           approximateDate: false,
@@ -390,20 +414,31 @@ export class LetterboxdImportService {
       const uri = (row['Letterboxd URI'] || '').trim();
       const name = (row.Name || '').trim();
       const year = (row.Year || '').trim();
+      const rawDate = (row.Date || '').trim();
+      const parsedDate = CalendarDate.toDateString(rawDate);
 
       let targetIdx = uri ? uriToEntryIndex.get(uri) : undefined;
       if (targetIdx === undefined) {
         targetIdx = titleYearToEntryIndex.get(`${name.toLowerCase()}|${year}`);
       }
 
-      if (targetIdx === undefined && name) {
+      if (targetIdx !== undefined) {
+        if (options.useLetterboxdWatchedDateAsApproximate && stagedEntries[targetIdx].dateUnknown && parsedDate) {
+          stagedEntries[targetIdx].watchedAt = parsedDate;
+          stagedEntries[targetIdx].approximateDate = true;
+          stagedEntries[targetIdx].dateUnknown = false;
+        }
+      } else if (name) {
+        const useApprox = !!options.useLetterboxdWatchedDateAsApproximate && !!parsedDate;
+        const canonicalKey = `${uri || `${name.toLowerCase()}|${year}`}#watched`;
         const newEntry: StagedFilmEntry = {
           sourceTitle: name,
           sourceYear: year || undefined,
           sourceUri: uri || undefined,
-          watchedAt: null,
-          dateUnknown: true,
-          approximateDate: false,
+          sourceKey: canonicalKey,
+          watchedAt: useApprox ? parsedDate : null,
+          dateUnknown: !useApprox,
+          approximateDate: useApprox,
           rating: null,
           rewatch: false,
           review: '',
@@ -432,10 +467,12 @@ export class LetterboxdImportService {
         stagedEntries[targetIdx].liked = true;
       } else if (name) {
         // Liked film not yet in list -> add as watched with dateUnknown
+        const canonicalKey = `${uri || `${name.toLowerCase()}|${year}`}#like`;
         const newEntry: StagedFilmEntry = {
           sourceTitle: name,
           sourceYear: year || undefined,
           sourceUri: uri || undefined,
+          sourceKey: canonicalKey,
           watchedAt: null,
           dateUnknown: true,
           approximateDate: false,
@@ -678,23 +715,101 @@ export class LetterboxdImportService {
 
     // 3. Batch commit watched entries
     let importedCount = 0;
-    const existingEntries = this.userData.getWatchedList();
+    const existingEntries = Object.values(this.userData.getWatched());
     const entriesToSave = plan.stagedEntries.filter((e) => e.matchedMedia != null);
+    const matchedExistingEntryIds = new Set<string>();
+
+    const existingBySourceKey = new Map<string, WatchedEntry>();
+    const existingByMovieId = new Map<number, WatchedEntry[]>();
+
+    existingEntries.forEach((ex) => {
+      if (ex.sourceKey) {
+        existingBySourceKey.set(ex.sourceKey, ex);
+      }
+      if (ex.media_type === 'movie') {
+        const list = existingByMovieId.get(ex.id) || [];
+        list.push(ex);
+        existingByMovieId.set(ex.id, list);
+      }
+    });
+
+    const entriesBatch: Array<Parameters<UserDataService['logEntry']>[0]> = [];
 
     entriesToSave.forEach((e) => {
       const media = e.matchedMedia!;
-      if (plan.options?.skipDuplicates) {
-        const isDuplicate = existingEntries.some((ex) => {
-          if (ex.media_type !== 'movie' || ex.id !== media.id) return false;
-          if (e.sourceUri && ex.sourceKey && ex.sourceKey === e.sourceUri) return true;
-          return ex.watchedAt === e.watchedAt;
-        });
-        if (isDuplicate) {
-          return;
+      const incomingSourceKey = e.sourceKey || e.sourceUri;
+
+      // Identify whether an existing entry corresponds to this incoming staged entry
+      let existingMatch: WatchedEntry | undefined;
+
+      // Match Priority 1: Exact composite sourceKey
+      if (incomingSourceKey) {
+        const candidate = existingBySourceKey.get(incomingSourceKey);
+        if (candidate && !matchedExistingEntryIds.has(candidate.entryId)) {
+          existingMatch = candidate;
         }
       }
 
-      this.userData.logEntry({
+      // Match Priorities 2, 3, 4: By movie ID candidates
+      if (!existingMatch) {
+        const candidates = existingByMovieId.get(media.id);
+        if (candidates) {
+          // Priority 2: Legacy sourceKey (matching e.sourceUri) for same movie ID
+          if (e.sourceUri) {
+            existingMatch = candidates.find(
+              (ex) => !matchedExistingEntryIds.has(ex.entryId) && ex.sourceKey === e.sourceUri,
+            );
+          }
+
+          // Priority 3: Same movie ID and same watch date
+          if (!existingMatch && e.watchedAt) {
+            existingMatch = candidates.find(
+              (ex) => !matchedExistingEntryIds.has(ex.entryId) && ex.watchedAt === e.watchedAt,
+            );
+          }
+
+          // Priority 4: Single entry for movie with dateUnknown
+          if (!existingMatch && e.dateUnknown) {
+            existingMatch = candidates.find(
+              (ex) => !matchedExistingEntryIds.has(ex.entryId) && ex.dateUnknown === true,
+            );
+          }
+        }
+      }
+
+      if (existingMatch) {
+        matchedExistingEntryIds.add(existingMatch.entryId);
+
+        // If user has explicitly edited this entry in app, keep user values completely!
+        if (existingMatch.userEdited) {
+          return;
+        }
+
+        // Unedited imported entry: Repair/Update in-place
+        entriesBatch.push({
+          entryId: existingMatch.entryId,
+          id: media.id,
+          media_type: 'movie',
+          title: media.title,
+          poster_path: media.poster_path,
+          watchedAt: e.watchedAt,
+          dateUnknown: e.dateUnknown,
+          approximateDate: e.approximateDate,
+          rewatch: e.rewatch,
+          rating: e.rating !== null ? e.rating : existingMatch.rating,
+          review: e.review || existingMatch.review,
+          tags: e.tags.length ? e.tags : existingMatch.tags,
+          liked: e.liked || existingMatch.liked,
+          sourceKey: incomingSourceKey,
+          release_date: media.release_date,
+          importerCreated: true,
+          userEdited: false,
+        });
+        return;
+      }
+
+      // New entry
+      entriesBatch.push({
         id: media.id,
         media_type: 'movie',
         title: media.title,
@@ -707,12 +822,18 @@ export class LetterboxdImportService {
         review: e.review,
         tags: e.tags,
         liked: e.liked,
-        sourceKey: e.sourceUri,
+        sourceKey: incomingSourceKey,
         release_date: media.release_date,
-        isNewRewatchLog: true, // each diary entry is logged
+        isNewRewatchLog: true,
+        importerCreated: true,
+        userEdited: false,
       });
       importedCount++;
     });
+
+    if (entriesBatch.length > 0) {
+      this.userData.logEntries(entriesBatch);
+    }
 
     // 4. Batch commit watchlist entries
     let watchlistCount = 0;

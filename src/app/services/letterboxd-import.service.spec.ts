@@ -296,4 +296,284 @@ describe('LetterboxdImportService', () => {
     expect(rolledBack).toBeTrue();
     expect(userData.getWatchedCount()).toBe(countAfterFirstImport);
   });
+
+  describe('Phase 1: Letterboxd Import Date Precision & Ground Truth', () => {
+    beforeEach(() => {
+      spyOn(matcher, 'match').and.callFake(async (title: string, year?: string) => ({
+        sourceTitle: title,
+        sourceYear: year,
+        confidence: 'confident',
+        matched: {
+          id: title.length * 100 + (year ? parseInt(year, 10) : 0),
+          title,
+          release_date: `${year || '2000'}-01-01`,
+          poster_path: null,
+          media_type: 'movie',
+          score: 95,
+        },
+        candidates: [],
+      }));
+    });
+
+    it('1. should import Star Wars diary row with watch date exactly 2020-01-02 (not log date 2020-01-11)', async () => {
+      const files: Record<string, string> = {
+        'diary.csv':
+          'Date,Name,Year,Letterboxd URI,Rating,Rewatch,Tags,Watched Date\n' +
+          '2020-01-11,Star Wars,1977,https://boxd.it/WcKjz,4,,,2020-01-02\n',
+      };
+
+      const plan = await service.prepareImport(files);
+      expect(plan.stagedEntries.length).toBe(1);
+      const staged = plan.stagedEntries[0];
+      expect(staged.watchedAt).toBe('2020-01-02');
+      expect(staged.dateUnknown).toBeFalse();
+      expect(staged.approximateDate).toBeFalse();
+
+      await service.commitImport(plan);
+      const starWarsId = staged.matchedMedia!.id;
+      const stored = userData.getWatchedEntry('movie', starWarsId);
+      expect(stored).toBeDefined();
+      expect(stored?.watchedAt).toBe('2020-01-02');
+      expect(stored?.dateUnknown).toBeFalse();
+      expect(stored?.approximateDate).toBeFalse();
+    });
+
+    it('2. should fall back to Date marked as approximate when Watched Date is empty', async () => {
+      const files: Record<string, string> = {
+        'diary.csv':
+          'Date,Name,Year,Letterboxd URI,Rating,Rewatch,Tags,Watched Date\n' +
+          '2020-05-20,Blade Runner,1982,https://boxd.it/br,4.5,,,\n',
+      };
+
+      const plan = await service.prepareImport(files);
+      expect(plan.stagedEntries.length).toBe(1);
+      const staged = plan.stagedEntries[0];
+      expect(staged.watchedAt).toBe('2020-05-20');
+      expect(staged.approximateDate).toBeTrue();
+      expect(staged.dateUnknown).toBeFalse();
+
+      await service.commitImport(plan);
+      const brId = staged.matchedMedia!.id;
+      const stored = userData.getWatchedEntry('movie', brId);
+      expect(stored?.watchedAt).toBe('2020-05-20');
+      expect(stored?.approximateDate).toBeTrue();
+      expect(stored?.dateUnknown).toBeFalse();
+    });
+
+    it('3. should import two diary rows for the same film with distinct dates as two separate entries', async () => {
+      const files: Record<string, string> = {
+        'diary.csv':
+          'Date,Name,Year,Letterboxd URI,Rating,Rewatch,Tags,Watched Date\n' +
+          '2020-01-11,Star Wars,1977,https://boxd.it/WcKjz,4,,,2020-01-02\n' +
+          '2021-05-04,Star Wars,1977,https://boxd.it/WcKjz,5,Yes,,2021-05-04\n',
+      };
+
+      const plan = await service.prepareImport(files);
+      expect(plan.stagedEntries.length).toBe(2);
+
+      await service.commitImport(plan);
+
+      const starWarsId = plan.stagedEntries[0].matchedMedia!.id;
+      const allEntries = userData.getAllWatchedEntriesFor('movie', starWarsId);
+      expect(allEntries.length).toBe(2);
+
+      const dates = allEntries.map((e) => e.watchedAt).sort();
+      expect(dates).toEqual(['2020-01-02', '2021-05-04']);
+
+      const rewatchEntry = allEntries.find((e) => e.watchedAt === '2021-05-04');
+      expect(rewatchEntry?.rewatch).toBeTrue();
+      expect(rewatchEntry?.rating).toBe(5);
+
+      const firstEntry = allEntries.find((e) => e.watchedAt === '2020-01-02');
+      expect(firstEntry?.rewatch).toBeFalse();
+      expect(firstEntry?.rating).toBe(4);
+    });
+
+    it('4. should import a film only in watched.csv with no watch date (stored as unknown)', async () => {
+      const files: Record<string, string> = {
+        'watched.csv':
+          'Date,Name,Year,Letterboxd URI\n' +
+          '2019-12-31,Marriage Story,2019,https://boxd.it/lB4K\n',
+      };
+
+      const plan = await service.prepareImport(files);
+      expect(plan.stagedEntries.length).toBe(1);
+      const staged = plan.stagedEntries[0];
+      expect(staged.watchedAt).toBeNull();
+      expect(staged.dateUnknown).toBeTrue();
+
+      await service.commitImport(plan);
+      const msId = staged.matchedMedia!.id;
+      const stored = userData.getWatchedEntry('movie', msId);
+      expect(stored).toBeDefined();
+      expect(stored?.watchedAt).toBeNull();
+      expect(stored?.dateUnknown).toBeTrue();
+    });
+
+    it('5. should import The Irishman in watched.csv and ratings.csv with no watch date, rating 3, and neither date leaking', async () => {
+      const files: Record<string, string> = {
+        'watched.csv':
+          'Date,Name,Year,Letterboxd URI\n' +
+          '2019-12-31,The Irishman,2019,https://boxd.it/d46q\n',
+        'ratings.csv':
+          'Date,Name,Year,Letterboxd URI,Rating\n' +
+          '2025-05-04,The Irishman,2019,https://boxd.it/d46q,3\n',
+      };
+
+      const plan = await service.prepareImport(files);
+      expect(plan.stagedEntries.length).toBe(1);
+      const staged = plan.stagedEntries[0];
+      expect(staged.rating).toBe(3);
+      expect(staged.watchedAt).toBeNull();
+      expect(staged.dateUnknown).toBeTrue();
+
+      await service.commitImport(plan);
+      const irishmanId = staged.matchedMedia!.id;
+      const stored = userData.getWatchedEntry('movie', irishmanId);
+      expect(stored).toBeDefined();
+      expect(stored?.rating).toBe(3);
+      expect(stored?.watchedAt).toBeNull();
+      expect(stored?.dateUnknown).toBeTrue();
+      expect(stored?.watchedAt).not.toBe('2019-12-31');
+      expect(stored?.watchedAt).not.toBe('2025-05-04');
+    });
+
+    it('6. should import a review row with a Watched Date correctly', async () => {
+      const files: Record<string, string> = {
+        'reviews.csv':
+          'Date,Name,Year,Letterboxd URI,Rating,Rewatch,Review,Tags,Watched Date\n' +
+          '2021-02-15,Parasite,2019,https://boxd.it/ParasiteRev,5,No,"Brilliant satire",thriller,2021-02-10\n',
+      };
+
+      const plan = await service.prepareImport(files);
+      expect(plan.stagedEntries.length).toBe(1);
+      const staged = plan.stagedEntries[0];
+      expect(staged.watchedAt).toBe('2021-02-10');
+      expect(staged.dateUnknown).toBeFalse();
+      expect(staged.review).toBe('Brilliant satire');
+      expect(staged.rating).toBe(5);
+
+      await service.commitImport(plan);
+      const parasiteId = staged.matchedMedia!.id;
+      const stored = userData.getWatchedEntry('movie', parasiteId);
+      expect(stored?.watchedAt).toBe('2021-02-10');
+      expect(stored?.dateUnknown).toBeFalse();
+      expect(stored?.review).toBe('Brilliant satire');
+    });
+
+    it('7. should correctly parse diary row with UTF-8 BOM, CRLF, and reordered columns', async () => {
+      const csvWithBomAndCrlf =
+        '\uFEFFWatched Date,Letterboxd URI,Rating,Rewatch,Tags,Name,Year,Date\r\n' +
+        '2022-03-05,https://boxd.it/BOM1,4.5,No,"drama, awards",Drive My Car,2021,2022-03-10\r\n';
+
+      const files: Record<string, string> = {
+        'diary.csv': csvWithBomAndCrlf,
+      };
+
+      const plan = await service.prepareImport(files);
+      expect(plan.stagedEntries.length).toBe(1);
+      const staged = plan.stagedEntries[0];
+      expect(staged.sourceTitle).toBe('Drive My Car');
+      expect(staged.sourceYear).toBe('2021');
+      expect(staged.watchedAt).toBe('2022-03-05');
+      expect(staged.dateUnknown).toBeFalse();
+      expect(staged.rating).toBe(4.5);
+
+      await service.commitImport(plan);
+      const stored = userData.getWatchedEntry('movie', staged.matchedMedia!.id);
+      expect(stored?.watchedAt).toBe('2022-03-05');
+      expect(stored?.dateUnknown).toBeFalse();
+    });
+
+    it('8. should support optional approximate date from watched.csv when option is enabled', async () => {
+      const files: Record<string, string> = {
+        'watched.csv':
+          'Date,Name,Year,Letterboxd URI\n' +
+          '2019-12-31,Marriage Story,2019,https://boxd.it/lB4K\n',
+      };
+
+      const plan = await service.prepareImport(files, {
+        importProfile: false,
+        importWatchlist: false,
+        importCustomLists: false,
+        skipDuplicates: false,
+        useLetterboxdWatchedDateAsApproximate: true,
+      });
+
+      expect(plan.stagedEntries.length).toBe(1);
+      const staged = plan.stagedEntries[0];
+      expect(staged.watchedAt).toBe('2019-12-31');
+      expect(staged.approximateDate).toBeTrue();
+      expect(staged.dateUnknown).toBeFalse();
+
+      await service.commitImport(plan);
+      const stored = userData.getWatchedEntry('movie', staged.matchedMedia!.id);
+      expect(stored?.watchedAt).toBe('2019-12-31');
+      expect(stored?.approximateDate).toBeTrue();
+      expect(stored?.dateUnknown).toBeFalse();
+    });
+
+    it('9. should idempotently re-import to correct dates on unedited entries without duplicates and preserve user edits', async () => {
+      // 1. Initial import with wrong/approx date
+      const initialFiles: Record<string, string> = {
+        'diary.csv':
+          'Date,Name,Year,Letterboxd URI,Rating,Rewatch,Tags,Watched Date\n' +
+          '2020-01-11,Star Wars,1977,https://boxd.it/WcKjz,4,,,2020-01-02\n' +
+          '2020-05-20,Blade Runner,1982,https://boxd.it/br,4.5,,,\n',
+      };
+
+      const plan1 = await service.prepareImport(initialFiles);
+      await service.commitImport(plan1);
+      expect(userData.getWatchedCount()).toBe(2);
+
+      const starWarsId = plan1.stagedEntries[0].matchedMedia!.id;
+      const bladeRunnerId = plan1.stagedEntries[1].matchedMedia!.id;
+
+      // User manually edits Blade Runner rating & review
+      const brEntry = userData.getWatchedEntry('movie', bladeRunnerId)!;
+      userData.logEntry({
+        ...brEntry,
+        rating: 5.0,
+        review: 'User edited review that must be preserved',
+        userEdited: true,
+      });
+
+      // 2. Re-import the export
+      const plan2 = await service.prepareImport(initialFiles);
+      const result2 = await service.commitImport(plan2);
+
+      // No duplicate entries created
+      expect(userData.getWatchedCount()).toBe(2);
+
+      // Star Wars (unedited) retains/updates clean state
+      const updatedStarWars = userData.getWatchedEntry('movie', starWarsId);
+      expect(updatedStarWars?.watchedAt).toBe('2020-01-02');
+
+      // Blade Runner preserved user edits
+      const updatedBr = userData.getWatchedEntry('movie', bladeRunnerId);
+      expect(updatedBr?.rating).toBe(5.0);
+      expect(updatedBr?.review).toBe('User edited review that must be preserved');
+    });
+
+    it('10. should ensure watch date calendar formatting is invariant to time zones and never shifts days', async () => {
+      const files: Record<string, string> = {
+        'diary.csv':
+          'Date,Name,Year,Letterboxd URI,Rating,Rewatch,Tags,Watched Date\n' +
+          '2020-01-11,Star Wars,1977,https://boxd.it/WcKjz,4,,,2020-01-02\n',
+      };
+
+      const plan = await service.prepareImport(files);
+      await service.commitImport(plan);
+
+      const entry = userData.getWatchedList().find((e) => e.title === 'Star Wars');
+      expect(entry).toBeDefined();
+      expect(entry?.watchedAt).toBe('2020-01-02');
+
+      // Verify that calendar date parsing extracts exactly 2020, 1, 2 regardless of system time zone
+      const [year, month, day] = (entry?.watchedAt || '').split('-').map(Number);
+      expect(year).toBe(2020);
+      expect(month).toBe(1);
+      expect(day).toBe(2);
+    });
+  });
 });
