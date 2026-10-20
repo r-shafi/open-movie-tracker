@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.13.0](https://github.com/r-shafi/open-movie-tracker/compare/v0.12.0...v0.13.0) (2026-10-20)
+
+
+### Features
+
+* add favorites resolution, restart resume, quota check, export additions ([cd5ede8](https://github.com/r-shafi/open-movie-tracker/commit/cd5ede8757571abba9513b2116ceae6e1311f6cb))
+* add letterboxd pro analytics dashboard, streaks, tv stats, and stats card ([94c35b7](https://github.com/r-shafi/open-movie-tracker/commit/94c35b7ae02556353ed9e2bc4863989beafc71d4))
+* add letterboxd pro analytics with year filters, rewatches, decades, and cast insights ([97fc9fa](https://github.com/r-shafi/open-movie-tracker/commit/97fc9fa7896b6230439aa109f66a6dbabd7587f8))
+* implement letterboxd import engine, export suite, and metadata backfill ([58bfa0d](https://github.com/r-shafi/open-movie-tracker/commit/58bfa0dd866936a01813dea29360644d9ff51ee6))
+* implement schema v2, guarded storage, and tmdb configuration ([6ff3d86](https://github.com/r-shafi/open-movie-tracker/commit/6ff3d862f2612d749092280641103497043303b0))
+
+
+### Bug Fixes
+
+* disable android backup, handle hardware back button, add offline fallback ([d369f56](https://github.com/r-shafi/open-movie-tracker/commit/d369f56eaab6247accae8edd308b88df5b1c30ad))
+* fix strict template types in profile and remove leftover html comments ([74e1e7d](https://github.com/r-shafi/open-movie-tracker/commit/74e1e7ddda173262744f8db42db98036b6a9f72b))
+* improve touch targets to 44px and constrain tablet layouts ([61de928](https://github.com/r-shafi/open-movie-tracker/commit/61de928b464ced4b4c875e2b7c5f1d47344aabba))
+* repair test suite, remove dead code, and fix custom list detail view ([a09cd93](https://github.com/r-shafi/open-movie-tracker/commit/a09cd93f10aa4fd3f5196e9dfc320c1ca3ebf2a4))
+* sync capacitor android configuration for core plugins ([d88e2ba](https://github.com/r-shafi/open-movie-tracker/commit/d88e2ba750b6064ee9e56644743ef35e51a3f5a1))
+* update distributionSha256Sum in gradle-wrapper.properties for integrity verification ([a977733](https://github.com/r-shafi/open-movie-tracker/commit/a977733e0b4a87bd8787da43a2ac9cb4d4394e5f))
+
 ## [0.12.0](https://github.com/r-shafi/open-movie-tracker/compare/v0.11.0...v0.12.0) (2026-05-26)
 
 
