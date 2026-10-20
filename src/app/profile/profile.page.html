@@ -521,6 +521,344 @@
     </div>
     }
 
+    <!-- 52-Week Activity Heatmap & Streaks -->
+    <div class="mb-2 mt-5 flex items-center justify-between">
+      <p
+        class="text-[0.75rem] font-bold uppercase tracking-[0.1em] m-0"
+        style="color: var(--ion-color-medium)"
+      >
+        Activity & Streaks
+      </p>
+      <div class="flex items-center gap-3 text-xs">
+        <span class="text-medium">Current: <strong class="text-white">{{ stats.currentStreak }}d</strong></span>
+        <span class="text-medium">Longest: <strong class="text-white">{{ stats.longestStreak }}d</strong></span>
+      </div>
+    </div>
+    <div
+      class="rounded-2xl border p-3 overflow-hidden"
+      style="
+        border-color: var(--ion-color-step-100);
+        background: var(--ion-color-step-50);
+      "
+    >
+      <div class="overflow-x-auto pb-1">
+        <div class="flex gap-1 min-w-[540px]">
+          @for (week of stats.activityHeatmap; track week.weekIndex) {
+          <div class="flex flex-col gap-1">
+            @for (day of week.days; track day.date) {
+            <div
+              class="h-2.5 w-2.5 rounded-[2px]"
+              [title]="day.date + ': ' + day.count + ' films'"
+              [style.background]="
+                day.level === 0 ? 'var(--ion-color-step-150, #1e293b)' :
+                day.level === 1 ? 'rgba(34, 197, 94, 0.35)' :
+                day.level === 2 ? 'rgba(34, 197, 94, 0.6)' :
+                day.level === 3 ? 'rgba(34, 197, 94, 0.85)' : '#22c55e'
+              "
+            ></div>
+            }
+          </div>
+          }
+        </div>
+      </div>
+      <div class="mt-2 flex items-center justify-between text-[0.65rem] text-medium">
+        <span>52 weeks ago</span>
+        <div class="flex items-center gap-1">
+          <span>Less</span>
+          <span class="h-2 w-2 rounded-[1px] bg-step-150 inline-block"></span>
+          <span class="h-2 w-2 rounded-[1px] bg-green-500/40 inline-block"></span>
+          <span class="h-2 w-2 rounded-[1px] bg-green-500 inline-block"></span>
+          <span>More</span>
+        </div>
+        <span>Today</span>
+      </div>
+      @if (stats.undatedCount > 0) {
+      <p class="mt-2 mb-0 text-[0.7rem] text-medium border-t pt-2" style="border-color: var(--ion-color-step-100)">
+        ℹ️ {{ stats.undatedCount }} {{ stats.undatedCount === 1 ? 'film has' : 'films have' }} no logged watch date (excluded from heatmap and streaks).
+      </p>
+      }
+    </div>
+
+    <!-- Watching by Weekday -->
+    @if (stats.totalWatched > 0) {
+    <p
+      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
+      style="color: var(--ion-color-medium)"
+    >
+      Watching by Weekday
+    </p>
+    <div
+      class="rounded-2xl border p-3"
+      style="
+        border-color: var(--ion-color-step-100);
+        background: var(--ion-color-step-50);
+      "
+    >
+      <div class="grid grid-cols-7 gap-1 text-center">
+        @for (item of stats.watchedByWeekday; track item.day) {
+        <div class="flex flex-col items-center">
+          <span class="text-[0.65rem] text-medium font-semibold">{{ item.day }}</span>
+          <div class="h-16 w-full flex items-end justify-center my-1 bg-step-100/40 rounded">
+            <div
+              class="w-full rounded bg-primary"
+              [style.height.%]="item.percentage"
+              [style.min-height.px]="item.count > 0 ? 4 : 0"
+            ></div>
+          </div>
+          <span class="text-[0.7rem] font-bold">{{ item.count }}</span>
+          <span class="text-[0.6rem] text-medium">{{ item.percentage }}%</span>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- Runtime Distribution -->
+    @if (stats.runtimeDistribution.length) {
+    <p
+      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
+      style="color: var(--ion-color-medium)"
+    >
+      Runtime Distribution
+    </p>
+    <div
+      class="rounded-2xl border p-3"
+      style="
+        border-color: var(--ion-color-step-100);
+        background: var(--ion-color-step-50);
+      "
+    >
+      <div class="space-y-2">
+        @for (item of stats.runtimeDistribution; track item.bucket) {
+        <div class="flex items-center gap-2 text-xs">
+          <span class="w-24 text-medium font-semibold truncate">{{ item.bucket }}</span>
+          <div class="h-2.5 flex-1 overflow-hidden rounded-full bg-step-100">
+            <div
+              class="h-full rounded-full bg-primary"
+              [style.width.%]="item.percentage"
+            ></div>
+          </div>
+          <span class="w-16 text-right font-bold">{{ item.count }} ({{ item.percentage }}%)</span>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- Countries & Languages -->
+    @if (stats.productionCountries.length || stats.languages.length) {
+    <div class="grid grid-cols-2 gap-3 mt-5">
+      @if (stats.productionCountries.length) {
+      <div>
+        <p
+          class="mb-2 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
+          style="color: var(--ion-color-medium)"
+        >
+          Top Countries
+        </p>
+        <div
+          class="rounded-2xl border p-3 space-y-1.5"
+          style="
+            border-color: var(--ion-color-step-100);
+            background: var(--ion-color-step-50);
+          "
+        >
+          @for (c of stats.productionCountries; track c.country) {
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-semibold">{{ c.country }}</span>
+            <span class="text-medium">{{ c.count }}</span>
+          </div>
+          }
+        </div>
+      </div>
+      }
+      @if (stats.languages.length) {
+      <div>
+        <p
+          class="mb-2 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
+          style="color: var(--ion-color-medium)"
+        >
+          Top Languages
+        </p>
+        <div
+          class="rounded-2xl border p-3 space-y-1.5"
+          style="
+            border-color: var(--ion-color-step-100);
+            background: var(--ion-color-step-50);
+          "
+        >
+          @for (l of stats.languages; track l.language) {
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-semibold uppercase">{{ l.language }}</span>
+            <span class="text-medium">{{ l.count }}</span>
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    }
+
+    <!-- Crowd Delta & Controversy -->
+    @if (stats.controversialPicks.length) {
+    <p
+      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
+      style="color: var(--ion-color-medium)"
+    >
+      TMDb Crowd Controversy
+    </p>
+    <div
+      class="rounded-2xl border p-3"
+      style="
+        border-color: var(--ion-color-step-100);
+        background: var(--ion-color-step-50);
+      "
+    >
+      <div class="mb-3 flex items-center justify-between border-b pb-2 text-xs" style="border-color: var(--ion-color-step-100)">
+        <span class="text-medium">Avg divergence from TMDb</span>
+        <span class="font-bold text-primary">±{{ stats.crowdDeltaAverage }} pts</span>
+      </div>
+      <div class="space-y-2">
+        @for (item of stats.controversialPicks; track item.id) {
+        <div class="flex items-center justify-between text-xs">
+          <span class="truncate max-w-[55%] font-semibold">{{ item.title }}</span>
+          <div class="flex items-center gap-2">
+            <span class="text-medium">You: ★{{ item.userRating }}</span>
+            <span class="text-medium">TMDb: ★{{ item.tmdbRating }}</span>
+            <span
+              class="font-bold rounded px-1.5 py-0.5 text-[0.65rem]"
+              [class.bg-green-500-20]="item.direction === 'higher'"
+              [class.text-green-400]="item.direction === 'higher'"
+              [class.bg-red-500-20]="item.direction === 'lower'"
+              [class.text-red-400]="item.direction === 'lower'"
+            >
+              {{ item.direction === 'higher' ? '+' : '-' }}{{ item.delta }}
+            </span>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- TV Show Analytics -->
+    @if (stats.totalTv > 0 || stats.tvAnalytics.episodesWatched > 0) {
+    <p
+      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
+      style="color: var(--ion-color-medium)"
+    >
+      TV Series Analytics
+    </p>
+    <div
+      class="grid grid-cols-2 gap-2"
+    >
+      <div
+        class="rounded-2xl border p-3"
+        style="
+          border-color: var(--ion-color-step-100);
+          background: var(--ion-color-step-50);
+        "
+      >
+        <p class="m-0 text-2xl font-bold text-primary">{{ stats.tvAnalytics.episodesWatched }}</p>
+        <p class="m-0 text-[0.7rem] uppercase font-semibold text-medium">Episodes Watched</p>
+      </div>
+      <div
+        class="rounded-2xl border p-3"
+        style="
+          border-color: var(--ion-color-step-100);
+          background: var(--ion-color-step-50);
+        "
+      >
+        <p class="m-0 text-2xl font-bold text-primary">{{ stats.tvAnalytics.totalTvHours }}h</p>
+        <p class="m-0 text-[0.7rem] uppercase font-semibold text-medium">TV Watch Time</p>
+      </div>
+      <div
+        class="rounded-2xl border p-3"
+        style="
+          border-color: var(--ion-color-step-100);
+          background: var(--ion-color-step-50);
+        "
+      >
+        <p class="m-0 text-2xl font-bold text-primary">{{ stats.tvAnalytics.inProgressShows }}</p>
+        <p class="m-0 text-[0.7rem] uppercase font-semibold text-medium">In-Progress Shows</p>
+      </div>
+      <div
+        class="rounded-2xl border p-3"
+        style="
+          border-color: var(--ion-color-step-100);
+          background: var(--ion-color-step-50);
+        "
+      >
+        <p class="m-0 text-2xl font-bold text-primary">{{ stats.tvAnalytics.completedSeasons }}</p>
+        <p class="m-0 text-[0.7rem] uppercase font-semibold text-medium">Seasons Equivalent</p>
+      </div>
+    </div>
+    }
+
+    <!-- Watchlist Health & Roulette -->
+    <p
+      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
+      style="color: var(--ion-color-medium)"
+    >
+      Watchlist Health & Roulette
+    </p>
+    <div
+      class="rounded-2xl border p-3 space-y-3"
+      style="
+        border-color: var(--ion-color-step-100);
+        background: var(--ion-color-step-50);
+      "
+    >
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <div>
+          <p class="m-0 text-lg font-bold text-primary">{{ stats.watchlistHealth.totalItems }}</p>
+          <p class="m-0 text-[0.65rem] text-medium">In Queue</p>
+        </div>
+        <div>
+          <p class="m-0 text-lg font-bold text-primary">{{ stats.watchlistHealth.completionRate }}%</p>
+          <p class="m-0 text-[0.65rem] text-medium">Cleared</p>
+        </div>
+        <div>
+          <p class="m-0 text-lg font-bold text-primary">{{ stats.watchlistHealth.averageAgeDays }}d</p>
+          <p class="m-0 text-[0.65rem] text-medium">Avg Age</p>
+        </div>
+      </div>
+
+      <div class="border-t pt-3" style="border-color: var(--ion-color-step-100)">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="m-0 text-xs font-bold">Watchlist Roulette</p>
+            <p class="m-0 text-[0.7rem] text-medium">Can't decide what to watch? Spin for a pick.</p>
+          </div>
+          <ion-button size="small" fill="outline" color="primary" (click)="spinRoulette()">
+            <ion-icon name="shuffle-outline" slot="start"></ion-icon>
+            Spin
+          </ion-button>
+        </div>
+
+        @if (roulettePick) {
+        <div class="mt-2.5 flex items-center gap-3 rounded-xl p-2 bg-step-100/50">
+          <div class="min-w-0 flex-1">
+            <p class="m-0 text-xs font-bold text-primary">🎲 Picked for you:</p>
+            <p class="m-0 text-sm font-semibold truncate">{{ roulettePick.title }}</p>
+            <p class="m-0 text-[0.65rem] text-medium">{{ roulettePick.releaseDate | date:'yyyy' }} · {{ roulettePick.media_type | uppercase }}</p>
+          </div>
+          <ion-button size="small" fill="solid" color="primary" [routerLink]="['/' + roulettePick.media_type, roulettePick.id]">
+            View
+          </ion-button>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Export Shareable Stats Card -->
+    <div class="mt-5">
+      <ion-button expand="block" fill="outline" color="primary" (click)="generateShareCard()">
+        <ion-icon name="share-social-outline" slot="start"></ion-icon>
+        Export Shareable Stats Card (PNG)
+      </ion-button>
+    </div>
+
     <p
       class="mb-2 mt-4 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
       style="color: var(--ion-color-medium)"

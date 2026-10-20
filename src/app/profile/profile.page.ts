@@ -13,7 +13,9 @@ import {
   UserDataService,
   UserList,
   WatchedEntry,
+  WatchlistEntry,
 } from '../services/user-data.service';
+import { ToastService } from '../services/toast.service';
 import { ImageViewerComponent } from '../shared-module/image-viewer/image-viewer.component';
 import { AddFavoriteModalComponent } from './add-favorite-modal/add-favorite-modal.component';
 import { EditProfileComponent } from './edit-profile/edit-profile.component';
@@ -87,6 +89,7 @@ export class ProfilePage {
     private alertCtrl: AlertController,
     private actionSheetCtrl: ActionSheetController,
     private cdr: ChangeDetectorRef,
+    private toast: ToastService,
   ) {}
 
   get profile() {
@@ -94,6 +97,132 @@ export class ProfilePage {
   }
 
   selectedStatsYear = 'all';
+  roulettePick: WatchlistEntry | null = null;
+
+  spinRoulette(): void {
+    this.roulettePick = this.userData.pickWatchlistRoulette();
+    if (!this.roulettePick) {
+      this.toast.showToast('Your watchlist is empty! Add titles to spin.');
+    } else {
+      this.toast.showToast(`Roulette picked: "${this.roulettePick.title}"`);
+    }
+    this.cdr.markForCheck();
+  }
+
+  generateShareCard(): void {
+    const stats = this.stats;
+    const profile = this.profile;
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1350;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Dark gradient background
+    const grad = ctx.createLinearGradient(0, 0, 0, 1350);
+    grad.addColorStop(0, '#0f172a');
+    grad.addColorStop(1, '#020617');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 1080, 1350);
+
+    // Subtle emerald radial glow
+    ctx.fillStyle = 'rgba(34, 197, 94, 0.08)';
+    ctx.beginPath();
+    ctx.arc(1080, 0, 500, 0, Math.PI * 2);
+    ctx.fill();
+
+    // App header
+    ctx.fillStyle = '#22c55e';
+    ctx.font = 'bold 36px system-ui, -apple-system, sans-serif';
+    ctx.fillText('OPEN MOVIE TRACKER', 80, 120);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '500 24px system-ui, -apple-system, sans-serif';
+    ctx.fillText('100% On-Device · Privacy-First Analytics', 80, 160);
+
+    // User profile title
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 52px system-ui, -apple-system, sans-serif';
+    ctx.fillText(profile.displayName || 'Film Curator', 80, 260);
+
+    if (profile.bio) {
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'normal 26px system-ui, -apple-system, sans-serif';
+      ctx.fillText(profile.bio.slice(0, 60), 80, 305);
+    }
+
+    // Divider line
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(80, 350);
+    ctx.lineTo(1000, 350);
+    ctx.stroke();
+
+    // 4 Key Stats cards
+    const cards = [
+      { label: 'TITLES WATCHED', val: String(stats.totalWatched) },
+      { label: 'HOURS ESTIMATED', val: `${stats.totalHoursEstimated}h` },
+      { label: 'AVERAGE RATING', val: stats.averageRating ? `★ ${stats.averageRating}` : 'N/A' },
+      { label: 'LONGEST STREAK', val: `${stats.longestStreak} days` },
+    ];
+
+    cards.forEach((c, idx) => {
+      const x = 80 + (idx % 2) * 470;
+      const y = 400 + Math.floor(idx / 2) * 200;
+
+      ctx.fillStyle = 'rgba(30, 41, 59, 0.7)';
+      ctx.beginPath();
+      ctx.roundRect(x, y, 440, 160, 20);
+      ctx.fill();
+
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = '#22c55e';
+      ctx.font = 'bold 52px system-ui, -apple-system, sans-serif';
+      ctx.fillText(c.val, x + 30, y + 80);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 20px system-ui, -apple-system, sans-serif';
+      ctx.fillText(c.label, x + 30, y + 125);
+    });
+
+    // Top genres
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 36px system-ui, -apple-system, sans-serif';
+    ctx.fillText('TOP GENRES', 80, 880);
+
+    const genresText = stats.topGenres.map((g) => `${g.name} (${g.count})`).join('  ·  ') || 'None recorded';
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '500 28px system-ui, -apple-system, sans-serif';
+    ctx.fillText(genresText, 80, 935);
+
+    // Watchlist health & streak
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 36px system-ui, -apple-system, sans-serif';
+    ctx.fillText('WATCHLIST HEALTH', 80, 1040);
+
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '500 28px system-ui, -apple-system, sans-serif';
+    ctx.fillText(`${stats.watchlistHealth.totalItems} queued  ·  ${stats.watchlistHealth.completionRate}% completion rate  ·  ${stats.watchlistHealth.averageAgeDays}d avg age`, 80, 1095);
+
+    // Footer
+    ctx.fillStyle = '#64748b';
+    ctx.font = '500 22px system-ui, -apple-system, sans-serif';
+    ctx.fillText(`Generated offline on ${new Date().toLocaleDateString()}`, 80, 1260);
+
+    // Trigger local PNG download
+    const dataUrl = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `open-movie-tracker-stats-${new Date().toISOString().slice(0, 10)}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    this.toast.showToast('Stats card downloaded as PNG.');
+  }
 
   get stats() {
     return this.userData.getStats(this.selectedStatsYear);

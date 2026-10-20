@@ -109,6 +109,51 @@ export interface ImportResult {
   };
 }
 
+export interface UserStats {
+  totalWatched: number;
+  totalMovies: number;
+  totalTv: number;
+  totalHoursEstimated: number;
+  averageRating: number | null;
+  ratingsDistribution: Record<string, number>;
+  watchedByMonth: { month: string; count: number }[];
+  topGenres: { name: string; count: number }[];
+  likedCount: number;
+  rewatches: number;
+  firstWatches: number;
+  rewatchPercentage: number;
+  decades: { decade: string; count: number }[];
+  topDirectors: { name: string; count: number; avgRating: number | null }[];
+  topCast: { name: string; count: number; avgRating: number | null }[];
+  availableYears: string[];
+  undatedCount: number;
+
+  // Letterboxd Pro Analytics
+  activityHeatmap: { date: string; count: number; level: number }[];
+  currentStreak: number;
+  longestStreak: number;
+  watchedByWeekday: { day: string; count: number }[];
+  runtimeDistribution: { range: string; count: number }[];
+  productionCountries: { country: string; count: number }[];
+  languages: { language: string; count: number }[];
+  crowdDeltaAverage: number | null;
+  controversialPicks: { id: number; title: string; userRating: number; tmdbRating: number; delta: number }[];
+  genreAverages: { name: string; avgRating: number; count: number }[];
+  decadeAverages: { decade: string; avgRating: number; count: number }[];
+  tvAnalytics: {
+    episodesWatched: number;
+    completedSeasons: number;
+    inProgressShows: number;
+    totalTvHours: number;
+  };
+  watchlistHealth: {
+    totalItems: number;
+    completionRate: number;
+    averageAgeDays: number;
+    runtimeToClearHours: number;
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class UserDataService {
   readonly SCHEMA_VERSION = 2;
@@ -620,24 +665,151 @@ export class UserDataService {
 
   // ── Analytics ────────────────────────────────────────────────────────────
 
-  getStats(yearFilter?: string): {
-    totalWatched: number;
-    totalMovies: number;
-    totalTv: number;
-    totalHoursEstimated: number;
-    averageRating: number | null;
-    ratingsDistribution: Record<string, number>;
-    watchedByMonth: { month: string; count: number }[];
-    topGenres: { name: string; count: number }[];
-    likedCount: number;
-    rewatches: number;
-    firstWatches: number;
-    rewatchPercentage: number;
-    decades: { decade: string; count: number }[];
-    topDirectors: { name: string; count: number; avgRating: number | null }[];
-    topCast: { name: string; count: number; avgRating: number | null }[];
-    availableYears: string[];
+  public static calculateStreaks(dates: string[]): { currentStreak: number; longestStreak: number } {
+    if (!dates.length) {
+      return { currentStreak: 0, longestStreak: 0 };
+    }
+    const uniqueDays = Array.from(
+      new Set(dates.map((d) => d.slice(0, 10)).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))),
+    ).sort();
+
+    if (!uniqueDays.length) {
+      return { currentStreak: 0, longestStreak: 0 };
+    }
+
+    let longest = 1;
+    let current = 1;
+
+    for (let i = 1; i < uniqueDays.length; i++) {
+      const prev = new Date(uniqueDays[i - 1] + 'T00:00:00Z').getTime();
+      const curr = new Date(uniqueDays[i] + 'T00:00:00Z').getTime();
+      const diffDays = Math.round((curr - prev) / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 1) {
+        current++;
+        if (current > longest) longest = current;
+      } else if (diffDays > 1) {
+        current = 1;
+      }
+    }
+
+    const now = new Date();
+    const today = now.toISOString().slice(0, 10);
+    const yesterdayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const yesterday = yesterdayDate.toISOString().slice(0, 10);
+
+    const lastDay = uniqueDays[uniqueDays.length - 1];
+    const isCurrentActive = lastDay === today || lastDay === yesterday;
+    const activeCurrentStreak = isCurrentActive ? current : 0;
+
+    return { currentStreak: activeCurrentStreak, longestStreak: Math.max(longest, activeCurrentStreak) };
+  }
+
+  public static calculateActivityHeatmap(
+    watched: WatchedEntry[],
+    days = 364,
+  ): { date: string; count: number; level: number }[] {
+    const dayCounts: Record<string, number> = {};
+    watched.forEach((e) => {
+      if (e.watchedAt) {
+        const day = e.watchedAt.slice(0, 10);
+        dayCounts[day] = (dayCounts[day] || 0) + 1;
+      }
+    });
+
+    const result: { date: string; count: number; level: number }[] = [];
+    const now = new Date();
+
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const dateStr = d.toISOString().slice(0, 10);
+      const count = dayCounts[dateStr] || 0;
+      let level = 0;
+      if (count === 1) level = 1;
+      else if (count === 2) level = 2;
+      else if (count === 3) level = 3;
+      else if (count >= 4) level = 4;
+
+      result.push({ date: dateStr, count, level });
+    }
+
+    return result;
+  }
+
+  public static calculateWeekdayDistribution(
+    watched: WatchedEntry[],
+  ): { day: string; count: number }[] {
+    const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const counts = [0, 0, 0, 0, 0, 0, 0];
+
+    watched.forEach((e) => {
+      if (e.watchedAt) {
+        const d = new Date(e.watchedAt);
+        if (!isNaN(d.getTime())) {
+          const dayIdx = (d.getUTCDay() + 6) % 7;
+          counts[dayIdx]++;
+        }
+      }
+    });
+
+    return weekdays.map((day, idx) => ({ day, count: counts[idx] }));
+  }
+
+  public static calculateRuntimeDistribution(
+    watched: WatchedEntry[],
+  ): { range: string; count: number }[] {
+    const buckets = [
+      { range: '< 90m', count: 0 },
+      { range: '90–120m', count: 0 },
+      { range: '120–150m', count: 0 },
+      { range: '150m+', count: 0 },
+    ];
+
+    watched.forEach((e) => {
+      const mins = e.snapshot?.runtimeMinutes || (e.media_type === 'tv' ? 45 : 108);
+      if (mins < 90) buckets[0].count++;
+      else if (mins <= 120) buckets[1].count++;
+      else if (mins <= 150) buckets[2].count++;
+      else buckets[3].count++;
+    });
+
+    return buckets;
+  }
+
+  public static calculateControversialPicks(
+    watched: WatchedEntry[],
+  ): {
+    crowdDeltaAverage: number | null;
+    controversialPicks: { id: number; title: string; userRating: number; tmdbRating: number; delta: number }[];
   } {
+    const scored: { id: number; title: string; userRating: number; tmdbRating: number; delta: number }[] = [];
+    let deltaSum = 0;
+
+    watched.forEach((e) => {
+      if (typeof e.rating === 'number' && e.snapshot?.tmdbVoteAverage) {
+        const tmdbRating = Number((e.snapshot.tmdbVoteAverage / 2).toFixed(1));
+        const delta = Number((e.rating - tmdbRating).toFixed(1));
+        deltaSum += delta;
+        scored.push({
+          id: e.id,
+          title: e.title,
+          userRating: e.rating,
+          tmdbRating,
+          delta,
+        });
+      }
+    });
+
+    scored.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+    const crowdDeltaAverage = scored.length ? Number((deltaSum / scored.length).toFixed(2)) : null;
+
+    return {
+      crowdDeltaAverage,
+      controversialPicks: scored.slice(0, 5),
+    };
+  }
+
+  getStats(yearFilter?: string): UserStats {
     const allWatched = Object.values(this.getWatched());
 
     // Compute all years for dropdown
@@ -657,6 +829,7 @@ export class UserDataService {
     const totalWatched = watched.length;
     const totalMovies = watched.filter((e) => e.media_type === 'movie').length;
     const totalTv = watched.filter((e) => e.media_type === 'tv').length;
+    const undatedCount = watched.filter((e) => e.dateUnknown || !e.watchedAt).length;
 
     // Use actual snapshot runtimes where available, otherwise fall back to 1.8h (108 mins)
     let totalMinutes = 0;
@@ -695,24 +868,35 @@ export class UserDataService {
 
     // Compute real genres from snapshots if present, otherwise fall back to entry tags
     const genreCounts: Record<string, number> = {};
+    const genreRatingSum: Record<string, number> = {};
+    const genreRatingCount: Record<string, number> = {};
+
     watched.forEach((entry) => {
-      if (entry.snapshot?.genres && entry.snapshot.genres.length > 0) {
-        entry.snapshot.genres.forEach((g) => {
-          if (g.name) {
-            genreCounts[g.name] = (genreCounts[g.name] || 0) + 1;
-          }
-        });
-      } else if (entry.tags && entry.tags.length > 0) {
-        entry.tags.forEach((tag) => {
-          if (tag) {
-            genreCounts[tag] = (genreCounts[tag] || 0) + 1;
-          }
-        });
-      }
+      const genres = (entry.snapshot?.genres && entry.snapshot.genres.length > 0)
+        ? entry.snapshot.genres.map((g) => g.name).filter(Boolean)
+        : (entry.tags || []);
+
+      genres.forEach((name) => {
+        if (!name) return;
+        genreCounts[name] = (genreCounts[name] || 0) + 1;
+        if (typeof entry.rating === 'number') {
+          genreRatingSum[name] = (genreRatingSum[name] || 0) + entry.rating;
+          genreRatingCount[name] = (genreRatingCount[name] || 0) + 1;
+        }
+      });
     });
 
     const topGenres = Object.entries(genreCounts)
       .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    const genreAverages = Object.entries(genreRatingCount)
+      .map(([name, count]) => ({
+        name,
+        count,
+        avgRating: Number((genreRatingSum[name] / count).toFixed(1)),
+      }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
 
@@ -723,26 +907,42 @@ export class UserDataService {
     const firstWatches = totalWatched - rewatches;
     const rewatchPercentage = totalWatched > 0 ? Math.round((rewatches / totalWatched) * 100) : 0;
 
-    // Decades distribution
+    // Decades distribution and averages
     const decadeCounts: Record<string, number> = {};
+    const decadeRatingSum: Record<string, number> = {};
+    const decadeRatingCount: Record<string, number> = {};
+
     watched.forEach((e) => {
       const year = e.snapshot?.releaseYear || (e.release_date ? parseInt(e.release_date.slice(0, 4), 10) : undefined);
       if (year && year >= 1900 && year <= 2099) {
         const dec = `${Math.floor(year / 10) * 10}s`;
         decadeCounts[dec] = (decadeCounts[dec] || 0) + 1;
+        if (typeof e.rating === 'number') {
+          decadeRatingSum[dec] = (decadeRatingSum[dec] || 0) + e.rating;
+          decadeRatingCount[dec] = (decadeRatingCount[dec] || 0) + 1;
+        }
       }
     });
+
     const decades = Object.entries(decadeCounts)
       .map(([decade, count]) => ({ decade, count }))
       .sort((a, b) => a.decade.localeCompare(b.decade));
 
-    // Top Directors
+    const decadeAverages = Object.entries(decadeRatingCount)
+      .map(([decade, count]) => ({
+        decade,
+        count,
+        avgRating: Number((decadeRatingSum[decade] / count).toFixed(1)),
+      }))
+      .sort((a, b) => a.decade.localeCompare(b.decade));
+
+    // Top Directors with minimum sample rule (min 3 films)
     const directorMap = new Map<string, { count: number; ratings: number[] }>();
     watched.forEach((e) => {
       e.snapshot?.directors?.forEach((d) => {
         const current = directorMap.get(d.name) || { count: 0, ratings: [] };
         current.count++;
-        if (e.rating !== null) current.ratings.push(e.rating);
+        if (typeof e.rating === 'number') current.ratings.push(e.rating);
         directorMap.set(d.name, current);
       });
     });
@@ -750,18 +950,20 @@ export class UserDataService {
       .map(([name, data]) => ({
         name,
         count: data.count,
-        avgRating: data.ratings.length ? Number((data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length).toFixed(1)) : null,
+        avgRating: data.count >= 3 && data.ratings.length >= 3
+          ? Number((data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length).toFixed(1))
+          : null,
       }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
 
-    // Top Cast
+    // Top Cast with minimum sample rule (min 3 films)
     const castMap = new Map<string, { count: number; ratings: number[] }>();
     watched.forEach((e) => {
       e.snapshot?.topCast?.forEach((c) => {
         const current = castMap.get(c.name) || { count: 0, ratings: [] };
         current.count++;
-        if (e.rating !== null) current.ratings.push(e.rating);
+        if (typeof e.rating === 'number') current.ratings.push(e.rating);
         castMap.set(c.name, current);
       });
     });
@@ -769,10 +971,81 @@ export class UserDataService {
       .map(([name, data]) => ({
         name,
         count: data.count,
-        avgRating: data.ratings.length ? Number((data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length).toFixed(1)) : null,
+        avgRating: data.count >= 3 && data.ratings.length >= 3
+          ? Number((data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length).toFixed(1))
+          : null,
       }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
+
+    // Activity heatmap & streaks
+    const activityHeatmap = UserDataService.calculateActivityHeatmap(watched);
+    const validDates = watched.filter((e) => e.watchedAt).map((e) => e.watchedAt!);
+    const { currentStreak, longestStreak } = UserDataService.calculateStreaks(validDates);
+
+    // Weekdays
+    const watchedByWeekday = UserDataService.calculateWeekdayDistribution(watched);
+
+    // Runtime distribution
+    const runtimeDistribution = UserDataService.calculateRuntimeDistribution(watched);
+
+    // Production countries & languages
+    const countryCounts: Record<string, number> = {};
+    const langCounts: Record<string, number> = {};
+    watched.forEach((e) => {
+      (e.snapshot?.productionCountries || []).forEach((c) => {
+        if (c) countryCounts[c] = (countryCounts[c] || 0) + 1;
+      });
+      if (e.snapshot?.originalLanguage) {
+        langCounts[e.snapshot.originalLanguage] = (langCounts[e.snapshot.originalLanguage] || 0) + 1;
+      }
+    });
+
+    const productionCountries = Object.entries(countryCounts)
+      .map(([country, count]) => ({ country, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    const languages = Object.entries(langCounts)
+      .map(([language, count]) => ({ language, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    // Crowd Delta & Controversy
+    const { crowdDeltaAverage, controversialPicks } = UserDataService.calculateControversialPicks(watched);
+
+    // TV Analytics
+    const settings = this.getSettingsRecord();
+    const episodeMap = settings.episodeWatched || {};
+    const episodesWatched = Object.values(episodeMap).filter(Boolean).length;
+    const tvShowIds = new Set(Object.keys(episodeMap).map((k) => k.split('-')[0]));
+    const inProgressShows = tvShowIds.size;
+    const tvAnalytics = {
+      episodesWatched,
+      completedSeasons: Math.floor(episodesWatched / 10), // approximate full season equivalent
+      inProgressShows,
+      totalTvHours: Number(((totalTv * 45) / 60).toFixed(1)),
+    };
+
+    // Watchlist Health
+    const watchlist = this.getWatchlist();
+    const now = new Date().getTime();
+    let totalAgeMs = 0;
+    watchlist.forEach((w) => {
+      const addedTime = w.addedAt ? new Date(w.addedAt).getTime() : now;
+      totalAgeMs += Math.max(0, now - addedTime);
+    });
+    const averageAgeDays = watchlist.length ? Math.round(totalAgeMs / (watchlist.length * 1000 * 60 * 60 * 24)) : 0;
+    const totalPotential = totalWatched + watchlist.length;
+    const completionRate = totalPotential > 0 ? Math.round((totalWatched / totalPotential) * 100) : 0;
+    const runtimeToClearHours = Number(((watchlist.length * 108) / 60).toFixed(1));
+
+    const watchlistHealth = {
+      totalItems: watchlist.length,
+      completionRate,
+      averageAgeDays,
+      runtimeToClearHours,
+    };
 
     return {
       totalWatched,
@@ -791,7 +1064,30 @@ export class UserDataService {
       topDirectors,
       topCast,
       availableYears,
+      undatedCount,
+      activityHeatmap,
+      currentStreak,
+      longestStreak,
+      watchedByWeekday,
+      runtimeDistribution,
+      productionCountries,
+      languages,
+      crowdDeltaAverage,
+      controversialPicks,
+      genreAverages,
+      decadeAverages,
+      tvAnalytics,
+      watchlistHealth,
     };
+  }
+
+  public pickWatchlistRoulette(): WatchlistEntry | null {
+    const watchlist = this.getWatchlist();
+    if (!watchlist.length) {
+      return null;
+    }
+    const idx = Math.floor(Math.random() * watchlist.length);
+    return watchlist[idx];
   }
 
   // ── Episode Helpers ──────────────────────────────────────────────────────
