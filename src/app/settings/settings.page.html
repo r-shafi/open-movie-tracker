@@ -224,6 +224,98 @@
       Data
     </p>
 
+    <!-- Letterboxd Interoperability -->
+    <button
+      class="settings-card settings-stack settings-stack--toggle mb-2 w-full rounded-xl border px-3 py-3 text-left transition-colors hover:bg-white/5"
+      style="border-color: var(--ion-color-step-100)"
+      (click)="importLetterboxd()"
+    >
+      <div class="settings-stack__header">
+        <p class="m-0 text-[0.88rem] font-semibold text-primary">Import from Letterboxd</p>
+        <p
+          class="m-0 mt-[2px] text-[0.7rem]"
+          style="color: var(--ion-color-medium)"
+        >
+          Import diary, ratings, reviews, watchlist &amp; lists (.zip or .csv)
+        </p>
+      </div>
+      <div class="settings-stack__action settings-stack__action--end">
+        <ion-icon
+          name="film-outline"
+          class="text-primary text-lg"
+        ></ion-icon>
+      </div>
+    </button>
+
+    @if (hasLetterboxdBackup) {
+    <button
+      class="settings-card settings-stack settings-stack--toggle mb-2 w-full rounded-xl border border-warning/50 bg-warning/5 px-3 py-3 text-left transition-colors hover:bg-warning/10"
+      (click)="undoLetterboxdImport()"
+    >
+      <div class="settings-stack__header">
+        <p class="m-0 text-[0.88rem] font-semibold text-warning">Undo Last Letterboxd Import</p>
+        <p
+          class="m-0 mt-[2px] text-[0.7rem]"
+          style="color: var(--ion-color-medium)"
+        >
+          Revert your collection back to the pre-import backup snapshot
+        </p>
+      </div>
+      <div class="settings-stack__action settings-stack__action--end">
+        <ion-icon
+          name="arrow-undo-outline"
+          class="text-warning text-lg"
+        ></ion-icon>
+      </div>
+    </button>
+    }
+
+    <button
+      class="settings-card settings-stack settings-stack--toggle mb-2 w-full rounded-xl border px-3 py-3 text-left transition-colors hover:bg-white/5"
+      style="border-color: var(--ion-color-step-100)"
+      (click)="exportLetterboxdZip()"
+    >
+      <div class="settings-stack__header">
+        <p class="m-0 text-[0.88rem] font-semibold">Export to Letterboxd (ZIP)</p>
+        <p
+          class="m-0 mt-[2px] text-[0.7rem]"
+          style="color: var(--ion-color-medium)"
+        >
+          Download standard diary.csv, ratings.csv &amp; watchlist.csv archive
+        </p>
+      </div>
+      <div class="settings-stack__action settings-stack__action--end">
+        <ion-icon
+          name="archive-outline"
+          style="color: var(--ion-color-medium)"
+        ></ion-icon>
+      </div>
+    </button>
+
+    @if (missingMetadataCount > 0) {
+    <button
+      class="settings-card settings-stack settings-stack--toggle mb-2 w-full rounded-xl border px-3 py-3 text-left transition-colors hover:bg-white/5"
+      style="border-color: var(--ion-color-step-100)"
+      (click)="startMetadataBackfill()"
+    >
+      <div class="settings-stack__header">
+        <p class="m-0 text-[0.88rem] font-semibold">Sync Metadata for Offline Analytics</p>
+        <p
+          class="m-0 mt-[2px] text-[0.7rem]"
+          style="color: var(--ion-color-medium)"
+        >
+          {{ missingMetadataCount }} titles can be cached for offline stats &amp; genres
+        </p>
+      </div>
+      <div class="settings-stack__action settings-stack__action--end">
+        <ion-icon
+          name="sync-outline"
+          style="color: var(--ion-color-medium)"
+        ></ion-icon>
+      </div>
+    </button>
+    }
+
     <button
       class="settings-card settings-stack settings-stack--toggle mb-2 w-full rounded-xl border px-3 py-3 text-left transition-colors hover:bg-white/5"
       style="border-color: var(--ion-color-step-100)"

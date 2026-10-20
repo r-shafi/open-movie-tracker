@@ -56,6 +56,7 @@ export class WatchedPage {
   }
 
   watchedDate(entry: WatchedEntry): string {
+    if (!entry.watchedAt) return 'Unknown date';
     return new Date(entry.watchedAt).toLocaleDateString(undefined, {
       month: 'short',
       day: 'numeric',
@@ -115,10 +116,18 @@ export class WatchedPage {
   private sortEntries(entries: WatchedEntry[]): WatchedEntry[] {
     const sorted = [...entries];
     if (this.sortBy === 'newest') {
-      return sorted.sort((a, b) => b.watchedAt.localeCompare(a.watchedAt));
+      return sorted.sort((a, b) => {
+        if (a.dateUnknown && !b.dateUnknown) return 1;
+        if (!a.dateUnknown && b.dateUnknown) return -1;
+        return (b.watchedAt || '').localeCompare(a.watchedAt || '');
+      });
     }
     if (this.sortBy === 'oldest') {
-      return sorted.sort((a, b) => a.watchedAt.localeCompare(b.watchedAt));
+      return sorted.sort((a, b) => {
+        if (a.dateUnknown && !b.dateUnknown) return 1;
+        if (!a.dateUnknown && b.dateUnknown) return -1;
+        return (a.watchedAt || '').localeCompare(b.watchedAt || '');
+      });
     }
     if (this.sortBy === 'rating') {
       return sorted.sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1));

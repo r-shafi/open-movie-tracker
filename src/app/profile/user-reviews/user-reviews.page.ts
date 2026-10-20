@@ -18,7 +18,7 @@ export class UserReviewsPage {
   get reviewEntries(): WatchedEntry[] {
     const base = Object.values(this.userData.getWatched())
       .filter((entry) => !!entry.review.trim())
-      .sort((a, b) => b.watchedAt.localeCompare(a.watchedAt));
+      .sort((a, b) => (b.watchedAt || '').localeCompare(a.watchedAt || ''));
 
     const q = this.searchTerm.trim().toLowerCase();
     if (!q) {
@@ -42,6 +42,7 @@ export class UserReviewsPage {
   }
 
   watchDate(entry: WatchedEntry): string {
+    if (!entry.watchedAt) return 'Unknown date';
     return new Date(entry.watchedAt).toLocaleDateString(undefined, {
       month: 'short',
       day: 'numeric',

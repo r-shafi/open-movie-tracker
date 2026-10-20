@@ -29,6 +29,10 @@ export class TmdbService {
     return custom || environment.tmdbApiKey;
   }
 
+  public getApiKey(): string {
+    return this.key;
+  }
+
   constructor(
     private http: HttpClient,
     private userData: UserDataService,
@@ -234,7 +238,11 @@ export class TmdbService {
   }
 
   getMovie(id: number | string): Observable<any> {
-    return this.get(`/movie/${id}`, { append_to_response: 'release_dates' });
+    return this.get(`/movie/${id}`, { append_to_response: 'release_dates,credits' });
+  }
+
+  getMovieDetails(id: number | string): Observable<any> {
+    return this.getMovie(id);
   }
 
   getMovieCredits(id: number | string): Observable<any> {

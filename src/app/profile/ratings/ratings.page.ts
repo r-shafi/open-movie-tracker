@@ -31,7 +31,7 @@ export class RatingsPage {
     if (this.sortBy === 'lowest') {
       return mediaFiltered.sort((a, b) => (a.rating || 0) - (b.rating || 0));
     }
-    return mediaFiltered.sort((a, b) => b.watchedAt.localeCompare(a.watchedAt));
+    return mediaFiltered.sort((a, b) => (b.watchedAt || '').localeCompare(a.watchedAt || ''));
   }
 
   detailLink(entry: WatchedEntry): any[] {

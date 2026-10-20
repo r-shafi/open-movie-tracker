@@ -19,7 +19,7 @@ export class LikedPage {
   get likedEntries(): WatchedEntry[] {
     const all = Object.values(this.userData.getWatched())
       .filter((entry) => entry.liked)
-      .sort((a, b) => b.watchedAt.localeCompare(a.watchedAt));
+      .sort((a, b) => (b.watchedAt || '').localeCompare(a.watchedAt || ''));
 
     if (this.activeTab === 'all') {
       return this.filterSearch(all);
@@ -36,6 +36,7 @@ export class LikedPage {
   }
 
   watchedDate(entry: WatchedEntry): string {
+    if (!entry.watchedAt) return 'Unknown date';
     return new Date(entry.watchedAt).toLocaleDateString(undefined, {
       month: 'short',
       day: 'numeric',

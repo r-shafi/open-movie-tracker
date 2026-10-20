@@ -106,8 +106,7 @@ export class ProfilePage {
   }
 
   get watchedEntries(): WatchedEntry[] {
-    const entries = Object.values(this.userData.getWatched());
-    return entries.sort((a, b) => b.watchedAt.localeCompare(a.watchedAt));
+    return this.userData.getWatchedList();
   }
 
   get visibleActivity(): WatchedEntry[] {
@@ -145,6 +144,9 @@ export class ProfilePage {
     const groups: { month: string; entries: WatchedEntry[] }[] = [];
     const seen = new Set<string>();
     for (const entry of this.visibleActivity) {
+      if (!entry.watchedAt || entry.dateUnknown) {
+        continue;
+      }
       const d = new Date(entry.watchedAt);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
       if (!seen.has(key)) {

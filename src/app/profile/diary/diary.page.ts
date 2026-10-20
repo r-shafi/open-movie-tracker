@@ -20,13 +20,13 @@ export class DiaryPage {
   ) {}
 
   get groupedEntries(): Array<{ month: string; entries: WatchedEntry[] }> {
-    const entries = Object.values(this.userData.getWatched()).sort((a, b) =>
-      b.watchedAt.localeCompare(a.watchedAt),
-    );
+    const entries = this.userData
+      .getWatchedList()
+      .filter((e) => !e.dateUnknown && e.watchedAt);
 
     const groups = new Map<string, WatchedEntry[]>();
     entries.forEach((entry) => {
-      const d = new Date(entry.watchedAt);
+      const d = new Date(entry.watchedAt!);
       const month = d.toLocaleDateString(undefined, {
         month: 'long',
         year: 'numeric',
@@ -53,6 +53,7 @@ export class DiaryPage {
   }
 
   watchDate(entry: WatchedEntry): string {
+    if (!entry.watchedAt) return 'Unknown date';
     return new Date(entry.watchedAt).toLocaleDateString(undefined, {
       month: 'short',
       day: 'numeric',
@@ -61,11 +62,13 @@ export class DiaryPage {
   }
 
   watchDay(entry: WatchedEntry): string {
+    if (!entry.watchedAt) return '--';
     const day = new Date(entry.watchedAt).getDate();
     return String(day).padStart(2, '0');
   }
 
   watchMonth(entry: WatchedEntry): string {
+    if (!entry.watchedAt) return '---';
     return new Date(entry.watchedAt)
       .toLocaleDateString(undefined, { month: 'short' })
       .toUpperCase();

@@ -1,0 +1,801 @@
+Date,Name,Year,Letterboxd URI,Rating,Rewatch,Tags,Watched Date
+2023-02-02,Solaris Echo Vol. 2,1951,https://boxd.it/synth2,4.5,No,"synth, sci-fi",2023-02-02
+2023-03-03,Midnight in Berlin Vol. 3,1952,https://boxd.it/synth3,3.5,No,"synth, drama",2023-03-03
+2023-04-04,The Glass Horizon Vol. 4,1953,https://boxd.it/synth4,2.5,No,"synth, comedy",2023-04-04
+2023-05-05,Shadows of the Past Vol. 5,1954,https://boxd.it/synth5,1.5,No,"synth, thriller",2023-05-05
+2023-07-07,Lost Latitude Vol. 7,1956,https://boxd.it/synth7,4.0,No,"synth, documentary",2023-07-07
+2023-08-08,Whispers in the Dark Vol. 8,1957,https://boxd.it/synth8,3.0,Yes,"synth, action",2023-08-08
+2023-09-09,The Autumn Protocol Vol. 9,1958,https://boxd.it/synth9,2.0,No,"synth, sci-fi",2023-09-09
+2023-10-10,Velocity Vol. 10,1959,https://boxd.it/synth10,1.0,No,"synth, drama",2023-10-10
+2023-12-12,Subterranean Vol. 12,1961,https://boxd.it/synth12,3.5,No,"synth, thriller",2023-12-12
+2023-01-13,A Silent Symphony Vol. 13,1962,https://boxd.it/synth13,2.5,No,"synth, horror",2023-01-13
+2023-02-14,Echoes of Eternity Vol. 14,1963,https://boxd.it/synth14,1.5,No,"synth, documentary",2023-02-14
+2023-03-15,The Last Archivist Vol. 15,1964,https://boxd.it/synth15,5.0,Yes,"synth, action",2023-03-15
+2023-05-17,Vortex 9 Vol. 17,1966,https://boxd.it/synth17,3.0,No,"synth, drama",2023-05-17
+2023-06-18,Fragments Vol. 18,1967,https://boxd.it/synth18,2.0,No,"synth, comedy",2023-06-18
+2023-07-19,The Cartographer Vol. 19,1968,https://boxd.it/synth19,1.0,No,"synth, thriller",2023-07-19
+2023-08-20,Nightfall Over Tokyo Vol. 20,1969,https://boxd.it/synth20,4.5,No,"synth, horror",2023-08-20
+2023-10-22,Solaris Echo Vol. 22,1971,https://boxd.it/synth22,2.5,Yes,"synth, action",2023-10-22
+2023-11-23,Midnight in Berlin Vol. 23,1972,https://boxd.it/synth23,1.5,No,"synth, sci-fi",2023-11-23
+2023-12-24,The Glass Horizon Vol. 24,1973,https://boxd.it/synth24,5.0,No,"synth, drama",2023-12-24
+2023-01-25,Shadows of the Past Vol. 25,1974,https://boxd.it/synth25,4.0,No,"synth, comedy",2023-01-25
+2023-03-27,Lost Latitude Vol. 27,1976,https://boxd.it/synth27,2.0,No,"synth, horror",2023-03-27
+2023-04-28,Whispers in the Dark Vol. 28,1977,https://boxd.it/synth28,1.0,No,"synth, documentary",2023-04-28
+2023-05-01,The Autumn Protocol Vol. 29,1978,https://boxd.it/synth29,4.5,Yes,"synth, action",2023-05-01
+2023-06-02,Velocity Vol. 30,1979,https://boxd.it/synth30,3.5,No,"synth, sci-fi",2023-06-02
+2023-08-04,Subterranean Vol. 32,1981,https://boxd.it/synth32,1.5,No,"synth, comedy",2023-08-04
+2023-09-05,A Silent Symphony Vol. 33,1982,https://boxd.it/synth33,5.0,No,"synth, thriller",2023-09-05
+2023-10-06,Echoes of Eternity Vol. 34,1983,https://boxd.it/synth34,4.0,No,"synth, horror",2023-10-06
+2023-11-07,The Last Archivist Vol. 35,1984,https://boxd.it/synth35,3.0,No,"synth, documentary",2023-11-07
+2023-01-09,Vortex 9 Vol. 37,1986,https://boxd.it/synth37,1.0,No,"synth, sci-fi",2023-01-09
+2023-02-10,Fragments Vol. 38,1987,https://boxd.it/synth38,4.5,No,"synth, drama",2023-02-10
+2023-03-11,The Cartographer Vol. 39,1988,https://boxd.it/synth39,3.5,No,"synth, comedy",2023-03-11
+2023-04-12,Nightfall Over Tokyo Vol. 40,1989,https://boxd.it/synth40,2.5,No,"synth, thriller",2023-04-12
+2023-06-14,Solaris Echo Vol. 42,1991,https://boxd.it/synth42,5.0,No,"synth, documentary",2023-06-14
+2023-07-15,Midnight in Berlin Vol. 43,1992,https://boxd.it/synth43,4.0,Yes,"synth, action",2023-07-15
+2023-08-16,The Glass Horizon Vol. 44,1993,https://boxd.it/synth44,3.0,No,"synth, sci-fi",2023-08-16
+2023-09-17,Shadows of the Past Vol. 45,1994,https://boxd.it/synth45,2.0,No,"synth, drama",2023-09-17
+2023-11-19,Lost Latitude Vol. 47,1996,https://boxd.it/synth47,4.5,No,"synth, thriller",2023-11-19
+2023-12-20,Whispers in the Dark Vol. 48,1997,https://boxd.it/synth48,3.5,No,"synth, horror",2023-12-20
+2023-01-21,The Autumn Protocol Vol. 49,1998,https://boxd.it/synth49,2.5,No,"synth, documentary",2023-01-21
+2023-02-22,Velocity Vol. 50,1999,https://boxd.it/synth50,1.5,Yes,"synth, action",2023-02-22
+2023-04-24,Subterranean Vol. 52,2001,https://boxd.it/synth52,4.0,No,"synth, drama",2023-04-24
+2023-05-25,A Silent Symphony Vol. 53,2002,https://boxd.it/synth53,3.0,No,"synth, comedy",2023-05-25
+2023-06-26,Echoes of Eternity Vol. 54,2003,https://boxd.it/synth54,2.0,No,"synth, thriller",2023-06-26
+2023-07-27,The Last Archivist Vol. 55,2004,https://boxd.it/synth55,1.0,No,"synth, horror",2023-07-27
+2023-09-01,Vortex 9 Vol. 57,2006,https://boxd.it/synth57,3.5,Yes,"synth, action",2023-09-01
+2023-10-02,Fragments Vol. 58,2007,https://boxd.it/synth58,2.5,No,"synth, sci-fi",2023-10-02
+2023-11-03,The Cartographer Vol. 59,2008,https://boxd.it/synth59,1.5,No,"synth, drama",2023-11-03
+2023-12-04,Nightfall Over Tokyo Vol. 60,2009,https://boxd.it/synth60,5.0,No,"synth, comedy",2023-12-04
+2023-02-06,Solaris Echo Vol. 62,2011,https://boxd.it/synth62,3.0,No,"synth, horror",2023-02-06
+2023-03-07,Midnight in Berlin Vol. 63,2012,https://boxd.it/synth63,2.0,No,"synth, documentary",2023-03-07
+2023-04-08,The Glass Horizon Vol. 64,2013,https://boxd.it/synth64,1.0,Yes,"synth, action",2023-04-08
+2023-05-09,Shadows of the Past Vol. 65,2014,https://boxd.it/synth65,4.5,No,"synth, sci-fi",2023-05-09
+2023-07-11,Lost Latitude Vol. 67,2016,https://boxd.it/synth67,2.5,No,"synth, comedy",2023-07-11
+2023-08-12,Whispers in the Dark Vol. 68,2017,https://boxd.it/synth68,1.5,No,"synth, thriller",2023-08-12
+2023-09-13,The Autumn Protocol Vol. 69,2018,https://boxd.it/synth69,5.0,No,"synth, horror",2023-09-13
+2023-10-14,Velocity Vol. 70,2019,https://boxd.it/synth70,4.0,No,"synth, documentary",2023-10-14
+2023-12-16,Subterranean Vol. 72,2021,https://boxd.it/synth72,2.0,No,"synth, sci-fi",2023-12-16
+2023-01-17,A Silent Symphony Vol. 73,2022,https://boxd.it/synth73,1.0,No,"synth, drama",2023-01-17
+2023-02-18,Echoes of Eternity Vol. 74,2023,https://boxd.it/synth74,4.5,No,"synth, comedy",2023-02-18
+2023-03-19,The Last Archivist Vol. 75,2024,https://boxd.it/synth75,3.5,No,"synth, thriller",2023-03-19
+2023-05-21,Vortex 9 Vol. 77,1951,https://boxd.it/synth77,1.5,No,"synth, documentary",2023-05-21
+2023-06-22,Fragments Vol. 78,1952,https://boxd.it/synth78,5.0,Yes,"synth, action",2023-06-22
+2023-07-23,The Cartographer Vol. 79,1953,https://boxd.it/synth79,4.0,No,"synth, sci-fi",2023-07-23
+2023-08-24,Nightfall Over Tokyo Vol. 80,1954,https://boxd.it/synth80,3.0,No,"synth, drama",2023-08-24
+2023-10-26,Solaris Echo Vol. 82,1956,https://boxd.it/synth82,1.0,No,"synth, thriller",2023-10-26
+2023-11-27,Midnight in Berlin Vol. 83,1957,https://boxd.it/synth83,4.5,No,"synth, horror",2023-11-27
+2023-12-28,The Glass Horizon Vol. 84,1958,https://boxd.it/synth84,3.5,No,"synth, documentary",2023-12-28
+2023-01-01,Shadows of the Past Vol. 85,1959,https://boxd.it/synth85,2.5,Yes,"synth, action",2023-01-01
+2023-03-03,Lost Latitude Vol. 87,1961,https://boxd.it/synth87,5.0,No,"synth, drama",2023-03-03
+2023-04-04,Whispers in the Dark Vol. 88,1962,https://boxd.it/synth88,4.0,No,"synth, comedy",2023-04-04
+2023-05-05,The Autumn Protocol Vol. 89,1963,https://boxd.it/synth89,3.0,No,"synth, thriller",2023-05-05
+2023-06-06,Velocity Vol. 90,1964,https://boxd.it/synth90,2.0,No,"synth, horror",2023-06-06
+2023-08-08,Subterranean Vol. 92,1966,https://boxd.it/synth92,4.5,Yes,"synth, action",2023-08-08
+2023-09-09,A Silent Symphony Vol. 93,1967,https://boxd.it/synth93,3.5,No,"synth, sci-fi",2023-09-09
+2023-10-10,Echoes of Eternity Vol. 94,1968,https://boxd.it/synth94,2.5,No,"synth, drama",2023-10-10
+2023-11-11,The Last Archivist Vol. 95,1969,https://boxd.it/synth95,1.5,No,"synth, comedy",2023-11-11
+2023-01-13,Vortex 9 Vol. 97,1971,https://boxd.it/synth97,4.0,No,"synth, horror",2023-01-13
+2023-02-14,Fragments Vol. 98,1972,https://boxd.it/synth98,3.0,No,"synth, documentary",2023-02-14
+2023-03-15,The Cartographer Vol. 99,1973,https://boxd.it/synth99,2.0,Yes,"synth, action",2023-03-15
+2023-04-16,Nightfall Over Tokyo Vol. 100,1974,https://boxd.it/synth100,1.0,No,"synth, sci-fi",2023-04-16
+2023-06-18,Solaris Echo Vol. 102,1976,https://boxd.it/synth102,3.5,No,"synth, comedy",2023-06-18
+2023-07-19,Midnight in Berlin Vol. 103,1977,https://boxd.it/synth103,2.5,No,"synth, thriller",2023-07-19
+2023-08-20,The Glass Horizon Vol. 104,1978,https://boxd.it/synth104,1.5,No,"synth, horror",2023-08-20
+2023-09-21,Shadows of the Past Vol. 105,1979,https://boxd.it/synth105,5.0,No,"synth, documentary",2023-09-21
+2023-11-23,Lost Latitude Vol. 107,1981,https://boxd.it/synth107,3.0,No,"synth, sci-fi",2023-11-23
+2023-12-24,Whispers in the Dark Vol. 108,1982,https://boxd.it/synth108,2.0,No,"synth, drama",2023-12-24
+2023-01-25,The Autumn Protocol Vol. 109,1983,https://boxd.it/synth109,1.0,No,"synth, comedy",2023-01-25
+2023-02-26,Velocity Vol. 110,1984,https://boxd.it/synth110,4.5,No,"synth, thriller",2023-02-26
+2023-04-28,Subterranean Vol. 112,1986,https://boxd.it/synth112,2.5,No,"synth, documentary",2023-04-28
+2023-05-01,A Silent Symphony Vol. 113,1987,https://boxd.it/synth113,1.5,Yes,"synth, action",2023-05-01
+2023-06-02,Echoes of Eternity Vol. 114,1988,https://boxd.it/synth114,5.0,No,"synth, sci-fi",2023-06-02
+2023-07-03,The Last Archivist Vol. 115,1989,https://boxd.it/synth115,4.0,No,"synth, drama",2023-07-03
+2023-09-05,Vortex 9 Vol. 117,1991,https://boxd.it/synth117,2.0,No,"synth, thriller",2023-09-05
+2023-10-06,Fragments Vol. 118,1992,https://boxd.it/synth118,1.0,No,"synth, horror",2023-10-06
+2023-11-07,The Cartographer Vol. 119,1993,https://boxd.it/synth119,4.5,No,"synth, documentary",2023-11-07
+2023-12-08,Nightfall Over Tokyo Vol. 120,1994,https://boxd.it/synth120,3.5,Yes,"synth, action",2023-12-08
+2023-02-10,Solaris Echo Vol. 122,1996,https://boxd.it/synth122,1.5,No,"synth, drama",2023-02-10
+2023-03-11,Midnight in Berlin Vol. 123,1997,https://boxd.it/synth123,5.0,No,"synth, comedy",2023-03-11
+2023-04-12,The Glass Horizon Vol. 124,1998,https://boxd.it/synth124,4.0,No,"synth, thriller",2023-04-12
+2023-05-13,Shadows of the Past Vol. 125,1999,https://boxd.it/synth125,3.0,No,"synth, horror",2023-05-13
+2023-07-15,Lost Latitude Vol. 127,2001,https://boxd.it/synth127,1.0,Yes,"synth, action",2023-07-15
+2023-08-16,Whispers in the Dark Vol. 128,2002,https://boxd.it/synth128,4.5,No,"synth, sci-fi",2023-08-16
+2023-09-17,The Autumn Protocol Vol. 129,2003,https://boxd.it/synth129,3.5,No,"synth, drama",2023-09-17
+2023-10-18,Velocity Vol. 130,2004,https://boxd.it/synth130,2.5,No,"synth, comedy",2023-10-18
+2023-12-20,Subterranean Vol. 132,2006,https://boxd.it/synth132,5.0,No,"synth, horror",2023-12-20
+2023-01-21,A Silent Symphony Vol. 133,2007,https://boxd.it/synth133,4.0,No,"synth, documentary",2023-01-21
+2023-02-22,Echoes of Eternity Vol. 134,2008,https://boxd.it/synth134,3.0,Yes,"synth, action",2023-02-22
+2023-03-23,The Last Archivist Vol. 135,2009,https://boxd.it/synth135,2.0,No,"synth, sci-fi",2023-03-23
+2023-05-25,Vortex 9 Vol. 137,2011,https://boxd.it/synth137,4.5,No,"synth, comedy",2023-05-25
+2023-06-26,Fragments Vol. 138,2012,https://boxd.it/synth138,3.5,No,"synth, thriller",2023-06-26
+2023-07-27,The Cartographer Vol. 139,2013,https://boxd.it/synth139,2.5,No,"synth, horror",2023-07-27
+2023-08-28,Nightfall Over Tokyo Vol. 140,2014,https://boxd.it/synth140,1.5,No,"synth, documentary",2023-08-28
+2023-10-02,Solaris Echo Vol. 142,2016,https://boxd.it/synth142,4.0,No,"synth, sci-fi",2023-10-02
+2023-11-03,Midnight in Berlin Vol. 143,2017,https://boxd.it/synth143,3.0,No,"synth, drama",2023-11-03
+2023-12-04,The Glass Horizon Vol. 144,2018,https://boxd.it/synth144,2.0,No,"synth, comedy",2023-12-04
+2023-01-05,Shadows of the Past Vol. 145,2019,https://boxd.it/synth145,1.0,No,"synth, thriller",2023-01-05
+2023-03-07,Lost Latitude Vol. 147,2021,https://boxd.it/synth147,3.5,No,"synth, documentary",2023-03-07
+2023-04-08,Whispers in the Dark Vol. 148,2022,https://boxd.it/synth148,2.5,Yes,"synth, action",2023-04-08
+2023-05-09,The Autumn Protocol Vol. 149,2023,https://boxd.it/synth149,1.5,No,"synth, sci-fi",2023-05-09
+2023-06-10,Velocity Vol. 150,2024,https://boxd.it/synth150,5.0,No,"synth, drama",2023-06-10
+2023-08-12,Subterranean Vol. 152,1951,https://boxd.it/synth152,3.0,No,"synth, thriller",2023-08-12
+2023-09-13,A Silent Symphony Vol. 153,1952,https://boxd.it/synth153,2.0,No,"synth, horror",2023-09-13
+2023-10-14,Echoes of Eternity Vol. 154,1953,https://boxd.it/synth154,1.0,No,"synth, documentary",2023-10-14
+2023-11-15,The Last Archivist Vol. 155,1954,https://boxd.it/synth155,4.5,Yes,"synth, action",2023-11-15
+2023-01-17,Vortex 9 Vol. 157,1956,https://boxd.it/synth157,2.5,No,"synth, drama",2023-01-17
+2023-02-18,Fragments Vol. 158,1957,https://boxd.it/synth158,1.5,No,"synth, comedy",2023-02-18
+2023-03-19,The Cartographer Vol. 159,1958,https://boxd.it/synth159,5.0,No,"synth, thriller",2023-03-19
+2023-04-20,Nightfall Over Tokyo Vol. 160,1959,https://boxd.it/synth160,4.0,No,"synth, horror",2023-04-20
+2023-06-22,Solaris Echo Vol. 162,1961,https://boxd.it/synth162,2.0,Yes,"synth, action",2023-06-22
+2023-07-23,Midnight in Berlin Vol. 163,1962,https://boxd.it/synth163,1.0,No,"synth, sci-fi",2023-07-23
+2023-08-24,The Glass Horizon Vol. 164,1963,https://boxd.it/synth164,4.5,No,"synth, drama",2023-08-24
+2023-09-25,Shadows of the Past Vol. 165,1964,https://boxd.it/synth165,3.5,No,"synth, comedy",2023-09-25
+2023-11-27,Lost Latitude Vol. 167,1966,https://boxd.it/synth167,1.5,No,"synth, horror",2023-11-27
+2023-12-28,Whispers in the Dark Vol. 168,1967,https://boxd.it/synth168,5.0,No,"synth, documentary",2023-12-28
+2023-01-01,The Autumn Protocol Vol. 169,1968,https://boxd.it/synth169,4.0,Yes,"synth, action",2023-01-01
+2023-02-02,Velocity Vol. 170,1969,https://boxd.it/synth170,3.0,No,"synth, sci-fi",2023-02-02
+2023-04-04,Subterranean Vol. 172,1971,https://boxd.it/synth172,1.0,No,"synth, comedy",2023-04-04
+2023-05-05,A Silent Symphony Vol. 173,1972,https://boxd.it/synth173,4.5,No,"synth, thriller",2023-05-05
+2023-06-06,Echoes of Eternity Vol. 174,1973,https://boxd.it/synth174,3.5,No,"synth, horror",2023-06-06
+2023-07-07,The Last Archivist Vol. 175,1974,https://boxd.it/synth175,2.5,No,"synth, documentary",2023-07-07
+2023-09-09,Vortex 9 Vol. 177,1976,https://boxd.it/synth177,5.0,No,"synth, sci-fi",2023-09-09
+2023-10-10,Fragments Vol. 178,1977,https://boxd.it/synth178,4.0,No,"synth, drama",2023-10-10
+2023-11-11,The Cartographer Vol. 179,1978,https://boxd.it/synth179,3.0,No,"synth, comedy",2023-11-11
+2023-12-12,Nightfall Over Tokyo Vol. 180,1979,https://boxd.it/synth180,2.0,No,"synth, thriller",2023-12-12
+2023-02-14,Solaris Echo Vol. 182,1981,https://boxd.it/synth182,4.5,No,"synth, documentary",2023-02-14
+2023-03-15,Midnight in Berlin Vol. 183,1982,https://boxd.it/synth183,3.5,Yes,"synth, action",2023-03-15
+2023-04-16,The Glass Horizon Vol. 184,1983,https://boxd.it/synth184,2.5,No,"synth, sci-fi",2023-04-16
+2023-05-17,Shadows of the Past Vol. 185,1984,https://boxd.it/synth185,1.5,No,"synth, drama",2023-05-17
+2023-07-19,Lost Latitude Vol. 187,1986,https://boxd.it/synth187,4.0,No,"synth, thriller",2023-07-19
+2023-08-20,Whispers in the Dark Vol. 188,1987,https://boxd.it/synth188,3.0,No,"synth, horror",2023-08-20
+2023-09-21,The Autumn Protocol Vol. 189,1988,https://boxd.it/synth189,2.0,No,"synth, documentary",2023-09-21
+2023-10-22,Velocity Vol. 190,1989,https://boxd.it/synth190,1.0,Yes,"synth, action",2023-10-22
+2023-12-24,Subterranean Vol. 192,1991,https://boxd.it/synth192,3.5,No,"synth, drama",2023-12-24
+2023-01-25,A Silent Symphony Vol. 193,1992,https://boxd.it/synth193,2.5,No,"synth, comedy",2023-01-25
+2023-02-26,Echoes of Eternity Vol. 194,1993,https://boxd.it/synth194,1.5,No,"synth, thriller",2023-02-26
+2023-03-27,The Last Archivist Vol. 195,1994,https://boxd.it/synth195,5.0,No,"synth, horror",2023-03-27
+2023-05-01,Vortex 9 Vol. 197,1996,https://boxd.it/synth197,3.0,Yes,"synth, action",2023-05-01
+2023-06-02,Fragments Vol. 198,1997,https://boxd.it/synth198,2.0,No,"synth, sci-fi",2023-06-02
+2023-07-03,The Cartographer Vol. 199,1998,https://boxd.it/synth199,1.0,No,"synth, drama",2023-07-03
+2023-08-04,Nightfall Over Tokyo Vol. 200,1999,https://boxd.it/synth200,4.5,No,"synth, comedy",2023-08-04
+2023-10-06,Solaris Echo Vol. 202,2001,https://boxd.it/synth202,2.5,No,"synth, horror",2023-10-06
+2023-11-07,Midnight in Berlin Vol. 203,2002,https://boxd.it/synth203,1.5,No,"synth, documentary",2023-11-07
+2023-12-08,The Glass Horizon Vol. 204,2003,https://boxd.it/synth204,5.0,Yes,"synth, action",2023-12-08
+2023-01-09,Shadows of the Past Vol. 205,2004,https://boxd.it/synth205,4.0,No,"synth, sci-fi",2023-01-09
+2023-03-11,Lost Latitude Vol. 207,2006,https://boxd.it/synth207,2.0,No,"synth, comedy",2023-03-11
+2023-04-12,Whispers in the Dark Vol. 208,2007,https://boxd.it/synth208,1.0,No,"synth, thriller",2023-04-12
+2023-05-13,The Autumn Protocol Vol. 209,2008,https://boxd.it/synth209,4.5,No,"synth, horror",2023-05-13
+2023-06-14,Velocity Vol. 210,2009,https://boxd.it/synth210,3.5,No,"synth, documentary",2023-06-14
+2023-08-16,Subterranean Vol. 212,2011,https://boxd.it/synth212,1.5,No,"synth, sci-fi",2023-08-16
+2023-09-17,A Silent Symphony Vol. 213,2012,https://boxd.it/synth213,5.0,No,"synth, drama",2023-09-17
+2023-10-18,Echoes of Eternity Vol. 214,2013,https://boxd.it/synth214,4.0,No,"synth, comedy",2023-10-18
+2023-11-19,The Last Archivist Vol. 215,2014,https://boxd.it/synth215,3.0,No,"synth, thriller",2023-11-19
+2023-01-21,Vortex 9 Vol. 217,2016,https://boxd.it/synth217,1.0,No,"synth, documentary",2023-01-21
+2023-02-22,Fragments Vol. 218,2017,https://boxd.it/synth218,4.5,Yes,"synth, action",2023-02-22
+2023-03-23,The Cartographer Vol. 219,2018,https://boxd.it/synth219,3.5,No,"synth, sci-fi",2023-03-23
+2023-04-24,Nightfall Over Tokyo Vol. 220,2019,https://boxd.it/synth220,2.5,No,"synth, drama",2023-04-24
+2023-06-26,Solaris Echo Vol. 222,2021,https://boxd.it/synth222,5.0,No,"synth, thriller",2023-06-26
+2023-07-27,Midnight in Berlin Vol. 223,2022,https://boxd.it/synth223,4.0,No,"synth, horror",2023-07-27
+2023-08-28,The Glass Horizon Vol. 224,2023,https://boxd.it/synth224,3.0,No,"synth, documentary",2023-08-28
+2023-09-01,Shadows of the Past Vol. 225,2024,https://boxd.it/synth225,2.0,Yes,"synth, action",2023-09-01
+2023-11-03,Lost Latitude Vol. 227,1951,https://boxd.it/synth227,4.5,No,"synth, drama",2023-11-03
+2023-12-04,Whispers in the Dark Vol. 228,1952,https://boxd.it/synth228,3.5,No,"synth, comedy",2023-12-04
+2023-01-05,The Autumn Protocol Vol. 229,1953,https://boxd.it/synth229,2.5,No,"synth, thriller",2023-01-05
+2023-02-06,Velocity Vol. 230,1954,https://boxd.it/synth230,1.5,No,"synth, horror",2023-02-06
+2023-04-08,Subterranean Vol. 232,1956,https://boxd.it/synth232,4.0,Yes,"synth, action",2023-04-08
+2023-05-09,A Silent Symphony Vol. 233,1957,https://boxd.it/synth233,3.0,No,"synth, sci-fi",2023-05-09
+2023-06-10,Echoes of Eternity Vol. 234,1958,https://boxd.it/synth234,2.0,No,"synth, drama",2023-06-10
+2023-07-11,The Last Archivist Vol. 235,1959,https://boxd.it/synth235,1.0,No,"synth, comedy",2023-07-11
+2023-09-13,Vortex 9 Vol. 237,1961,https://boxd.it/synth237,3.5,No,"synth, horror",2023-09-13
+2023-10-14,Fragments Vol. 238,1962,https://boxd.it/synth238,2.5,No,"synth, documentary",2023-10-14
+2023-11-15,The Cartographer Vol. 239,1963,https://boxd.it/synth239,1.5,Yes,"synth, action",2023-11-15
+2023-12-16,Nightfall Over Tokyo Vol. 240,1964,https://boxd.it/synth240,5.0,No,"synth, sci-fi",2023-12-16
+2023-02-18,Solaris Echo Vol. 242,1966,https://boxd.it/synth242,3.0,No,"synth, comedy",2023-02-18
+2023-03-19,Midnight in Berlin Vol. 243,1967,https://boxd.it/synth243,2.0,No,"synth, thriller",2023-03-19
+2023-04-20,The Glass Horizon Vol. 244,1968,https://boxd.it/synth244,1.0,No,"synth, horror",2023-04-20
+2023-05-21,Shadows of the Past Vol. 245,1969,https://boxd.it/synth245,4.5,No,"synth, documentary",2023-05-21
+2023-07-23,Lost Latitude Vol. 247,1971,https://boxd.it/synth247,2.5,No,"synth, sci-fi",2023-07-23
+2023-08-24,Whispers in the Dark Vol. 248,1972,https://boxd.it/synth248,1.5,No,"synth, drama",2023-08-24
+2023-09-25,The Autumn Protocol Vol. 249,1973,https://boxd.it/synth249,5.0,No,"synth, comedy",2023-09-25
+2023-10-26,Velocity Vol. 250,1974,https://boxd.it/synth250,4.0,No,"synth, thriller",2023-10-26
+2023-12-28,Subterranean Vol. 252,1976,https://boxd.it/synth252,2.0,No,"synth, documentary",2023-12-28
+2023-01-01,A Silent Symphony Vol. 253,1977,https://boxd.it/synth253,1.0,Yes,"synth, action",2023-01-01
+2023-02-02,Echoes of Eternity Vol. 254,1978,https://boxd.it/synth254,4.5,No,"synth, sci-fi",2023-02-02
+2023-03-03,The Last Archivist Vol. 255,1979,https://boxd.it/synth255,3.5,No,"synth, drama",2023-03-03
+2023-05-05,Vortex 9 Vol. 257,1981,https://boxd.it/synth257,1.5,No,"synth, thriller",2023-05-05
+2023-06-06,Fragments Vol. 258,1982,https://boxd.it/synth258,5.0,No,"synth, horror",2023-06-06
+2023-07-07,The Cartographer Vol. 259,1983,https://boxd.it/synth259,4.0,No,"synth, documentary",2023-07-07
+2023-08-08,Nightfall Over Tokyo Vol. 260,1984,https://boxd.it/synth260,3.0,Yes,"synth, action",2023-08-08
+2023-10-10,Solaris Echo Vol. 262,1986,https://boxd.it/synth262,1.0,No,"synth, drama",2023-10-10
+2023-11-11,Midnight in Berlin Vol. 263,1987,https://boxd.it/synth263,4.5,No,"synth, comedy",2023-11-11
+2023-12-12,The Glass Horizon Vol. 264,1988,https://boxd.it/synth264,3.5,No,"synth, thriller",2023-12-12
+2023-01-13,Shadows of the Past Vol. 265,1989,https://boxd.it/synth265,2.5,No,"synth, horror",2023-01-13
+2023-03-15,Lost Latitude Vol. 267,1991,https://boxd.it/synth267,5.0,Yes,"synth, action",2023-03-15
+2023-04-16,Whispers in the Dark Vol. 268,1992,https://boxd.it/synth268,4.0,No,"synth, sci-fi",2023-04-16
+2023-05-17,The Autumn Protocol Vol. 269,1993,https://boxd.it/synth269,3.0,No,"synth, drama",2023-05-17
+2023-06-18,Velocity Vol. 270,1994,https://boxd.it/synth270,2.0,No,"synth, comedy",2023-06-18
+2023-08-20,Subterranean Vol. 272,1996,https://boxd.it/synth272,4.5,No,"synth, horror",2023-08-20
+2023-09-21,A Silent Symphony Vol. 273,1997,https://boxd.it/synth273,3.5,No,"synth, documentary",2023-09-21
+2023-10-22,Echoes of Eternity Vol. 274,1998,https://boxd.it/synth274,2.5,Yes,"synth, action",2023-10-22
+2023-11-23,The Last Archivist Vol. 275,1999,https://boxd.it/synth275,1.5,No,"synth, sci-fi",2023-11-23
+2023-01-25,Vortex 9 Vol. 277,2001,https://boxd.it/synth277,4.0,No,"synth, comedy",2023-01-25
+2023-02-26,Fragments Vol. 278,2002,https://boxd.it/synth278,3.0,No,"synth, thriller",2023-02-26
+2023-03-27,The Cartographer Vol. 279,2003,https://boxd.it/synth279,2.0,No,"synth, horror",2023-03-27
+2023-04-28,Nightfall Over Tokyo Vol. 280,2004,https://boxd.it/synth280,1.0,No,"synth, documentary",2023-04-28
+2023-06-02,Solaris Echo Vol. 282,2006,https://boxd.it/synth282,3.5,No,"synth, sci-fi",2023-06-02
+2023-07-03,Midnight in Berlin Vol. 283,2007,https://boxd.it/synth283,2.5,No,"synth, drama",2023-07-03
+2023-08-04,The Glass Horizon Vol. 284,2008,https://boxd.it/synth284,1.5,No,"synth, comedy",2023-08-04
+2023-09-05,Shadows of the Past Vol. 285,2009,https://boxd.it/synth285,5.0,No,"synth, thriller",2023-09-05
+2023-11-07,Lost Latitude Vol. 287,2011,https://boxd.it/synth287,3.0,No,"synth, documentary",2023-11-07
+2023-12-08,Whispers in the Dark Vol. 288,2012,https://boxd.it/synth288,2.0,Yes,"synth, action",2023-12-08
+2023-01-09,The Autumn Protocol Vol. 289,2013,https://boxd.it/synth289,1.0,No,"synth, sci-fi",2023-01-09
+2023-02-10,Velocity Vol. 290,2014,https://boxd.it/synth290,4.5,No,"synth, drama",2023-02-10
+2023-04-12,Subterranean Vol. 292,2016,https://boxd.it/synth292,2.5,No,"synth, thriller",2023-04-12
+2023-05-13,A Silent Symphony Vol. 293,2017,https://boxd.it/synth293,1.5,No,"synth, horror",2023-05-13
+2023-06-14,Echoes of Eternity Vol. 294,2018,https://boxd.it/synth294,5.0,No,"synth, documentary",2023-06-14
+2023-07-15,The Last Archivist Vol. 295,2019,https://boxd.it/synth295,4.0,Yes,"synth, action",2023-07-15
+2023-09-17,Vortex 9 Vol. 297,2021,https://boxd.it/synth297,2.0,No,"synth, drama",2023-09-17
+2023-10-18,Fragments Vol. 298,2022,https://boxd.it/synth298,1.0,No,"synth, comedy",2023-10-18
+2023-11-19,The Cartographer Vol. 299,2023,https://boxd.it/synth299,4.5,No,"synth, thriller",2023-11-19
+2023-12-20,Nightfall Over Tokyo Vol. 300,2024,https://boxd.it/synth300,3.5,No,"synth, horror",2023-12-20
+2023-02-22,Solaris Echo Vol. 302,1951,https://boxd.it/synth302,1.5,Yes,"synth, action",2023-02-22
+2023-03-23,Midnight in Berlin Vol. 303,1952,https://boxd.it/synth303,5.0,No,"synth, sci-fi",2023-03-23
+2023-04-24,The Glass Horizon Vol. 304,1953,https://boxd.it/synth304,4.0,No,"synth, drama",2023-04-24
+2023-05-25,Shadows of the Past Vol. 305,1954,https://boxd.it/synth305,3.0,No,"synth, comedy",2023-05-25
+2023-07-27,Lost Latitude Vol. 307,1956,https://boxd.it/synth307,1.0,No,"synth, horror",2023-07-27
+2023-08-28,Whispers in the Dark Vol. 308,1957,https://boxd.it/synth308,4.5,No,"synth, documentary",2023-08-28
+2023-09-01,The Autumn Protocol Vol. 309,1958,https://boxd.it/synth309,3.5,Yes,"synth, action",2023-09-01
+2023-10-02,Velocity Vol. 310,1959,https://boxd.it/synth310,2.5,No,"synth, sci-fi",2023-10-02
+2023-12-04,Subterranean Vol. 312,1961,https://boxd.it/synth312,5.0,No,"synth, comedy",2023-12-04
+2023-01-05,A Silent Symphony Vol. 313,1962,https://boxd.it/synth313,4.0,No,"synth, thriller",2023-01-05
+2023-02-06,Echoes of Eternity Vol. 314,1963,https://boxd.it/synth314,3.0,No,"synth, horror",2023-02-06
+2023-03-07,The Last Archivist Vol. 315,1964,https://boxd.it/synth315,2.0,No,"synth, documentary",2023-03-07
+2023-05-09,Vortex 9 Vol. 317,1966,https://boxd.it/synth317,4.5,No,"synth, sci-fi",2023-05-09
+2023-06-10,Fragments Vol. 318,1967,https://boxd.it/synth318,3.5,No,"synth, drama",2023-06-10
+2023-07-11,The Cartographer Vol. 319,1968,https://boxd.it/synth319,2.5,No,"synth, comedy",2023-07-11
+2023-08-12,Nightfall Over Tokyo Vol. 320,1969,https://boxd.it/synth320,1.5,No,"synth, thriller",2023-08-12
+2023-10-14,Solaris Echo Vol. 322,1971,https://boxd.it/synth322,4.0,No,"synth, documentary",2023-10-14
+2023-11-15,Midnight in Berlin Vol. 323,1972,https://boxd.it/synth323,3.0,Yes,"synth, action",2023-11-15
+2023-12-16,The Glass Horizon Vol. 324,1973,https://boxd.it/synth324,2.0,No,"synth, sci-fi",2023-12-16
+2023-01-17,Shadows of the Past Vol. 325,1974,https://boxd.it/synth325,1.0,No,"synth, drama",2023-01-17
+2023-03-19,Lost Latitude Vol. 327,1976,https://boxd.it/synth327,3.5,No,"synth, thriller",2023-03-19
+2023-04-20,Whispers in the Dark Vol. 328,1977,https://boxd.it/synth328,2.5,No,"synth, horror",2023-04-20
+2023-05-21,The Autumn Protocol Vol. 329,1978,https://boxd.it/synth329,1.5,No,"synth, documentary",2023-05-21
+2023-06-22,Velocity Vol. 330,1979,https://boxd.it/synth330,5.0,Yes,"synth, action",2023-06-22
+2023-08-24,Subterranean Vol. 332,1981,https://boxd.it/synth332,3.0,No,"synth, drama",2023-08-24
+2023-09-25,A Silent Symphony Vol. 333,1982,https://boxd.it/synth333,2.0,No,"synth, comedy",2023-09-25
+2023-10-26,Echoes of Eternity Vol. 334,1983,https://boxd.it/synth334,1.0,No,"synth, thriller",2023-10-26
+2023-11-27,The Last Archivist Vol. 335,1984,https://boxd.it/synth335,4.5,No,"synth, horror",2023-11-27
+2023-01-01,Vortex 9 Vol. 337,1986,https://boxd.it/synth337,2.5,Yes,"synth, action",2023-01-01
+2023-02-02,Fragments Vol. 338,1987,https://boxd.it/synth338,1.5,No,"synth, sci-fi",2023-02-02
+2023-03-03,The Cartographer Vol. 339,1988,https://boxd.it/synth339,5.0,No,"synth, drama",2023-03-03
+2023-04-04,Nightfall Over Tokyo Vol. 340,1989,https://boxd.it/synth340,4.0,No,"synth, comedy",2023-04-04
+2023-06-06,Solaris Echo Vol. 342,1991,https://boxd.it/synth342,2.0,No,"synth, horror",2023-06-06
+2023-07-07,Midnight in Berlin Vol. 343,1992,https://boxd.it/synth343,1.0,No,"synth, documentary",2023-07-07
+2023-08-08,The Glass Horizon Vol. 344,1993,https://boxd.it/synth344,4.5,Yes,"synth, action",2023-08-08
+2023-09-09,Shadows of the Past Vol. 345,1994,https://boxd.it/synth345,3.5,No,"synth, sci-fi",2023-09-09
+2023-11-11,Lost Latitude Vol. 347,1996,https://boxd.it/synth347,1.5,No,"synth, comedy",2023-11-11
+2023-12-12,Whispers in the Dark Vol. 348,1997,https://boxd.it/synth348,5.0,No,"synth, thriller",2023-12-12
+2023-01-13,The Autumn Protocol Vol. 349,1998,https://boxd.it/synth349,4.0,No,"synth, horror",2023-01-13
+2023-02-14,Velocity Vol. 350,1999,https://boxd.it/synth350,3.0,No,"synth, documentary",2023-02-14
+2023-04-16,Subterranean Vol. 352,2001,https://boxd.it/synth352,1.0,No,"synth, sci-fi",2023-04-16
+2023-05-17,A Silent Symphony Vol. 353,2002,https://boxd.it/synth353,4.5,No,"synth, drama",2023-05-17
+2023-06-18,Echoes of Eternity Vol. 354,2003,https://boxd.it/synth354,3.5,No,"synth, comedy",2023-06-18
+2023-07-19,The Last Archivist Vol. 355,2004,https://boxd.it/synth355,2.5,No,"synth, thriller",2023-07-19
+2023-09-21,Vortex 9 Vol. 357,2006,https://boxd.it/synth357,5.0,No,"synth, documentary",2023-09-21
+2023-10-22,Fragments Vol. 358,2007,https://boxd.it/synth358,4.0,Yes,"synth, action",2023-10-22
+2023-11-23,The Cartographer Vol. 359,2008,https://boxd.it/synth359,3.0,No,"synth, sci-fi",2023-11-23
+2023-12-24,Nightfall Over Tokyo Vol. 360,2009,https://boxd.it/synth360,2.0,No,"synth, drama",2023-12-24
+2023-02-26,Solaris Echo Vol. 362,2011,https://boxd.it/synth362,4.5,No,"synth, thriller",2023-02-26
+2023-03-27,Midnight in Berlin Vol. 363,2012,https://boxd.it/synth363,3.5,No,"synth, horror",2023-03-27
+2023-04-28,The Glass Horizon Vol. 364,2013,https://boxd.it/synth364,2.5,No,"synth, documentary",2023-04-28
+2023-05-01,Shadows of the Past Vol. 365,2014,https://boxd.it/synth365,1.5,Yes,"synth, action",2023-05-01
+2023-07-03,Lost Latitude Vol. 367,2016,https://boxd.it/synth367,4.0,No,"synth, drama",2023-07-03
+2023-08-04,Whispers in the Dark Vol. 368,2017,https://boxd.it/synth368,3.0,No,"synth, comedy",2023-08-04
+2023-09-05,The Autumn Protocol Vol. 369,2018,https://boxd.it/synth369,2.0,No,"synth, thriller",2023-09-05
+2023-10-06,Velocity Vol. 370,2019,https://boxd.it/synth370,1.0,No,"synth, horror",2023-10-06
+2023-12-08,Subterranean Vol. 372,2021,https://boxd.it/synth372,3.5,Yes,"synth, action",2023-12-08
+2023-01-09,A Silent Symphony Vol. 373,2022,https://boxd.it/synth373,2.5,No,"synth, sci-fi",2023-01-09
+2023-02-10,Echoes of Eternity Vol. 374,2023,https://boxd.it/synth374,1.5,No,"synth, drama",2023-02-10
+2023-03-11,The Last Archivist Vol. 375,2024,https://boxd.it/synth375,5.0,No,"synth, comedy",2023-03-11
+2023-05-13,Vortex 9 Vol. 377,1951,https://boxd.it/synth377,3.0,No,"synth, horror",2023-05-13
+2023-06-14,Fragments Vol. 378,1952,https://boxd.it/synth378,2.0,No,"synth, documentary",2023-06-14
+2023-07-15,The Cartographer Vol. 379,1953,https://boxd.it/synth379,1.0,Yes,"synth, action",2023-07-15
+2023-08-16,Nightfall Over Tokyo Vol. 380,1954,https://boxd.it/synth380,4.5,No,"synth, sci-fi",2023-08-16
+2023-10-18,Solaris Echo Vol. 382,1956,https://boxd.it/synth382,2.5,No,"synth, comedy",2023-10-18
+2023-11-19,Midnight in Berlin Vol. 383,1957,https://boxd.it/synth383,1.5,No,"synth, thriller",2023-11-19
+2023-12-20,The Glass Horizon Vol. 384,1958,https://boxd.it/synth384,5.0,No,"synth, horror",2023-12-20
+2023-01-21,Shadows of the Past Vol. 385,1959,https://boxd.it/synth385,4.0,No,"synth, documentary",2023-01-21
+2023-03-23,Lost Latitude Vol. 387,1961,https://boxd.it/synth387,2.0,No,"synth, sci-fi",2023-03-23
+2023-04-24,Whispers in the Dark Vol. 388,1962,https://boxd.it/synth388,1.0,No,"synth, drama",2023-04-24
+2023-05-25,The Autumn Protocol Vol. 389,1963,https://boxd.it/synth389,4.5,No,"synth, comedy",2023-05-25
+2023-06-26,Velocity Vol. 390,1964,https://boxd.it/synth390,3.5,No,"synth, thriller",2023-06-26
+2023-08-28,Subterranean Vol. 392,1966,https://boxd.it/synth392,1.5,No,"synth, documentary",2023-08-28
+2023-09-01,A Silent Symphony Vol. 393,1967,https://boxd.it/synth393,5.0,Yes,"synth, action",2023-09-01
+2023-10-02,Echoes of Eternity Vol. 394,1968,https://boxd.it/synth394,4.0,No,"synth, sci-fi",2023-10-02
+2023-11-03,The Last Archivist Vol. 395,1969,https://boxd.it/synth395,3.0,No,"synth, drama",2023-11-03
+2023-01-05,Vortex 9 Vol. 397,1971,https://boxd.it/synth397,1.0,No,"synth, thriller",2023-01-05
+2023-02-06,Fragments Vol. 398,1972,https://boxd.it/synth398,4.5,No,"synth, horror",2023-02-06
+2023-03-07,The Cartographer Vol. 399,1973,https://boxd.it/synth399,3.5,No,"synth, documentary",2023-03-07
+2023-04-08,Nightfall Over Tokyo Vol. 400,1974,https://boxd.it/synth400,2.5,Yes,"synth, action",2023-04-08
+2023-06-10,Solaris Echo Vol. 402,1976,https://boxd.it/synth402,5.0,No,"synth, drama",2023-06-10
+2023-07-11,Midnight in Berlin Vol. 403,1977,https://boxd.it/synth403,4.0,No,"synth, comedy",2023-07-11
+2023-08-12,The Glass Horizon Vol. 404,1978,https://boxd.it/synth404,3.0,No,"synth, thriller",2023-08-12
+2023-09-13,Shadows of the Past Vol. 405,1979,https://boxd.it/synth405,2.0,No,"synth, horror",2023-09-13
+2023-11-15,Lost Latitude Vol. 407,1981,https://boxd.it/synth407,4.5,Yes,"synth, action",2023-11-15
+2023-12-16,Whispers in the Dark Vol. 408,1982,https://boxd.it/synth408,3.5,No,"synth, sci-fi",2023-12-16
+2023-01-17,The Autumn Protocol Vol. 409,1983,https://boxd.it/synth409,2.5,No,"synth, drama",2023-01-17
+2023-02-18,Velocity Vol. 410,1984,https://boxd.it/synth410,1.5,No,"synth, comedy",2023-02-18
+2023-04-20,Subterranean Vol. 412,1986,https://boxd.it/synth412,4.0,No,"synth, horror",2023-04-20
+2023-05-21,A Silent Symphony Vol. 413,1987,https://boxd.it/synth413,3.0,No,"synth, documentary",2023-05-21
+2023-06-22,Echoes of Eternity Vol. 414,1988,https://boxd.it/synth414,2.0,Yes,"synth, action",2023-06-22
+2023-07-23,The Last Archivist Vol. 415,1989,https://boxd.it/synth415,1.0,No,"synth, sci-fi",2023-07-23
+2023-09-25,Vortex 9 Vol. 417,1991,https://boxd.it/synth417,3.5,No,"synth, comedy",2023-09-25
+2023-10-26,Fragments Vol. 418,1992,https://boxd.it/synth418,2.5,No,"synth, thriller",2023-10-26
+2023-11-27,The Cartographer Vol. 419,1993,https://boxd.it/synth419,1.5,No,"synth, horror",2023-11-27
+2023-12-28,Nightfall Over Tokyo Vol. 420,1994,https://boxd.it/synth420,5.0,No,"synth, documentary",2023-12-28
+2023-02-02,Solaris Echo Vol. 422,1996,https://boxd.it/synth422,3.0,No,"synth, sci-fi",2023-02-02
+2023-03-03,Midnight in Berlin Vol. 423,1997,https://boxd.it/synth423,2.0,No,"synth, drama",2023-03-03
+2023-04-04,The Glass Horizon Vol. 424,1998,https://boxd.it/synth424,1.0,No,"synth, comedy",2023-04-04
+2023-05-05,Shadows of the Past Vol. 425,1999,https://boxd.it/synth425,4.5,No,"synth, thriller",2023-05-05
+2023-07-07,Lost Latitude Vol. 427,2001,https://boxd.it/synth427,2.5,No,"synth, documentary",2023-07-07
+2023-08-08,Whispers in the Dark Vol. 428,2002,https://boxd.it/synth428,1.5,Yes,"synth, action",2023-08-08
+2023-09-09,The Autumn Protocol Vol. 429,2003,https://boxd.it/synth429,5.0,No,"synth, sci-fi",2023-09-09
+2023-10-10,Velocity Vol. 430,2004,https://boxd.it/synth430,4.0,No,"synth, drama",2023-10-10
+2023-12-12,Subterranean Vol. 432,2006,https://boxd.it/synth432,2.0,No,"synth, thriller",2023-12-12
+2023-01-13,A Silent Symphony Vol. 433,2007,https://boxd.it/synth433,1.0,No,"synth, horror",2023-01-13
+2023-02-14,Echoes of Eternity Vol. 434,2008,https://boxd.it/synth434,4.5,No,"synth, documentary",2023-02-14
+2023-03-15,The Last Archivist Vol. 435,2009,https://boxd.it/synth435,3.5,Yes,"synth, action",2023-03-15
+2023-05-17,Vortex 9 Vol. 437,2011,https://boxd.it/synth437,1.5,No,"synth, drama",2023-05-17
+2023-06-18,Fragments Vol. 438,2012,https://boxd.it/synth438,5.0,No,"synth, comedy",2023-06-18
+2023-07-19,The Cartographer Vol. 439,2013,https://boxd.it/synth439,4.0,No,"synth, thriller",2023-07-19
+2023-08-20,Nightfall Over Tokyo Vol. 440,2014,https://boxd.it/synth440,3.0,No,"synth, horror",2023-08-20
+2023-10-22,Solaris Echo Vol. 442,2016,https://boxd.it/synth442,1.0,Yes,"synth, action",2023-10-22
+2023-11-23,Midnight in Berlin Vol. 443,2017,https://boxd.it/synth443,4.5,No,"synth, sci-fi",2023-11-23
+2023-12-24,The Glass Horizon Vol. 444,2018,https://boxd.it/synth444,3.5,No,"synth, drama",2023-12-24
+2023-01-25,Shadows of the Past Vol. 445,2019,https://boxd.it/synth445,2.5,No,"synth, comedy",2023-01-25
+2023-03-27,Lost Latitude Vol. 447,2021,https://boxd.it/synth447,5.0,No,"synth, horror",2023-03-27
+2023-04-28,Whispers in the Dark Vol. 448,2022,https://boxd.it/synth448,4.0,No,"synth, documentary",2023-04-28
+2023-05-01,The Autumn Protocol Vol. 449,2023,https://boxd.it/synth449,3.0,Yes,"synth, action",2023-05-01
+2023-06-02,Velocity Vol. 450,2024,https://boxd.it/synth450,2.0,No,"synth, sci-fi",2023-06-02
+2023-08-04,Subterranean Vol. 452,1951,https://boxd.it/synth452,4.5,No,"synth, comedy",2023-08-04
+2023-09-05,A Silent Symphony Vol. 453,1952,https://boxd.it/synth453,3.5,No,"synth, thriller",2023-09-05
+2023-10-06,Echoes of Eternity Vol. 454,1953,https://boxd.it/synth454,2.5,No,"synth, horror",2023-10-06
+2023-11-07,The Last Archivist Vol. 455,1954,https://boxd.it/synth455,1.5,No,"synth, documentary",2023-11-07
+2023-01-09,Vortex 9 Vol. 457,1956,https://boxd.it/synth457,4.0,No,"synth, sci-fi",2023-01-09
+2023-02-10,Fragments Vol. 458,1957,https://boxd.it/synth458,3.0,No,"synth, drama",2023-02-10
+2023-03-11,The Cartographer Vol. 459,1958,https://boxd.it/synth459,2.0,No,"synth, comedy",2023-03-11
+2023-04-12,Nightfall Over Tokyo Vol. 460,1959,https://boxd.it/synth460,1.0,No,"synth, thriller",2023-04-12
+2023-06-14,Solaris Echo Vol. 462,1961,https://boxd.it/synth462,3.5,No,"synth, documentary",2023-06-14
+2023-07-15,Midnight in Berlin Vol. 463,1962,https://boxd.it/synth463,2.5,Yes,"synth, action",2023-07-15
+2023-08-16,The Glass Horizon Vol. 464,1963,https://boxd.it/synth464,1.5,No,"synth, sci-fi",2023-08-16
+2023-09-17,Shadows of the Past Vol. 465,1964,https://boxd.it/synth465,5.0,No,"synth, drama",2023-09-17
+2023-11-19,Lost Latitude Vol. 467,1966,https://boxd.it/synth467,3.0,No,"synth, thriller",2023-11-19
+2023-12-20,Whispers in the Dark Vol. 468,1967,https://boxd.it/synth468,2.0,No,"synth, horror",2023-12-20
+2023-01-21,The Autumn Protocol Vol. 469,1968,https://boxd.it/synth469,1.0,No,"synth, documentary",2023-01-21
+2023-02-22,Velocity Vol. 470,1969,https://boxd.it/synth470,4.5,Yes,"synth, action",2023-02-22
+2023-04-24,Subterranean Vol. 472,1971,https://boxd.it/synth472,2.5,No,"synth, drama",2023-04-24
+2023-05-25,A Silent Symphony Vol. 473,1972,https://boxd.it/synth473,1.5,No,"synth, comedy",2023-05-25
+2023-06-26,Echoes of Eternity Vol. 474,1973,https://boxd.it/synth474,5.0,No,"synth, thriller",2023-06-26
+2023-07-27,The Last Archivist Vol. 475,1974,https://boxd.it/synth475,4.0,No,"synth, horror",2023-07-27
+2023-09-01,Vortex 9 Vol. 477,1976,https://boxd.it/synth477,2.0,Yes,"synth, action",2023-09-01
+2023-10-02,Fragments Vol. 478,1977,https://boxd.it/synth478,1.0,No,"synth, sci-fi",2023-10-02
+2023-11-03,The Cartographer Vol. 479,1978,https://boxd.it/synth479,4.5,No,"synth, drama",2023-11-03
+2023-12-04,Nightfall Over Tokyo Vol. 480,1979,https://boxd.it/synth480,3.5,No,"synth, comedy",2023-12-04
+2023-02-06,Solaris Echo Vol. 482,1981,https://boxd.it/synth482,1.5,No,"synth, horror",2023-02-06
+2023-03-07,Midnight in Berlin Vol. 483,1982,https://boxd.it/synth483,5.0,No,"synth, documentary",2023-03-07
+2023-04-08,The Glass Horizon Vol. 484,1983,https://boxd.it/synth484,4.0,Yes,"synth, action",2023-04-08
+2023-05-09,Shadows of the Past Vol. 485,1984,https://boxd.it/synth485,3.0,No,"synth, sci-fi",2023-05-09
+2023-07-11,Lost Latitude Vol. 487,1986,https://boxd.it/synth487,1.0,No,"synth, comedy",2023-07-11
+2023-08-12,Whispers in the Dark Vol. 488,1987,https://boxd.it/synth488,4.5,No,"synth, thriller",2023-08-12
+2023-09-13,The Autumn Protocol Vol. 489,1988,https://boxd.it/synth489,3.5,No,"synth, horror",2023-09-13
+2023-10-14,Velocity Vol. 490,1989,https://boxd.it/synth490,2.5,No,"synth, documentary",2023-10-14
+2023-12-16,Subterranean Vol. 492,1991,https://boxd.it/synth492,5.0,No,"synth, sci-fi",2023-12-16
+2023-01-17,A Silent Symphony Vol. 493,1992,https://boxd.it/synth493,4.0,No,"synth, drama",2023-01-17
+2023-02-18,Echoes of Eternity Vol. 494,1993,https://boxd.it/synth494,3.0,No,"synth, comedy",2023-02-18
+2023-03-19,The Last Archivist Vol. 495,1994,https://boxd.it/synth495,2.0,No,"synth, thriller",2023-03-19
+2023-05-21,Vortex 9 Vol. 497,1996,https://boxd.it/synth497,4.5,No,"synth, documentary",2023-05-21
+2023-06-22,Fragments Vol. 498,1997,https://boxd.it/synth498,3.5,Yes,"synth, action",2023-06-22
+2023-07-23,The Cartographer Vol. 499,1998,https://boxd.it/synth499,2.5,No,"synth, sci-fi",2023-07-23
+2023-08-24,Nightfall Over Tokyo Vol. 500,1999,https://boxd.it/synth500,1.5,No,"synth, drama",2023-08-24
+2023-10-26,Solaris Echo Vol. 502,2001,https://boxd.it/synth502,4.0,No,"synth, thriller",2023-10-26
+2023-11-27,Midnight in Berlin Vol. 503,2002,https://boxd.it/synth503,3.0,No,"synth, horror",2023-11-27
+2023-12-28,The Glass Horizon Vol. 504,2003,https://boxd.it/synth504,2.0,No,"synth, documentary",2023-12-28
+2023-01-01,Shadows of the Past Vol. 505,2004,https://boxd.it/synth505,1.0,Yes,"synth, action",2023-01-01
+2023-03-03,Lost Latitude Vol. 507,2006,https://boxd.it/synth507,3.5,No,"synth, drama",2023-03-03
+2023-04-04,Whispers in the Dark Vol. 508,2007,https://boxd.it/synth508,2.5,No,"synth, comedy",2023-04-04
+2023-05-05,The Autumn Protocol Vol. 509,2008,https://boxd.it/synth509,1.5,No,"synth, thriller",2023-05-05
+2023-06-06,Velocity Vol. 510,2009,https://boxd.it/synth510,5.0,No,"synth, horror",2023-06-06
+2023-08-08,Subterranean Vol. 512,2011,https://boxd.it/synth512,3.0,Yes,"synth, action",2023-08-08
+2023-09-09,A Silent Symphony Vol. 513,2012,https://boxd.it/synth513,2.0,No,"synth, sci-fi",2023-09-09
+2023-10-10,Echoes of Eternity Vol. 514,2013,https://boxd.it/synth514,1.0,No,"synth, drama",2023-10-10
+2023-11-11,The Last Archivist Vol. 515,2014,https://boxd.it/synth515,4.5,No,"synth, comedy",2023-11-11
+2023-01-13,Vortex 9 Vol. 517,2016,https://boxd.it/synth517,2.5,No,"synth, horror",2023-01-13
+2023-02-14,Fragments Vol. 518,2017,https://boxd.it/synth518,1.5,No,"synth, documentary",2023-02-14
+2023-03-15,The Cartographer Vol. 519,2018,https://boxd.it/synth519,5.0,Yes,"synth, action",2023-03-15
+2023-04-16,Nightfall Over Tokyo Vol. 520,2019,https://boxd.it/synth520,4.0,No,"synth, sci-fi",2023-04-16
+2023-06-18,Solaris Echo Vol. 522,2021,https://boxd.it/synth522,2.0,No,"synth, comedy",2023-06-18
+2023-07-19,Midnight in Berlin Vol. 523,2022,https://boxd.it/synth523,1.0,No,"synth, thriller",2023-07-19
+2023-08-20,The Glass Horizon Vol. 524,2023,https://boxd.it/synth524,4.5,No,"synth, horror",2023-08-20
+2023-09-21,Shadows of the Past Vol. 525,2024,https://boxd.it/synth525,3.5,No,"synth, documentary",2023-09-21
+2023-11-23,Lost Latitude Vol. 527,1951,https://boxd.it/synth527,1.5,No,"synth, sci-fi",2023-11-23
+2023-12-24,Whispers in the Dark Vol. 528,1952,https://boxd.it/synth528,5.0,No,"synth, drama",2023-12-24
+2023-01-25,The Autumn Protocol Vol. 529,1953,https://boxd.it/synth529,4.0,No,"synth, comedy",2023-01-25
+2023-02-26,Velocity Vol. 530,1954,https://boxd.it/synth530,3.0,No,"synth, thriller",2023-02-26
+2023-04-28,Subterranean Vol. 532,1956,https://boxd.it/synth532,1.0,No,"synth, documentary",2023-04-28
+2023-05-01,A Silent Symphony Vol. 533,1957,https://boxd.it/synth533,4.5,Yes,"synth, action",2023-05-01
+2023-06-02,Echoes of Eternity Vol. 534,1958,https://boxd.it/synth534,3.5,No,"synth, sci-fi",2023-06-02
+2023-07-03,The Last Archivist Vol. 535,1959,https://boxd.it/synth535,2.5,No,"synth, drama",2023-07-03
+2023-09-05,Vortex 9 Vol. 537,1961,https://boxd.it/synth537,5.0,No,"synth, thriller",2023-09-05
+2023-10-06,Fragments Vol. 538,1962,https://boxd.it/synth538,4.0,No,"synth, horror",2023-10-06
+2023-11-07,The Cartographer Vol. 539,1963,https://boxd.it/synth539,3.0,No,"synth, documentary",2023-11-07
+2023-12-08,Nightfall Over Tokyo Vol. 540,1964,https://boxd.it/synth540,2.0,Yes,"synth, action",2023-12-08
+2023-02-10,Solaris Echo Vol. 542,1966,https://boxd.it/synth542,4.5,No,"synth, drama",2023-02-10
+2023-03-11,Midnight in Berlin Vol. 543,1967,https://boxd.it/synth543,3.5,No,"synth, comedy",2023-03-11
+2023-04-12,The Glass Horizon Vol. 544,1968,https://boxd.it/synth544,2.5,No,"synth, thriller",2023-04-12
+2023-05-13,Shadows of the Past Vol. 545,1969,https://boxd.it/synth545,1.5,No,"synth, horror",2023-05-13
+2023-07-15,Lost Latitude Vol. 547,1971,https://boxd.it/synth547,4.0,Yes,"synth, action",2023-07-15
+2023-08-16,Whispers in the Dark Vol. 548,1972,https://boxd.it/synth548,3.0,No,"synth, sci-fi",2023-08-16
+2023-09-17,The Autumn Protocol Vol. 549,1973,https://boxd.it/synth549,2.0,No,"synth, drama",2023-09-17
+2023-10-18,Velocity Vol. 550,1974,https://boxd.it/synth550,1.0,No,"synth, comedy",2023-10-18
+2023-12-20,Subterranean Vol. 552,1976,https://boxd.it/synth552,3.5,No,"synth, horror",2023-12-20
+2023-01-21,A Silent Symphony Vol. 553,1977,https://boxd.it/synth553,2.5,No,"synth, documentary",2023-01-21
+2023-02-22,Echoes of Eternity Vol. 554,1978,https://boxd.it/synth554,1.5,Yes,"synth, action",2023-02-22
+2023-03-23,The Last Archivist Vol. 555,1979,https://boxd.it/synth555,5.0,No,"synth, sci-fi",2023-03-23
+2023-05-25,Vortex 9 Vol. 557,1981,https://boxd.it/synth557,3.0,No,"synth, comedy",2023-05-25
+2023-06-26,Fragments Vol. 558,1982,https://boxd.it/synth558,2.0,No,"synth, thriller",2023-06-26
+2023-07-27,The Cartographer Vol. 559,1983,https://boxd.it/synth559,1.0,No,"synth, horror",2023-07-27
+2023-08-28,Nightfall Over Tokyo Vol. 560,1984,https://boxd.it/synth560,4.5,No,"synth, documentary",2023-08-28
+2023-10-02,Solaris Echo Vol. 562,1986,https://boxd.it/synth562,2.5,No,"synth, sci-fi",2023-10-02
+2023-11-03,Midnight in Berlin Vol. 563,1987,https://boxd.it/synth563,1.5,No,"synth, drama",2023-11-03
+2023-12-04,The Glass Horizon Vol. 564,1988,https://boxd.it/synth564,5.0,No,"synth, comedy",2023-12-04
+2023-01-05,Shadows of the Past Vol. 565,1989,https://boxd.it/synth565,4.0,No,"synth, thriller",2023-01-05
+2023-03-07,Lost Latitude Vol. 567,1991,https://boxd.it/synth567,2.0,No,"synth, documentary",2023-03-07
+2023-04-08,Whispers in the Dark Vol. 568,1992,https://boxd.it/synth568,1.0,Yes,"synth, action",2023-04-08
+2023-05-09,The Autumn Protocol Vol. 569,1993,https://boxd.it/synth569,4.5,No,"synth, sci-fi",2023-05-09
+2023-06-10,Velocity Vol. 570,1994,https://boxd.it/synth570,3.5,No,"synth, drama",2023-06-10
+2023-08-12,Subterranean Vol. 572,1996,https://boxd.it/synth572,1.5,No,"synth, thriller",2023-08-12
+2023-09-13,A Silent Symphony Vol. 573,1997,https://boxd.it/synth573,5.0,No,"synth, horror",2023-09-13
+2023-10-14,Echoes of Eternity Vol. 574,1998,https://boxd.it/synth574,4.0,No,"synth, documentary",2023-10-14
+2023-11-15,The Last Archivist Vol. 575,1999,https://boxd.it/synth575,3.0,Yes,"synth, action",2023-11-15
+2023-01-17,Vortex 9 Vol. 577,2001,https://boxd.it/synth577,1.0,No,"synth, drama",2023-01-17
+2023-02-18,Fragments Vol. 578,2002,https://boxd.it/synth578,4.5,No,"synth, comedy",2023-02-18
+2023-03-19,The Cartographer Vol. 579,2003,https://boxd.it/synth579,3.5,No,"synth, thriller",2023-03-19
+2023-04-20,Nightfall Over Tokyo Vol. 580,2004,https://boxd.it/synth580,2.5,No,"synth, horror",2023-04-20
+2023-06-22,Solaris Echo Vol. 582,2006,https://boxd.it/synth582,5.0,Yes,"synth, action",2023-06-22
+2023-07-23,Midnight in Berlin Vol. 583,2007,https://boxd.it/synth583,4.0,No,"synth, sci-fi",2023-07-23
+2023-08-24,The Glass Horizon Vol. 584,2008,https://boxd.it/synth584,3.0,No,"synth, drama",2023-08-24
+2023-09-25,Shadows of the Past Vol. 585,2009,https://boxd.it/synth585,2.0,No,"synth, comedy",2023-09-25
+2023-11-27,Lost Latitude Vol. 587,2011,https://boxd.it/synth587,4.5,No,"synth, horror",2023-11-27
+2023-12-28,Whispers in the Dark Vol. 588,2012,https://boxd.it/synth588,3.5,No,"synth, documentary",2023-12-28
+2023-01-01,The Autumn Protocol Vol. 589,2013,https://boxd.it/synth589,2.5,Yes,"synth, action",2023-01-01
+2023-02-02,Velocity Vol. 590,2014,https://boxd.it/synth590,1.5,No,"synth, sci-fi",2023-02-02
+2023-04-04,Subterranean Vol. 592,2016,https://boxd.it/synth592,4.0,No,"synth, comedy",2023-04-04
+2023-05-05,A Silent Symphony Vol. 593,2017,https://boxd.it/synth593,3.0,No,"synth, thriller",2023-05-05
+2023-06-06,Echoes of Eternity Vol. 594,2018,https://boxd.it/synth594,2.0,No,"synth, horror",2023-06-06
+2023-07-07,The Last Archivist Vol. 595,2019,https://boxd.it/synth595,1.0,No,"synth, documentary",2023-07-07
+2023-09-09,Vortex 9 Vol. 597,2021,https://boxd.it/synth597,3.5,No,"synth, sci-fi",2023-09-09
+2023-10-10,Fragments Vol. 598,2022,https://boxd.it/synth598,2.5,No,"synth, drama",2023-10-10
+2023-11-11,The Cartographer Vol. 599,2023,https://boxd.it/synth599,1.5,No,"synth, comedy",2023-11-11
+2023-12-12,Nightfall Over Tokyo Vol. 600,2024,https://boxd.it/synth600,5.0,No,"synth, thriller",2023-12-12
+2023-02-14,Solaris Echo Vol. 602,1951,https://boxd.it/synth602,3.0,No,"synth, documentary",2023-02-14
+2023-03-15,Midnight in Berlin Vol. 603,1952,https://boxd.it/synth603,2.0,Yes,"synth, action",2023-03-15
+2023-04-16,The Glass Horizon Vol. 604,1953,https://boxd.it/synth604,1.0,No,"synth, sci-fi",2023-04-16
+2023-05-17,Shadows of the Past Vol. 605,1954,https://boxd.it/synth605,4.5,No,"synth, drama",2023-05-17
+2023-07-19,Lost Latitude Vol. 607,1956,https://boxd.it/synth607,2.5,No,"synth, thriller",2023-07-19
+2023-08-20,Whispers in the Dark Vol. 608,1957,https://boxd.it/synth608,1.5,No,"synth, horror",2023-08-20
+2023-09-21,The Autumn Protocol Vol. 609,1958,https://boxd.it/synth609,5.0,No,"synth, documentary",2023-09-21
+2023-10-22,Velocity Vol. 610,1959,https://boxd.it/synth610,4.0,Yes,"synth, action",2023-10-22
+2023-12-24,Subterranean Vol. 612,1961,https://boxd.it/synth612,2.0,No,"synth, drama",2023-12-24
+2023-01-25,A Silent Symphony Vol. 613,1962,https://boxd.it/synth613,1.0,No,"synth, comedy",2023-01-25
+2023-02-26,Echoes of Eternity Vol. 614,1963,https://boxd.it/synth614,4.5,No,"synth, thriller",2023-02-26
+2023-03-27,The Last Archivist Vol. 615,1964,https://boxd.it/synth615,3.5,No,"synth, horror",2023-03-27
+2023-05-01,Vortex 9 Vol. 617,1966,https://boxd.it/synth617,1.5,Yes,"synth, action",2023-05-01
+2023-06-02,Fragments Vol. 618,1967,https://boxd.it/synth618,5.0,No,"synth, sci-fi",2023-06-02
+2023-07-03,The Cartographer Vol. 619,1968,https://boxd.it/synth619,4.0,No,"synth, drama",2023-07-03
+2023-08-04,Nightfall Over Tokyo Vol. 620,1969,https://boxd.it/synth620,3.0,No,"synth, comedy",2023-08-04
+2023-10-06,Solaris Echo Vol. 622,1971,https://boxd.it/synth622,1.0,No,"synth, horror",2023-10-06
+2023-11-07,Midnight in Berlin Vol. 623,1972,https://boxd.it/synth623,4.5,No,"synth, documentary",2023-11-07
+2023-12-08,The Glass Horizon Vol. 624,1973,https://boxd.it/synth624,3.5,Yes,"synth, action",2023-12-08
+2023-01-09,Shadows of the Past Vol. 625,1974,https://boxd.it/synth625,2.5,No,"synth, sci-fi",2023-01-09
+2023-03-11,Lost Latitude Vol. 627,1976,https://boxd.it/synth627,5.0,No,"synth, comedy",2023-03-11
+2023-04-12,Whispers in the Dark Vol. 628,1977,https://boxd.it/synth628,4.0,No,"synth, thriller",2023-04-12
+2023-05-13,The Autumn Protocol Vol. 629,1978,https://boxd.it/synth629,3.0,No,"synth, horror",2023-05-13
+2023-06-14,Velocity Vol. 630,1979,https://boxd.it/synth630,2.0,No,"synth, documentary",2023-06-14
+2023-08-16,Subterranean Vol. 632,1981,https://boxd.it/synth632,4.5,No,"synth, sci-fi",2023-08-16
+2023-09-17,A Silent Symphony Vol. 633,1982,https://boxd.it/synth633,3.5,No,"synth, drama",2023-09-17
+2023-10-18,Echoes of Eternity Vol. 634,1983,https://boxd.it/synth634,2.5,No,"synth, comedy",2023-10-18
+2023-11-19,The Last Archivist Vol. 635,1984,https://boxd.it/synth635,1.5,No,"synth, thriller",2023-11-19
+2023-01-21,Vortex 9 Vol. 637,1986,https://boxd.it/synth637,4.0,No,"synth, documentary",2023-01-21
+2023-02-22,Fragments Vol. 638,1987,https://boxd.it/synth638,3.0,Yes,"synth, action",2023-02-22
+2023-03-23,The Cartographer Vol. 639,1988,https://boxd.it/synth639,2.0,No,"synth, sci-fi",2023-03-23
+2023-04-24,Nightfall Over Tokyo Vol. 640,1989,https://boxd.it/synth640,1.0,No,"synth, drama",2023-04-24
+2023-06-26,Solaris Echo Vol. 642,1991,https://boxd.it/synth642,3.5,No,"synth, thriller",2023-06-26
+2023-07-27,Midnight in Berlin Vol. 643,1992,https://boxd.it/synth643,2.5,No,"synth, horror",2023-07-27
+2023-08-28,The Glass Horizon Vol. 644,1993,https://boxd.it/synth644,1.5,No,"synth, documentary",2023-08-28
+2023-09-01,Shadows of the Past Vol. 645,1994,https://boxd.it/synth645,5.0,Yes,"synth, action",2023-09-01
+2023-11-03,Lost Latitude Vol. 647,1996,https://boxd.it/synth647,3.0,No,"synth, drama",2023-11-03
+2023-12-04,Whispers in the Dark Vol. 648,1997,https://boxd.it/synth648,2.0,No,"synth, comedy",2023-12-04
+2023-01-05,The Autumn Protocol Vol. 649,1998,https://boxd.it/synth649,1.0,No,"synth, thriller",2023-01-05
+2023-02-06,Velocity Vol. 650,1999,https://boxd.it/synth650,4.5,No,"synth, horror",2023-02-06
+2023-04-08,Subterranean Vol. 652,2001,https://boxd.it/synth652,2.5,Yes,"synth, action",2023-04-08
+2023-05-09,A Silent Symphony Vol. 653,2002,https://boxd.it/synth653,1.5,No,"synth, sci-fi",2023-05-09
+2023-06-10,Echoes of Eternity Vol. 654,2003,https://boxd.it/synth654,5.0,No,"synth, drama",2023-06-10
+2023-07-11,The Last Archivist Vol. 655,2004,https://boxd.it/synth655,4.0,No,"synth, comedy",2023-07-11
+2023-09-13,Vortex 9 Vol. 657,2006,https://boxd.it/synth657,2.0,No,"synth, horror",2023-09-13
+2023-10-14,Fragments Vol. 658,2007,https://boxd.it/synth658,1.0,No,"synth, documentary",2023-10-14
+2023-11-15,The Cartographer Vol. 659,2008,https://boxd.it/synth659,4.5,Yes,"synth, action",2023-11-15
+2023-12-16,Nightfall Over Tokyo Vol. 660,2009,https://boxd.it/synth660,3.5,No,"synth, sci-fi",2023-12-16
+2023-02-18,Solaris Echo Vol. 662,2011,https://boxd.it/synth662,1.5,No,"synth, comedy",2023-02-18
+2023-03-19,Midnight in Berlin Vol. 663,2012,https://boxd.it/synth663,5.0,No,"synth, thriller",2023-03-19
+2023-04-20,The Glass Horizon Vol. 664,2013,https://boxd.it/synth664,4.0,No,"synth, horror",2023-04-20
+2023-05-21,Shadows of the Past Vol. 665,2014,https://boxd.it/synth665,3.0,No,"synth, documentary",2023-05-21
+2023-07-23,Lost Latitude Vol. 667,2016,https://boxd.it/synth667,1.0,No,"synth, sci-fi",2023-07-23
+2023-08-24,Whispers in the Dark Vol. 668,2017,https://boxd.it/synth668,4.5,No,"synth, drama",2023-08-24
+2023-09-25,The Autumn Protocol Vol. 669,2018,https://boxd.it/synth669,3.5,No,"synth, comedy",2023-09-25
+2023-10-26,Velocity Vol. 670,2019,https://boxd.it/synth670,2.5,No,"synth, thriller",2023-10-26
+2023-12-28,Subterranean Vol. 672,2021,https://boxd.it/synth672,5.0,No,"synth, documentary",2023-12-28
+2023-01-01,A Silent Symphony Vol. 673,2022,https://boxd.it/synth673,4.0,Yes,"synth, action",2023-01-01
+2023-02-02,Echoes of Eternity Vol. 674,2023,https://boxd.it/synth674,3.0,No,"synth, sci-fi",2023-02-02
+2023-03-03,The Last Archivist Vol. 675,2024,https://boxd.it/synth675,2.0,No,"synth, drama",2023-03-03
+2023-05-05,Vortex 9 Vol. 677,1951,https://boxd.it/synth677,4.5,No,"synth, thriller",2023-05-05
+2023-06-06,Fragments Vol. 678,1952,https://boxd.it/synth678,3.5,No,"synth, horror",2023-06-06
+2023-07-07,The Cartographer Vol. 679,1953,https://boxd.it/synth679,2.5,No,"synth, documentary",2023-07-07
+2023-08-08,Nightfall Over Tokyo Vol. 680,1954,https://boxd.it/synth680,1.5,Yes,"synth, action",2023-08-08
+2023-10-10,Solaris Echo Vol. 682,1956,https://boxd.it/synth682,4.0,No,"synth, drama",2023-10-10
+2023-11-11,Midnight in Berlin Vol. 683,1957,https://boxd.it/synth683,3.0,No,"synth, comedy",2023-11-11
+2023-12-12,The Glass Horizon Vol. 684,1958,https://boxd.it/synth684,2.0,No,"synth, thriller",2023-12-12
+2023-01-13,Shadows of the Past Vol. 685,1959,https://boxd.it/synth685,1.0,No,"synth, horror",2023-01-13
+2023-03-15,Lost Latitude Vol. 687,1961,https://boxd.it/synth687,3.5,Yes,"synth, action",2023-03-15
+2023-04-16,Whispers in the Dark Vol. 688,1962,https://boxd.it/synth688,2.5,No,"synth, sci-fi",2023-04-16
+2023-05-17,The Autumn Protocol Vol. 689,1963,https://boxd.it/synth689,1.5,No,"synth, drama",2023-05-17
+2023-06-18,Velocity Vol. 690,1964,https://boxd.it/synth690,5.0,No,"synth, comedy",2023-06-18
+2023-08-20,Subterranean Vol. 692,1966,https://boxd.it/synth692,3.0,No,"synth, horror",2023-08-20
+2023-09-21,A Silent Symphony Vol. 693,1967,https://boxd.it/synth693,2.0,No,"synth, documentary",2023-09-21
+2023-10-22,Echoes of Eternity Vol. 694,1968,https://boxd.it/synth694,1.0,Yes,"synth, action",2023-10-22
+2023-11-23,The Last Archivist Vol. 695,1969,https://boxd.it/synth695,4.5,No,"synth, sci-fi",2023-11-23
+2023-01-25,Vortex 9 Vol. 697,1971,https://boxd.it/synth697,2.5,No,"synth, comedy",2023-01-25
+2023-02-26,Fragments Vol. 698,1972,https://boxd.it/synth698,1.5,No,"synth, thriller",2023-02-26
+2023-03-27,The Cartographer Vol. 699,1973,https://boxd.it/synth699,5.0,No,"synth, horror",2023-03-27
+2023-04-28,Nightfall Over Tokyo Vol. 700,1974,https://boxd.it/synth700,4.0,No,"synth, documentary",2023-04-28
+2023-06-02,Solaris Echo Vol. 702,1976,https://boxd.it/synth702,2.0,No,"synth, sci-fi",2023-06-02
+2023-07-03,Midnight in Berlin Vol. 703,1977,https://boxd.it/synth703,1.0,No,"synth, drama",2023-07-03
+2023-08-04,The Glass Horizon Vol. 704,1978,https://boxd.it/synth704,4.5,No,"synth, comedy",2023-08-04
+2023-09-05,Shadows of the Past Vol. 705,1979,https://boxd.it/synth705,3.5,No,"synth, thriller",2023-09-05
+2023-11-07,Lost Latitude Vol. 707,1981,https://boxd.it/synth707,1.5,No,"synth, documentary",2023-11-07
+2023-12-08,Whispers in the Dark Vol. 708,1982,https://boxd.it/synth708,5.0,Yes,"synth, action",2023-12-08
+2023-01-09,The Autumn Protocol Vol. 709,1983,https://boxd.it/synth709,4.0,No,"synth, sci-fi",2023-01-09
+2023-02-10,Velocity Vol. 710,1984,https://boxd.it/synth710,3.0,No,"synth, drama",2023-02-10
+2023-04-12,Subterranean Vol. 712,1986,https://boxd.it/synth712,1.0,No,"synth, thriller",2023-04-12
+2023-05-13,A Silent Symphony Vol. 713,1987,https://boxd.it/synth713,4.5,No,"synth, horror",2023-05-13
+2023-06-14,Echoes of Eternity Vol. 714,1988,https://boxd.it/synth714,3.5,No,"synth, documentary",2023-06-14
+2023-07-15,The Last Archivist Vol. 715,1989,https://boxd.it/synth715,2.5,Yes,"synth, action",2023-07-15
+2023-09-17,Vortex 9 Vol. 717,1991,https://boxd.it/synth717,5.0,No,"synth, drama",2023-09-17
+2023-10-18,Fragments Vol. 718,1992,https://boxd.it/synth718,4.0,No,"synth, comedy",2023-10-18
+2023-11-19,The Cartographer Vol. 719,1993,https://boxd.it/synth719,3.0,No,"synth, thriller",2023-11-19
+2023-12-20,Nightfall Over Tokyo Vol. 720,1994,https://boxd.it/synth720,2.0,No,"synth, horror",2023-12-20
+2023-02-22,Solaris Echo Vol. 722,1996,https://boxd.it/synth722,4.5,Yes,"synth, action",2023-02-22
+2023-03-23,Midnight in Berlin Vol. 723,1997,https://boxd.it/synth723,3.5,No,"synth, sci-fi",2023-03-23
+2023-04-24,The Glass Horizon Vol. 724,1998,https://boxd.it/synth724,2.5,No,"synth, drama",2023-04-24
+2023-05-25,Shadows of the Past Vol. 725,1999,https://boxd.it/synth725,1.5,No,"synth, comedy",2023-05-25
+2023-07-27,Lost Latitude Vol. 727,2001,https://boxd.it/synth727,4.0,No,"synth, horror",2023-07-27
+2023-08-28,Whispers in the Dark Vol. 728,2002,https://boxd.it/synth728,3.0,No,"synth, documentary",2023-08-28
+2023-09-01,The Autumn Protocol Vol. 729,2003,https://boxd.it/synth729,2.0,Yes,"synth, action",2023-09-01
+2023-10-02,Velocity Vol. 730,2004,https://boxd.it/synth730,1.0,No,"synth, sci-fi",2023-10-02
+2023-12-04,Subterranean Vol. 732,2006,https://boxd.it/synth732,3.5,No,"synth, comedy",2023-12-04
+2023-01-05,A Silent Symphony Vol. 733,2007,https://boxd.it/synth733,2.5,No,"synth, thriller",2023-01-05
+2023-02-06,Echoes of Eternity Vol. 734,2008,https://boxd.it/synth734,1.5,No,"synth, horror",2023-02-06
+2023-03-07,The Last Archivist Vol. 735,2009,https://boxd.it/synth735,5.0,No,"synth, documentary",2023-03-07
+2023-05-09,Vortex 9 Vol. 737,2011,https://boxd.it/synth737,3.0,No,"synth, sci-fi",2023-05-09
+2023-06-10,Fragments Vol. 738,2012,https://boxd.it/synth738,2.0,No,"synth, drama",2023-06-10
+2023-07-11,The Cartographer Vol. 739,2013,https://boxd.it/synth739,1.0,No,"synth, comedy",2023-07-11
+2023-08-12,Nightfall Over Tokyo Vol. 740,2014,https://boxd.it/synth740,4.5,No,"synth, thriller",2023-08-12
+2023-10-14,Solaris Echo Vol. 742,2016,https://boxd.it/synth742,2.5,No,"synth, documentary",2023-10-14
+2023-11-15,Midnight in Berlin Vol. 743,2017,https://boxd.it/synth743,1.5,Yes,"synth, action",2023-11-15
+2023-12-16,The Glass Horizon Vol. 744,2018,https://boxd.it/synth744,5.0,No,"synth, sci-fi",2023-12-16
+2023-01-17,Shadows of the Past Vol. 745,2019,https://boxd.it/synth745,4.0,No,"synth, drama",2023-01-17
+2023-03-19,Lost Latitude Vol. 747,2021,https://boxd.it/synth747,2.0,No,"synth, thriller",2023-03-19
+2023-04-20,Whispers in the Dark Vol. 748,2022,https://boxd.it/synth748,1.0,No,"synth, horror",2023-04-20
+2023-05-21,The Autumn Protocol Vol. 749,2023,https://boxd.it/synth749,4.5,No,"synth, documentary",2023-05-21
+2023-06-22,Velocity Vol. 750,2024,https://boxd.it/synth750,3.5,Yes,"synth, action",2023-06-22
+2023-08-24,Subterranean Vol. 752,1951,https://boxd.it/synth752,1.5,No,"synth, drama",2023-08-24
+2023-09-25,A Silent Symphony Vol. 753,1952,https://boxd.it/synth753,5.0,No,"synth, comedy",2023-09-25
+2023-10-26,Echoes of Eternity Vol. 754,1953,https://boxd.it/synth754,4.0,No,"synth, thriller",2023-10-26
+2023-11-27,The Last Archivist Vol. 755,1954,https://boxd.it/synth755,3.0,No,"synth, horror",2023-11-27
+2023-01-01,Vortex 9 Vol. 757,1956,https://boxd.it/synth757,1.0,Yes,"synth, action",2023-01-01
+2023-02-02,Fragments Vol. 758,1957,https://boxd.it/synth758,4.5,No,"synth, sci-fi",2023-02-02
+2023-03-03,The Cartographer Vol. 759,1958,https://boxd.it/synth759,3.5,No,"synth, drama",2023-03-03
+2023-04-04,Nightfall Over Tokyo Vol. 760,1959,https://boxd.it/synth760,2.5,No,"synth, comedy",2023-04-04
+2023-06-06,Solaris Echo Vol. 762,1961,https://boxd.it/synth762,5.0,No,"synth, horror",2023-06-06
+2023-07-07,Midnight in Berlin Vol. 763,1962,https://boxd.it/synth763,4.0,No,"synth, documentary",2023-07-07
+2023-08-08,The Glass Horizon Vol. 764,1963,https://boxd.it/synth764,3.0,Yes,"synth, action",2023-08-08
+2023-09-09,Shadows of the Past Vol. 765,1964,https://boxd.it/synth765,2.0,No,"synth, sci-fi",2023-09-09
+2023-11-11,Lost Latitude Vol. 767,1966,https://boxd.it/synth767,4.5,No,"synth, comedy",2023-11-11
+2023-12-12,Whispers in the Dark Vol. 768,1967,https://boxd.it/synth768,3.5,No,"synth, thriller",2023-12-12
+2023-01-13,The Autumn Protocol Vol. 769,1968,https://boxd.it/synth769,2.5,No,"synth, horror",2023-01-13
+2023-02-14,Velocity Vol. 770,1969,https://boxd.it/synth770,1.5,No,"synth, documentary",2023-02-14
+2023-04-16,Subterranean Vol. 772,1971,https://boxd.it/synth772,4.0,No,"synth, sci-fi",2023-04-16
+2023-05-17,A Silent Symphony Vol. 773,1972,https://boxd.it/synth773,3.0,No,"synth, drama",2023-05-17
+2023-06-18,Echoes of Eternity Vol. 774,1973,https://boxd.it/synth774,2.0,No,"synth, comedy",2023-06-18
+2023-07-19,The Last Archivist Vol. 775,1974,https://boxd.it/synth775,1.0,No,"synth, thriller",2023-07-19
+2023-09-21,Vortex 9 Vol. 777,1976,https://boxd.it/synth777,3.5,No,"synth, documentary",2023-09-21
+2023-10-22,Fragments Vol. 778,1977,https://boxd.it/synth778,2.5,Yes,"synth, action",2023-10-22
+2023-11-23,The Cartographer Vol. 779,1978,https://boxd.it/synth779,1.5,No,"synth, sci-fi",2023-11-23
+2023-12-24,Nightfall Over Tokyo Vol. 780,1979,https://boxd.it/synth780,5.0,No,"synth, drama",2023-12-24
+2023-02-26,Solaris Echo Vol. 782,1981,https://boxd.it/synth782,3.0,No,"synth, thriller",2023-02-26
+2023-03-27,Midnight in Berlin Vol. 783,1982,https://boxd.it/synth783,2.0,No,"synth, horror",2023-03-27
+2023-04-28,The Glass Horizon Vol. 784,1983,https://boxd.it/synth784,1.0,No,"synth, documentary",2023-04-28
+2023-05-01,Shadows of the Past Vol. 785,1984,https://boxd.it/synth785,4.5,Yes,"synth, action",2023-05-01
+2023-07-03,Lost Latitude Vol. 787,1986,https://boxd.it/synth787,2.5,No,"synth, drama",2023-07-03
+2023-08-04,Whispers in the Dark Vol. 788,1987,https://boxd.it/synth788,1.5,No,"synth, comedy",2023-08-04
+2023-09-05,The Autumn Protocol Vol. 789,1988,https://boxd.it/synth789,5.0,No,"synth, thriller",2023-09-05
+2023-10-06,Velocity Vol. 790,1989,https://boxd.it/synth790,4.0,No,"synth, horror",2023-10-06
+2023-12-08,Subterranean Vol. 792,1991,https://boxd.it/synth792,2.0,Yes,"synth, action",2023-12-08
+2023-01-09,A Silent Symphony Vol. 793,1992,https://boxd.it/synth793,1.0,No,"synth, sci-fi",2023-01-09
+2023-02-10,Echoes of Eternity Vol. 794,1993,https://boxd.it/synth794,4.5,No,"synth, drama",2023-02-10
+2023-03-11,The Last Archivist Vol. 795,1994,https://boxd.it/synth795,3.5,No,"synth, comedy",2023-03-11
+2023-05-13,Vortex 9 Vol. 797,1996,https://boxd.it/synth797,1.5,No,"synth, horror",2023-05-13
+2023-06-14,Fragments Vol. 798,1997,https://boxd.it/synth798,5.0,No,"synth, documentary",2023-06-14
+2023-07-15,The Cartographer Vol. 799,1998,https://boxd.it/synth799,4.0,Yes,"synth, action",2023-07-15
+2023-08-16,Nightfall Over Tokyo Vol. 800,1999,https://boxd.it/synth800,3.0,No,"synth, sci-fi",2023-08-16
+2023-10-18,Solaris Echo Vol. 802,2001,https://boxd.it/synth802,1.0,No,"synth, comedy",2023-10-18
+2023-11-19,Midnight in Berlin Vol. 803,2002,https://boxd.it/synth803,4.5,No,"synth, thriller",2023-11-19
+2023-12-20,The Glass Horizon Vol. 804,2003,https://boxd.it/synth804,3.5,No,"synth, horror",2023-12-20
+2023-01-21,Shadows of the Past Vol. 805,2004,https://boxd.it/synth805,2.5,No,"synth, documentary",2023-01-21
+2023-03-23,Lost Latitude Vol. 807,2006,https://boxd.it/synth807,5.0,No,"synth, sci-fi",2023-03-23
+2023-04-24,Whispers in the Dark Vol. 808,2007,https://boxd.it/synth808,4.0,No,"synth, drama",2023-04-24
+2023-05-25,The Autumn Protocol Vol. 809,2008,https://boxd.it/synth809,3.0,No,"synth, comedy",2023-05-25
+2023-06-26,Velocity Vol. 810,2009,https://boxd.it/synth810,2.0,No,"synth, thriller",2023-06-26
+2023-08-28,Subterranean Vol. 812,2011,https://boxd.it/synth812,4.5,No,"synth, documentary",2023-08-28
+2023-09-01,A Silent Symphony Vol. 813,2012,https://boxd.it/synth813,3.5,Yes,"synth, action",2023-09-01
+2023-10-02,Echoes of Eternity Vol. 814,2013,https://boxd.it/synth814,2.5,No,"synth, sci-fi",2023-10-02
+2023-11-03,The Last Archivist Vol. 815,2014,https://boxd.it/synth815,1.5,No,"synth, drama",2023-11-03
+2023-01-05,Vortex 9 Vol. 817,2016,https://boxd.it/synth817,4.0,No,"synth, thriller",2023-01-05
+2023-02-06,Fragments Vol. 818,2017,https://boxd.it/synth818,3.0,No,"synth, horror",2023-02-06
+2023-03-07,The Cartographer Vol. 819,2018,https://boxd.it/synth819,2.0,No,"synth, documentary",2023-03-07
+2023-04-08,Nightfall Over Tokyo Vol. 820,2019,https://boxd.it/synth820,1.0,Yes,"synth, action",2023-04-08
+2023-06-10,Solaris Echo Vol. 822,2021,https://boxd.it/synth822,3.5,No,"synth, drama",2023-06-10
+2023-07-11,Midnight in Berlin Vol. 823,2022,https://boxd.it/synth823,2.5,No,"synth, comedy",2023-07-11
+2023-08-12,The Glass Horizon Vol. 824,2023,https://boxd.it/synth824,1.5,No,"synth, thriller",2023-08-12
+2023-09-13,Shadows of the Past Vol. 825,2024,https://boxd.it/synth825,5.0,No,"synth, horror",2023-09-13
+2023-11-15,Lost Latitude Vol. 827,1951,https://boxd.it/synth827,3.0,Yes,"synth, action",2023-11-15
+2023-12-16,Whispers in the Dark Vol. 828,1952,https://boxd.it/synth828,2.0,No,"synth, sci-fi",2023-12-16
+2023-01-17,The Autumn Protocol Vol. 829,1953,https://boxd.it/synth829,1.0,No,"synth, drama",2023-01-17
+2023-02-18,Velocity Vol. 830,1954,https://boxd.it/synth830,4.5,No,"synth, comedy",2023-02-18
+2023-04-20,Subterranean Vol. 832,1956,https://boxd.it/synth832,2.5,No,"synth, horror",2023-04-20
+2023-05-21,A Silent Symphony Vol. 833,1957,https://boxd.it/synth833,1.5,No,"synth, documentary",2023-05-21
+2023-06-22,Echoes of Eternity Vol. 834,1958,https://boxd.it/synth834,5.0,Yes,"synth, action",2023-06-22
+2023-07-23,The Last Archivist Vol. 835,1959,https://boxd.it/synth835,4.0,No,"synth, sci-fi",2023-07-23
+2023-09-25,Vortex 9 Vol. 837,1961,https://boxd.it/synth837,2.0,No,"synth, comedy",2023-09-25
+2023-10-26,Fragments Vol. 838,1962,https://boxd.it/synth838,1.0,No,"synth, thriller",2023-10-26
+2023-11-27,The Cartographer Vol. 839,1963,https://boxd.it/synth839,4.5,No,"synth, horror",2023-11-27
+2023-12-28,Nightfall Over Tokyo Vol. 840,1964,https://boxd.it/synth840,3.5,No,"synth, documentary",2023-12-28
+2023-02-02,Solaris Echo Vol. 842,1966,https://boxd.it/synth842,1.5,No,"synth, sci-fi",2023-02-02
+2023-03-03,Midnight in Berlin Vol. 843,1967,https://boxd.it/synth843,5.0,No,"synth, drama",2023-03-03
+2023-04-04,The Glass Horizon Vol. 844,1968,https://boxd.it/synth844,4.0,No,"synth, comedy",2023-04-04
+2023-05-05,Shadows of the Past Vol. 845,1969,https://boxd.it/synth845,3.0,No,"synth, thriller",2023-05-05
+2023-07-07,Lost Latitude Vol. 847,1971,https://boxd.it/synth847,1.0,No,"synth, documentary",2023-07-07
+2023-08-08,Whispers in the Dark Vol. 848,1972,https://boxd.it/synth848,4.5,Yes,"synth, action",2023-08-08
+2023-09-09,The Autumn Protocol Vol. 849,1973,https://boxd.it/synth849,3.5,No,"synth, sci-fi",2023-09-09
+2023-10-10,Velocity Vol. 850,1974,https://boxd.it/synth850,2.5,No,"synth, drama",2023-10-10
+2023-12-12,Subterranean Vol. 852,1976,https://boxd.it/synth852,5.0,No,"synth, thriller",2023-12-12
+2023-01-13,A Silent Symphony Vol. 853,1977,https://boxd.it/synth853,4.0,No,"synth, horror",2023-01-13
+2023-02-14,Echoes of Eternity Vol. 854,1978,https://boxd.it/synth854,3.0,No,"synth, documentary",2023-02-14
+2023-03-15,The Last Archivist Vol. 855,1979,https://boxd.it/synth855,2.0,Yes,"synth, action",2023-03-15
+2023-05-17,Vortex 9 Vol. 857,1981,https://boxd.it/synth857,4.5,No,"synth, drama",2023-05-17
+2023-06-18,Fragments Vol. 858,1982,https://boxd.it/synth858,3.5,No,"synth, comedy",2023-06-18
+2023-07-19,The Cartographer Vol. 859,1983,https://boxd.it/synth859,2.5,No,"synth, thriller",2023-07-19
+2023-08-20,Nightfall Over Tokyo Vol. 860,1984,https://boxd.it/synth860,1.5,No,"synth, horror",2023-08-20
+2023-10-22,Solaris Echo Vol. 862,1986,https://boxd.it/synth862,4.0,Yes,"synth, action",2023-10-22
+2023-11-23,Midnight in Berlin Vol. 863,1987,https://boxd.it/synth863,3.0,No,"synth, sci-fi",2023-11-23
+2023-12-24,The Glass Horizon Vol. 864,1988,https://boxd.it/synth864,2.0,No,"synth, drama",2023-12-24
+2023-01-25,Shadows of the Past Vol. 865,1989,https://boxd.it/synth865,1.0,No,"synth, comedy",2023-01-25
+2023-03-27,Lost Latitude Vol. 867,1991,https://boxd.it/synth867,3.5,No,"synth, horror",2023-03-27
+2023-04-28,Whispers in the Dark Vol. 868,1992,https://boxd.it/synth868,2.5,No,"synth, documentary",2023-04-28
+2023-05-01,The Autumn Protocol Vol. 869,1993,https://boxd.it/synth869,1.5,Yes,"synth, action",2023-05-01
+2023-06-02,Velocity Vol. 870,1994,https://boxd.it/synth870,5.0,No,"synth, sci-fi",2023-06-02
+2023-08-04,Subterranean Vol. 872,1996,https://boxd.it/synth872,3.0,No,"synth, comedy",2023-08-04
+2023-09-05,A Silent Symphony Vol. 873,1997,https://boxd.it/synth873,2.0,No,"synth, thriller",2023-09-05
+2023-10-06,Echoes of Eternity Vol. 874,1998,https://boxd.it/synth874,1.0,No,"synth, horror",2023-10-06
+2023-11-07,The Last Archivist Vol. 875,1999,https://boxd.it/synth875,4.5,No,"synth, documentary",2023-11-07
+2023-01-09,Vortex 9 Vol. 877,2001,https://boxd.it/synth877,2.5,No,"synth, sci-fi",2023-01-09
+2023-02-10,Fragments Vol. 878,2002,https://boxd.it/synth878,1.5,No,"synth, drama",2023-02-10
+2023-03-11,The Cartographer Vol. 879,2003,https://boxd.it/synth879,5.0,No,"synth, comedy",2023-03-11
+2023-04-12,Nightfall Over Tokyo Vol. 880,2004,https://boxd.it/synth880,4.0,No,"synth, thriller",2023-04-12
+2023-06-14,Solaris Echo Vol. 882,2006,https://boxd.it/synth882,2.0,No,"synth, documentary",2023-06-14
+2023-07-15,Midnight in Berlin Vol. 883,2007,https://boxd.it/synth883,1.0,Yes,"synth, action",2023-07-15
+2023-08-16,The Glass Horizon Vol. 884,2008,https://boxd.it/synth884,4.5,No,"synth, sci-fi",2023-08-16
+2023-09-17,Shadows of the Past Vol. 885,2009,https://boxd.it/synth885,3.5,No,"synth, drama",2023-09-17
+2023-11-19,Lost Latitude Vol. 887,2011,https://boxd.it/synth887,1.5,No,"synth, thriller",2023-11-19
+2023-12-20,Whispers in the Dark Vol. 888,2012,https://boxd.it/synth888,5.0,No,"synth, horror",2023-12-20
+2023-01-21,The Autumn Protocol Vol. 889,2013,https://boxd.it/synth889,4.0,No,"synth, documentary",2023-01-21
+2023-02-22,Velocity Vol. 890,2014,https://boxd.it/synth890,3.0,Yes,"synth, action",2023-02-22
+2023-04-24,Subterranean Vol. 892,2016,https://boxd.it/synth892,1.0,No,"synth, drama",2023-04-24
+2023-05-25,A Silent Symphony Vol. 893,2017,https://boxd.it/synth893,4.5,No,"synth, comedy",2023-05-25
+2023-06-26,Echoes of Eternity Vol. 894,2018,https://boxd.it/synth894,3.5,No,"synth, thriller",2023-06-26
+2023-07-27,The Last Archivist Vol. 895,2019,https://boxd.it/synth895,2.5,No,"synth, horror",2023-07-27
+2023-09-01,Vortex 9 Vol. 897,2021,https://boxd.it/synth897,5.0,Yes,"synth, action",2023-09-01
+2023-10-02,Fragments Vol. 898,2022,https://boxd.it/synth898,4.0,No,"synth, sci-fi",2023-10-02
+2023-11-03,The Cartographer Vol. 899,2023,https://boxd.it/synth899,3.0,No,"synth, drama",2023-11-03
+2023-12-04,Nightfall Over Tokyo Vol. 900,2024,https://boxd.it/synth900,2.0,No,"synth, comedy",2023-12-04
+2023-02-06,Solaris Echo Vol. 902,1951,https://boxd.it/synth902,4.5,No,"synth, horror",2023-02-06
+2023-03-07,Midnight in Berlin Vol. 903,1952,https://boxd.it/synth903,3.5,No,"synth, documentary",2023-03-07
+2023-04-08,The Glass Horizon Vol. 904,1953,https://boxd.it/synth904,2.5,Yes,"synth, action",2023-04-08
+2023-05-09,Shadows of the Past Vol. 905,1954,https://boxd.it/synth905,1.5,No,"synth, sci-fi",2023-05-09
+2023-07-11,Lost Latitude Vol. 907,1956,https://boxd.it/synth907,4.0,No,"synth, comedy",2023-07-11
+2023-08-12,Whispers in the Dark Vol. 908,1957,https://boxd.it/synth908,3.0,No,"synth, thriller",2023-08-12
+2023-09-13,The Autumn Protocol Vol. 909,1958,https://boxd.it/synth909,2.0,No,"synth, horror",2023-09-13
+2023-10-14,Velocity Vol. 910,1959,https://boxd.it/synth910,1.0,No,"synth, documentary",2023-10-14
+2023-12-16,Subterranean Vol. 912,1961,https://boxd.it/synth912,3.5,No,"synth, sci-fi",2023-12-16
+2023-01-17,A Silent Symphony Vol. 913,1962,https://boxd.it/synth913,2.5,No,"synth, drama",2023-01-17
+2023-02-18,Echoes of Eternity Vol. 914,1963,https://boxd.it/synth914,1.5,No,"synth, comedy",2023-02-18
+2023-03-19,The Last Archivist Vol. 915,1964,https://boxd.it/synth915,5.0,No,"synth, thriller",2023-03-19
+2023-05-21,Vortex 9 Vol. 917,1966,https://boxd.it/synth917,3.0,No,"synth, documentary",2023-05-21
+2023-06-22,Fragments Vol. 918,1967,https://boxd.it/synth918,2.0,Yes,"synth, action",2023-06-22
+2023-07-23,The Cartographer Vol. 919,1968,https://boxd.it/synth919,1.0,No,"synth, sci-fi",2023-07-23
+2023-08-24,Nightfall Over Tokyo Vol. 920,1969,https://boxd.it/synth920,4.5,No,"synth, drama",2023-08-24
+2023-10-26,Solaris Echo Vol. 922,1971,https://boxd.it/synth922,2.5,No,"synth, thriller",2023-10-26
+2023-11-27,Midnight in Berlin Vol. 923,1972,https://boxd.it/synth923,1.5,No,"synth, horror",2023-11-27
+2023-12-28,The Glass Horizon Vol. 924,1973,https://boxd.it/synth924,5.0,No,"synth, documentary",2023-12-28
+2023-01-01,Shadows of the Past Vol. 925,1974,https://boxd.it/synth925,4.0,Yes,"synth, action",2023-01-01
+2023-03-03,Lost Latitude Vol. 927,1976,https://boxd.it/synth927,2.0,No,"synth, drama",2023-03-03
+2023-04-04,Whispers in the Dark Vol. 928,1977,https://boxd.it/synth928,1.0,No,"synth, comedy",2023-04-04
+2023-05-05,The Autumn Protocol Vol. 929,1978,https://boxd.it/synth929,4.5,No,"synth, thriller",2023-05-05
+2023-06-06,Velocity Vol. 930,1979,https://boxd.it/synth930,3.5,No,"synth, horror",2023-06-06
+2023-08-08,Subterranean Vol. 932,1981,https://boxd.it/synth932,1.5,Yes,"synth, action",2023-08-08
+2023-09-09,A Silent Symphony Vol. 933,1982,https://boxd.it/synth933,5.0,No,"synth, sci-fi",2023-09-09
+2023-10-10,Echoes of Eternity Vol. 934,1983,https://boxd.it/synth934,4.0,No,"synth, drama",2023-10-10
+2023-11-11,The Last Archivist Vol. 935,1984,https://boxd.it/synth935,3.0,No,"synth, comedy",2023-11-11
+2023-01-13,Vortex 9 Vol. 937,1986,https://boxd.it/synth937,1.0,No,"synth, horror",2023-01-13
+2023-02-14,Fragments Vol. 938,1987,https://boxd.it/synth938,4.5,No,"synth, documentary",2023-02-14
+2023-03-15,The Cartographer Vol. 939,1988,https://boxd.it/synth939,3.5,Yes,"synth, action",2023-03-15
+2023-04-16,Nightfall Over Tokyo Vol. 940,1989,https://boxd.it/synth940,2.5,No,"synth, sci-fi",2023-04-16
+2023-06-18,Solaris Echo Vol. 942,1991,https://boxd.it/synth942,5.0,No,"synth, comedy",2023-06-18
+2023-07-19,Midnight in Berlin Vol. 943,1992,https://boxd.it/synth943,4.0,No,"synth, thriller",2023-07-19
+2023-08-20,The Glass Horizon Vol. 944,1993,https://boxd.it/synth944,3.0,No,"synth, horror",2023-08-20
+2023-09-21,Shadows of the Past Vol. 945,1994,https://boxd.it/synth945,2.0,No,"synth, documentary",2023-09-21
+2023-11-23,Lost Latitude Vol. 947,1996,https://boxd.it/synth947,4.5,No,"synth, sci-fi",2023-11-23
+2023-12-24,Whispers in the Dark Vol. 948,1997,https://boxd.it/synth948,3.5,No,"synth, drama",2023-12-24
+2023-01-25,The Autumn Protocol Vol. 949,1998,https://boxd.it/synth949,2.5,No,"synth, comedy",2023-01-25
+2023-02-26,Velocity Vol. 950,1999,https://boxd.it/synth950,1.5,No,"synth, thriller",2023-02-26
+2023-04-28,Subterranean Vol. 952,2001,https://boxd.it/synth952,4.0,No,"synth, documentary",2023-04-28
+2023-05-01,A Silent Symphony Vol. 953,2002,https://boxd.it/synth953,3.0,Yes,"synth, action",2023-05-01
+2023-06-02,Echoes of Eternity Vol. 954,2003,https://boxd.it/synth954,2.0,No,"synth, sci-fi",2023-06-02
+2023-07-03,The Last Archivist Vol. 955,2004,https://boxd.it/synth955,1.0,No,"synth, drama",2023-07-03
+2023-09-05,Vortex 9 Vol. 957,2006,https://boxd.it/synth957,3.5,No,"synth, thriller",2023-09-05
+2023-10-06,Fragments Vol. 958,2007,https://boxd.it/synth958,2.5,No,"synth, horror",2023-10-06
+2023-11-07,The Cartographer Vol. 959,2008,https://boxd.it/synth959,1.5,No,"synth, documentary",2023-11-07
+2023-12-08,Nightfall Over Tokyo Vol. 960,2009,https://boxd.it/synth960,5.0,Yes,"synth, action",2023-12-08
+2023-02-10,Solaris Echo Vol. 962,2011,https://boxd.it/synth962,3.0,No,"synth, drama",2023-02-10
+2023-03-11,Midnight in Berlin Vol. 963,2012,https://boxd.it/synth963,2.0,No,"synth, comedy",2023-03-11
+2023-04-12,The Glass Horizon Vol. 964,2013,https://boxd.it/synth964,1.0,No,"synth, thriller",2023-04-12
+2023-05-13,Shadows of the Past Vol. 965,2014,https://boxd.it/synth965,4.5,No,"synth, horror",2023-05-13
+2023-07-15,Lost Latitude Vol. 967,2016,https://boxd.it/synth967,2.5,Yes,"synth, action",2023-07-15
+2023-08-16,Whispers in the Dark Vol. 968,2017,https://boxd.it/synth968,1.5,No,"synth, sci-fi",2023-08-16
+2023-09-17,The Autumn Protocol Vol. 969,2018,https://boxd.it/synth969,5.0,No,"synth, drama",2023-09-17
+2023-10-18,Velocity Vol. 970,2019,https://boxd.it/synth970,4.0,No,"synth, comedy",2023-10-18
+2023-12-20,Subterranean Vol. 972,2021,https://boxd.it/synth972,2.0,No,"synth, horror",2023-12-20
+2023-01-21,A Silent Symphony Vol. 973,2022,https://boxd.it/synth973,1.0,No,"synth, documentary",2023-01-21
+2023-02-22,Echoes of Eternity Vol. 974,2023,https://boxd.it/synth974,4.5,Yes,"synth, action",2023-02-22
+2023-03-23,The Last Archivist Vol. 975,2024,https://boxd.it/synth975,3.5,No,"synth, sci-fi",2023-03-23
+2023-05-25,Vortex 9 Vol. 977,1951,https://boxd.it/synth977,1.5,No,"synth, comedy",2023-05-25
+2023-06-26,Fragments Vol. 978,1952,https://boxd.it/synth978,5.0,No,"synth, thriller",2023-06-26
+2023-07-27,The Cartographer Vol. 979,1953,https://boxd.it/synth979,4.0,No,"synth, horror",2023-07-27
+2023-08-28,Nightfall Over Tokyo Vol. 980,1954,https://boxd.it/synth980,3.0,No,"synth, documentary",2023-08-28
+2023-10-02,Solaris Echo Vol. 982,1956,https://boxd.it/synth982,1.0,No,"synth, sci-fi",2023-10-02
+2023-11-03,Midnight in Berlin Vol. 983,1957,https://boxd.it/synth983,4.5,No,"synth, drama",2023-11-03
+2023-12-04,The Glass Horizon Vol. 984,1958,https://boxd.it/synth984,3.5,No,"synth, comedy",2023-12-04
+2023-01-05,Shadows of the Past Vol. 985,1959,https://boxd.it/synth985,2.5,No,"synth, thriller",2023-01-05
+2023-03-07,Lost Latitude Vol. 987,1961,https://boxd.it/synth987,5.0,No,"synth, documentary",2023-03-07
+2023-04-08,Whispers in the Dark Vol. 988,1962,https://boxd.it/synth988,4.0,Yes,"synth, action",2023-04-08
+2023-05-09,The Autumn Protocol Vol. 989,1963,https://boxd.it/synth989,3.0,No,"synth, sci-fi",2023-05-09
+2023-06-10,Velocity Vol. 990,1964,https://boxd.it/synth990,2.0,No,"synth, drama",2023-06-10
+2023-08-12,Subterranean Vol. 992,1966,https://boxd.it/synth992,4.5,No,"synth, thriller",2023-08-12
+2023-09-13,A Silent Symphony Vol. 993,1967,https://boxd.it/synth993,3.5,No,"synth, horror",2023-09-13
+2023-10-14,Echoes of Eternity Vol. 994,1968,https://boxd.it/synth994,2.5,No,"synth, documentary",2023-10-14
+2023-11-15,The Last Archivist Vol. 995,1969,https://boxd.it/synth995,1.5,Yes,"synth, action",2023-11-15
+2023-01-17,Vortex 9 Vol. 997,1971,https://boxd.it/synth997,4.0,No,"synth, drama",2023-01-17
+2023-02-18,Fragments Vol. 998,1972,https://boxd.it/synth998,3.0,No,"synth, comedy",2023-02-18
+2023-03-19,The Cartographer Vol. 999,1973,https://boxd.it/synth999,2.0,No,"synth, thriller",2023-03-19
+2023-04-20,Nightfall Over Tokyo Vol. 1000,1974,https://boxd.it/synth1000,1.0,No,"synth, horror",2023-04-20

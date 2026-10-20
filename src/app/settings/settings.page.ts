@@ -3,13 +3,18 @@ import {
   ChangeDetectorRef,
   Component,
 } from '@angular/core';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
 import { finalize } from 'rxjs';
 import packageJson from '../../../package.json';
 import { applyPrimaryColor } from '../app.component';
 import { ToastService } from '../services/toast.service';
 import { UpdateService } from '../services/update.service';
 import { AppSettings, UserDataService } from '../services/user-data.service';
+import { LetterboxdImportService } from '../services/letterboxd-import.service';
+import { LetterboxdExportService } from '../services/letterboxd-export.service';
+import { MetadataBackfillService } from '../services/metadata-backfill.service';
+import { LetterboxdArchive } from '../services/letterboxd-archive';
+import { LetterboxdImportModalComponent } from './letterboxd-import-modal/letterboxd-import-modal.component';
 
 interface LanguageOption {
   code: string;
@@ -170,8 +175,12 @@ export class SettingsPage {
   constructor(
     public userData: UserDataService,
     private alertCtrl: AlertController,
+    private modalCtrl: ModalController,
     private toast: ToastService,
     private updateService: UpdateService,
+    private letterboxdImport: LetterboxdImportService,
+    private letterboxdExport: LetterboxdExportService,
+    private metadataBackfill: MetadataBackfillService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -408,6 +417,103 @@ export class SettingsPage {
       reader.readAsText(file);
     };
     input.click();
+  }
+
+  get hasLetterboxdBackup(): boolean {
+    return this.letterboxdImport.hasBackup();
+  }
+
+  get missingMetadataCount(): number {
+    return this.userData.getMissingSnapshotTitles().length;
+  }
+
+  get backfillProgress$() {
+    return this.metadataBackfill.getProgress();
+  }
+
+  startMetadataBackfill(): void {
+    this.metadataBackfill.start();
+  }
+
+  importLetterboxd(): void {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.zip,.csv';
+    input.multiple = true;
+    input.onchange = async (event: any) => {
+      const files: FileList | null = event.target.files;
+      if (!files || !files.length) return;
+
+      try {
+        let extractedFiles: Record<string, string> = {};
+        if (files.length === 1 && files[0].name.toLowerCase().endsWith('.zip')) {
+          const buffer = await files[0].arrayBuffer();
+          const unzipped = LetterboxdArchive.unzip(new Uint8Array(buffer));
+          extractedFiles = unzipped.files;
+        } else {
+          extractedFiles = await LetterboxdArchive.readFiles(files);
+        }
+
+        if (!Object.keys(extractedFiles).length) {
+          this.toast.showToast('No valid Letterboxd CSV files found.');
+          return;
+        }
+
+        const modal = await this.modalCtrl.create({
+          component: LetterboxdImportModalComponent,
+          componentProps: {
+            files: extractedFiles,
+          },
+        });
+
+        await modal.present();
+        const { data } = await modal.onWillDismiss();
+        if (data?.success) {
+          this.cdr.markForCheck();
+        }
+      } catch (err: any) {
+        this.toast.showToast(`Error reading export: ${err?.message || 'Invalid format'}`);
+      }
+    };
+    input.click();
+  }
+
+  async undoLetterboxdImport(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Undo Letterboxd Import',
+      message: 'This will revert your watched entries, watchlist, and lists back to the exact backup state captured right before your last Letterboxd import. Are you sure?',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Undo Import',
+          role: 'destructive',
+          handler: () => {
+            const success = this.letterboxdImport.undoImport();
+            if (success) {
+              this.toast.showToast('Letterboxd import successfully reverted.');
+              this.cdr.markForCheck();
+            } else {
+              this.toast.showToast('Unable to revert import: no backup found.');
+            }
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  exportLetterboxdZip(): void {
+    const zip = this.letterboxdExport.exportZip();
+    const dateStr = new Date().toISOString().split('T')[0];
+    this.letterboxdExport.downloadBlob(zip, `letterboxd-export-${dateStr}.zip`, 'application/zip');
+    this.toast.showToast('Letterboxd export archive downloaded.');
+  }
+
+  exportLetterboxdDiaryCsv(): void {
+    const csv = this.letterboxdExport.exportDiaryCsv();
+    const dateStr = new Date().toISOString().split('T')[0];
+    this.letterboxdExport.downloadBlob(csv, `diary-${dateStr}.csv`, 'text/csv;charset=utf-8;');
+    this.toast.showToast('Letterboxd diary.csv downloaded.');
   }
 
   async clearWatchLog() {

@@ -181,6 +181,10 @@ export class UserDataService {
     });
   }
 
+  getWatchedCount(): number {
+    return Object.keys(this.getWatched()).length;
+  }
+
   getWatchedEntry(mediaType: string, id: number): WatchedEntry | null {
     const all = this.getAllWatchedEntriesFor(mediaType, id);
     return all.length ? all[0] : null;
@@ -292,6 +296,39 @@ export class UserDataService {
     if (modified) {
       this.writeJson(this.WATCHED_KEY, watched);
     }
+  }
+
+  updateSnapshot(mediaType: string, id: number, snapshot: MediaMetadataSnapshot): void {
+    const watched = this.getWatched();
+    let modified = false;
+    Object.keys(watched).forEach((k) => {
+      const e = watched[k];
+      if (e && e.media_type === mediaType && e.id === id) {
+        e.snapshot = snapshot;
+        modified = true;
+      }
+    });
+    if (modified) {
+      this.writeJson(this.WATCHED_KEY, watched);
+    }
+  }
+
+  getMissingSnapshotTitles(): Array<{ media_type: 'movie' | 'tv'; id: number; title: string }> {
+    const watched = Object.values(this.getWatched());
+    const seen = new Set<string>();
+    const missing: Array<{ media_type: 'movie' | 'tv'; id: number; title: string }> = [];
+
+    watched.forEach((e) => {
+      const key = `${e.media_type}:${e.id}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        if (!e.snapshot || e.snapshot.runtimeMinutes === undefined || !e.snapshot.genres) {
+          missing.push({ media_type: e.media_type, id: e.id, title: e.title });
+        }
+      }
+    });
+
+    return missing;
   }
 
   isWatched(mediaType: string, id: number): boolean {
