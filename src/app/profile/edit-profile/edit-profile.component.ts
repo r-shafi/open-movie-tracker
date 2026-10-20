@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ModalController, Platform } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 import { UserDataService, UserProfile } from '../../services/user-data.service';
 import { ToastService } from '../../services/toast.service';
 
@@ -9,20 +10,25 @@ import { ToastService } from '../../services/toast.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class EditProfileComponent implements OnInit {
+export class EditProfileComponent implements OnInit, OnDestroy {
   displayName = '';
   bio = '';
   avatarBase64: string | null = null;
   coverBase64: string | null = null;
+  private backButtonSub?: Subscription;
 
   constructor(
     private modalCtrl: ModalController,
     private userData: UserDataService,
     private toast: ToastService,
     private cdr: ChangeDetectorRef,
+    private platform: Platform,
   ) {}
 
   ngOnInit() {
+    this.backButtonSub = this.platform.backButton.subscribeWithPriority(100, () => {
+      this.cancel();
+    });
     const profile = this.userData.getProfile();
     this.displayName = profile.displayName;
     this.bio = profile.bio;
@@ -67,5 +73,9 @@ export class EditProfileComponent implements OnInit {
 
   cancel() {
     this.modalCtrl.dismiss();
+  }
+
+  ngOnDestroy() {
+    this.backButtonSub?.unsubscribe();
   }
 }

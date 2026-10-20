@@ -94,6 +94,26 @@ export class FilmPage implements OnInit {
         this.isLoading = false;
       },
       error: () => {
+        const local = this.userData.getWatchedEntry('movie', id);
+        if (local) {
+          this.movie = {
+            id: local.id,
+            title: local.title,
+            poster_path: local.poster_path,
+            release_date: local.release_date || (local.snapshot?.releaseYear ? `${local.snapshot.releaseYear}-01-01` : ''),
+            runtime: local.snapshot?.runtimeMinutes,
+            genres: local.snapshot?.genres || (local.tags || []).map((t, idx) => ({ id: idx, name: t })),
+            overview: local.review ? `Your Logged Review: ${local.review}` : '',
+            vote_average: local.snapshot?.tmdbVoteAverage || (local.rating ? local.rating * 2 : undefined),
+            status: 'Released',
+          };
+          if (local.snapshot?.directors || local.snapshot?.topCast) {
+            this.credits = {
+              cast: local.snapshot?.topCast || [],
+              crew: local.snapshot?.directors?.map((d) => ({ name: d.name, job: 'Director' })) || [],
+            };
+          }
+        }
         this.isLoading = false;
       },
     });

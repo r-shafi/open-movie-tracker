@@ -96,6 +96,27 @@ export class TvPage implements OnInit {
         this.isLoading = false;
       },
       error: () => {
+        const local = this.userData.getWatchedEntry('tv', id);
+        if (local) {
+          this.show = {
+            id: local.id,
+            name: local.title,
+            poster_path: local.poster_path,
+            first_air_date: local.first_air_date || (local.snapshot?.releaseYear ? `${local.snapshot.releaseYear}-01-01` : ''),
+            episode_run_time: local.snapshot?.runtimeMinutes ? [local.snapshot.runtimeMinutes] : [],
+            genres: local.snapshot?.genres || (local.tags || []).map((t, idx) => ({ id: idx, name: t })),
+            overview: local.review ? `Your Logged Review: ${local.review}` : '',
+            vote_average: local.snapshot?.tmdbVoteAverage || (local.rating ? local.rating * 2 : undefined),
+            status: 'Ended',
+            seasons: [],
+          };
+          if (local.snapshot?.topCast) {
+            this.credits = {
+              cast: local.snapshot.topCast,
+              crew: local.snapshot?.directors?.map((d) => ({ name: d.name, job: 'Creator' })) || [],
+            };
+          }
+        }
         this.isLoading = false;
       },
     });

@@ -453,4 +453,18 @@
     }
   </div>
   }
+
+  @if (!isLoading && !show) {
+  <div class="flex flex-col items-center justify-center min-h-[50vh] px-6 text-center">
+    <ion-icon name="alert-circle-outline" class="text-5xl text-warning mb-3"></ion-icon>
+    <h3 class="text-lg font-bold m-0 mb-1">TV Show Details Unavailable</h3>
+    <p class="text-xs text-medium m-0 mb-4 max-w-xs">
+      Unable to load details from TMDb. Please check your network connection or API key.
+    </p>
+    <ion-button size="small" fill="outline" (click)="ngOnInit()">
+      <ion-icon slot="start" name="refresh-outline"></ion-icon>
+      Try Again
+    </ion-button>
+  </div>
+  }
 </ion-content>

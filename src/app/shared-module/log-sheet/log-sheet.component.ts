@@ -2,10 +2,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   Input,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { AlertController, IonModal, ModalController } from '@ionic/angular';
+import { AlertController, IonModal, ModalController, Platform } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 import { ToastService } from 'src/app/services/toast.service';
 import {
   UserDataService,
@@ -30,8 +32,10 @@ export interface LogSheetItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class LogSheetComponent implements OnInit {
+export class LogSheetComponent implements OnInit, OnDestroy {
   @Input() item!: LogSheetItem;
+
+  private backButtonSub?: Subscription;
 
   existing: WatchedEntry | null = null;
   rating: number | null = null;
@@ -54,9 +58,13 @@ export class LogSheetComponent implements OnInit {
     private alertCtrl: AlertController,
     private userData: UserDataService,
     private toast: ToastService,
+    private platform: Platform,
   ) {}
 
   ngOnInit(): void {
+    this.backButtonSub = this.platform.backButton.subscribeWithPriority(100, () => {
+      this.cancel();
+    });
     if (!this.item) {
       return;
     }
@@ -280,6 +288,10 @@ export class LogSheetComponent implements OnInit {
       ],
     });
     await alert.present();
+  }
+
+  ngOnDestroy(): void {
+    this.backButtonSub?.unsubscribe();
   }
 
   cancel(): void {
