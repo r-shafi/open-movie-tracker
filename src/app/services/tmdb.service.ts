@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, map, throwError } from 'rxjs';
+import { Observable, catchError, map, of, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { UserDataService } from './user-data.service';
 
@@ -20,10 +20,14 @@ export interface DiscoverParams {
 @Injectable({ providedIn: 'root' })
 export class TmdbService {
   private readonly base = environment.tmdbBaseUrl;
-  private readonly key = environment.tmdbApiKey;
   private readonly cachePrefix = 'tmdb_cache_v2:';
   private readonly cacheTTL = 1000 * 60 * 60 * 24 * 7;
   private readonly maxCacheEntries = 250;
+
+  private get key(): string {
+    const custom = this.userData.getSettings().tmdbApiKey?.trim();
+    return custom || environment.tmdbApiKey;
+  }
 
   constructor(
     private http: HttpClient,
@@ -58,7 +62,7 @@ export class TmdbService {
       }),
       catchError((err) => {
         if (cached !== null) {
-          return [cached];
+          return of(cached);
         }
         return throwError(() => err);
       }),

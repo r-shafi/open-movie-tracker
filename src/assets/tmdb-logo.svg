@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 185.04 130.43" width="185" height="130">
+  <defs>
+    <linearGradient id="tmdb_grad" x1="0" y1="0" x2="185.04" y2="130.43" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#90cea1"/>
+      <stop offset="50%" stop-color="#01b4e4"/>
+      <stop offset="100%" stop-color="#0d253f"/>
+    </linearGradient>
+  </defs>
+  <rect width="185.04" height="130.43" rx="20" fill="url(#tmdb_grad)"/>
+  <text x="92.52" y="80" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="48" fill="#ffffff" text-anchor="middle" letter-spacing="2">TMDB</text>
+</svg>

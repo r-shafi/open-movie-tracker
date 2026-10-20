@@ -233,6 +233,46 @@ export class SettingsPage {
     applyPrimaryColor(color);
   }
 
+  async editTmdbApiKey() {
+    const currentKey = this.settings.tmdbApiKey || '';
+    const alert = await this.alertCtrl.create({
+      header: 'TMDb API Key',
+      message:
+        'Enter your personal TMDb API key (v3 auth), or leave empty to use the bundled default key.',
+      inputs: [
+        {
+          name: 'apiKey',
+          type: 'text',
+          placeholder: 'Personal API key (optional)',
+          value: currentKey,
+        },
+      ],
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Reset to Default',
+          handler: () => {
+            this.userData.saveSetting('tmdbApiKey', '');
+            this.toast.showToast('Reset to default TMDb API key.');
+            this.cdr.markForCheck();
+          },
+        },
+        {
+          text: 'Save',
+          handler: (data) => {
+            const key = (data.apiKey || '').trim();
+            this.userData.saveSetting('tmdbApiKey', key);
+            this.toast.showToast(
+              key ? 'Custom API key saved.' : 'Using default API key.',
+            );
+            this.cdr.markForCheck();
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
   isLanguageBlocked(code: string): boolean {
     return this.settings.excludeLanguages.includes(code.toLowerCase());
   }
@@ -308,31 +348,41 @@ export class SettingsPage {
   }
 
   exportData() {
-    const keys = [
-      'mva_profile',
-      'mva_watched',
-      'mva_watchlist',
-      'mva_favorites',
-      'mva_lists',
-      'mva_settings',
-    ];
-    const dump: Record<string, unknown> = {};
-    keys.forEach((k) => {
-      dump[k] = JSON.parse(localStorage.getItem(k) ?? 'null');
-    });
-    const blob = new Blob([JSON.stringify(dump, null, 2)], {
+    const backupJson = this.userData.exportBackup();
+    const blob = new Blob([backupJson], {
       type: 'application/json',
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'movieapp-backup.json';
+    const dateStr = new Date().toISOString().split('T')[0];
+    a.download = `open-movie-tracker-backup-${dateStr}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    this.toast.showToast('Data exported.');
+    this.toast.showToast('Data exported successfully.');
   }
 
-  importData() {
+  async importData() {
+    const alert = await this.alertCtrl.create({
+      header: 'Import Backup',
+      message: 'Choose how to import your backup data:',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Merge with existing',
+          handler: () => this.triggerFileInput('merge'),
+        },
+        {
+          text: 'Replace all data',
+          role: 'destructive',
+          handler: () => this.triggerFileInput('replace'),
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  private triggerFileInput(mode: 'merge' | 'replace') {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
@@ -343,24 +393,16 @@ export class SettingsPage {
       }
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        try {
-          const data = JSON.parse(e.target.result);
-          const keys = [
-            'mva_profile',
-            'mva_watched',
-            'mva_watchlist',
-            'mva_favorites',
-            'mva_lists',
-            'mva_settings',
-          ];
-          keys.forEach((k) => {
-            if (data[k] !== undefined) {
-              localStorage.setItem(k, JSON.stringify(data[k]));
-            }
-          });
-          this.toast.showToast('Data imported. Reload to see changes.');
-        } catch {
-          this.toast.showToast('Invalid file format.');
+        const result = this.userData.importBackup(e.target.result, mode);
+        if (result.success) {
+          const counts = result.importedCounts;
+          const msg = counts
+            ? `Imported ${counts.watched} logs, ${counts.watchlist} watchlist items.`
+            : 'Data imported successfully.';
+          this.toast.showToast(msg);
+          this.cdr.markForCheck();
+        } else {
+          this.toast.showToast(result.message);
         }
       };
       reader.readAsText(file);

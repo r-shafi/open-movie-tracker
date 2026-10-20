@@ -8,6 +8,14 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 export class SafeUrlPipe implements PipeTransform {
   constructor(private sanitizer: DomSanitizer) {}
   transform(url: string): SafeResourceUrl {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    if (!url || typeof url !== 'string') {
+      return '';
+    }
+    // Only trust valid YouTube embed URLs
+    const ytMatch = /^https:\/\/www\.youtube\.com\/embed\/([a-zA-Z0-9_-]{11})(\?.*)?$/.test(url);
+    if (ytMatch) {
+      return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
+    return '';
   }
 }

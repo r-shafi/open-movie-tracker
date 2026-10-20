@@ -377,6 +377,28 @@
       </div>
     </button>
 
+    <button
+      class="settings-card settings-stack settings-stack--toggle mb-2 w-full rounded-xl border px-3 py-3 text-left transition-colors hover:bg-white/5"
+      style="border-color: var(--ion-color-step-100)"
+      (click)="editTmdbApiKey()"
+    >
+      <div class="settings-stack__header">
+        <p class="m-0 text-[0.88rem] font-semibold">TMDb API Key</p>
+        <p
+          class="m-0 mt-[2px] text-[0.7rem]"
+          style="color: var(--ion-color-medium)"
+        >
+          {{ settings.tmdbApiKey ? 'Custom key configured' : 'Using bundled default key' }}
+        </p>
+      </div>
+      <div class="settings-stack__action settings-stack__action--end">
+        <ion-icon
+          name="key-outline"
+          style="color: var(--ion-color-medium)"
+        ></ion-icon>
+      </div>
+    </button>
+
     <div
       class="settings-card mb-2 flex flex-col items-center rounded-xl border px-3 py-5"
       style="border-color: var(--ion-color-step-100)"
@@ -388,7 +410,7 @@
         class="mb-1 block"
       >
         <img
-          src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_2-d537fb228cf3ded904ef09b136fe3fec72548ebc1fea3fbbd1ad9e36364db38b.svg"
+          src="assets/tmdb-logo.svg"
           alt="TMDB"
           class="h-9 opacity-90 transition-opacity hover:opacity-100"
         />

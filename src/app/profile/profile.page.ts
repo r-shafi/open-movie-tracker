@@ -245,13 +245,37 @@ export class ProfilePage {
       }
       const reader = new FileReader();
       reader.onload = () => {
-        const result = reader.result as string;
-        const patch =
-          type === 'avatar'
-            ? { avatarBase64: result }
-            : { coverBase64: result };
-        this.userData.saveProfile(patch);
-        this.cdr.markForCheck();
+        const rawUrl = reader.result as string;
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = type === 'avatar' ? 300 : 800;
+          let width = img.width;
+          let height = img.height;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const resizedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+            const patch =
+              type === 'avatar'
+                ? { avatarBase64: resizedBase64 }
+                : { coverBase64: resizedBase64 };
+            this.userData.saveProfile(patch);
+            this.cdr.markForCheck();
+          }
+        };
+        img.src = rawUrl;
       };
       reader.readAsDataURL(file);
     };

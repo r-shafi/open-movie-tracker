@@ -63,24 +63,32 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private checkForUpdates(): void {
-    this.updateService.checkForUpdate().subscribe(async (update) => {
-      if (!update) {
-        return;
-      }
-      const alert = await this.alertCtrl.create({
-        header: 'Update available',
-        message: `Version ${update.latestVersion} is available. You're on ${update.currentVersion}.`,
-        buttons: [
-          { text: 'Later', role: 'cancel' },
-          {
-            text: 'Update now',
-            handler: () => {
-              window.open(update.releaseUrl, '_blank');
+    if (!this.userData.getSettings().autoCheckUpdates) {
+      return;
+    }
+    this.updateService.checkForUpdate().subscribe({
+      next: async (update) => {
+        if (!update) {
+          return;
+        }
+        const alert = await this.alertCtrl.create({
+          header: 'Update available',
+          message: `Version ${update.latestVersion} is available. You're on ${update.currentVersion}.`,
+          buttons: [
+            { text: 'Later', role: 'cancel' },
+            {
+              text: 'Update now',
+              handler: () => {
+                window.open(update.releaseUrl, '_blank');
+              },
             },
-          },
-        ],
-      });
-      await alert.present();
+          ],
+        });
+        await alert.present();
+      },
+      error: () => {
+        // Silently ignore update check errors on boot to prevent console noise/crashes
+      },
     });
   }
 }
