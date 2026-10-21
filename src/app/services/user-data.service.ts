@@ -61,6 +61,7 @@ export interface FavoriteEntry {
   media_type: 'movie' | 'tv';
   title: string;
   poster_path: string | null;
+  backdrop_path?: string | null;
 }
 
 export interface UserList {
@@ -83,6 +84,13 @@ export interface AppSettings {
   primaryColor: 'green' | 'red';
   tmdbApiKey?: string;
   autoCheckUpdates?: boolean;
+  hapticsEnabled?: boolean;
+  customCover?: {
+    mediaType: 'movie' | 'tv';
+    id: number;
+    backdropPath: string;
+    title?: string;
+  } | null;
 }
 
 type SettingsRecord = AppSettings & {
@@ -773,15 +781,15 @@ export class UserDataService {
     }
   }
 
-  unbookmarkList(listId: number): void {
+  unbookmarkList(listId: string | number): void {
     const bookmarks = this.readJson<any[]>(this.BOOKMARKED_LISTS_KEY, []);
-    const next = bookmarks.filter((b) => b.id !== listId);
+    const next = bookmarks.filter((b) => String(b.id) !== String(listId));
     this.writeJson(this.BOOKMARKED_LISTS_KEY, next);
   }
 
-  isListBookmarked(listId: number): boolean {
+  isListBookmarked(listId: string | number): boolean {
     const bookmarks = this.readJson<any[]>(this.BOOKMARKED_LISTS_KEY, []);
-    return bookmarks.some((b) => b.id === listId);
+    return bookmarks.some((b) => String(b.id) === String(listId));
   }
 
   getBookmarkedLists(): any[] {

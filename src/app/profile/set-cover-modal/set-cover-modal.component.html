@@ -1,0 +1,145 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      @if (selectedTitle) {
+      <ion-button (click)="backToSelection()">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+      } @else {
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+      }
+    </ion-buttons>
+    <ion-title>{{ selectedTitle ? 'Choose Backdrop' : 'Set Profile Cover' }}</ion-title>
+    <ion-buttons slot="end">
+      @if (!selectedTitle) {
+      <ion-button color="primary" (click)="resetToDefault()">
+        Default
+      </ion-button>
+      }
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (!selectedTitle) {
+  <div class="mb-4">
+    <ion-searchbar
+      [(ngModel)]="searchQuery"
+      (ionInput)="onSearchChange()"
+      placeholder="Search logged films..."
+      debounce="250"
+      class="p-0"
+    ></ion-searchbar>
+  </div>
+
+  @if (searchResults.length > 0) {
+  <div class="mb-4">
+    <p class="m-0 mb-2 text-xs font-bold uppercase tracking-wider text-muted">Search Results</p>
+    <div class="flex flex-col gap-1.5">
+      @for (item of searchResults; track item.id + ':' + item.media_type) {
+      <div
+        class="flex items-center gap-3 rounded-lg border border-border bg-bg-secondary/40 p-2 cursor-pointer active:scale-98 transition-transform"
+        (click)="selectMedia(item)"
+      >
+        <img
+          [src]="item.poster_path ? 'https://image.tmdb.org/t/p/w92' + item.poster_path : 'assets/no-image.png'"
+          class="h-12 w-8 rounded object-cover"
+        />
+        <div class="flex-1 min-w-0">
+          <p class="m-0 text-sm font-semibold truncate">{{ item.title }}</p>
+          <span class="text-xs text-muted uppercase">{{ item.media_type }}</span>
+        </div>
+        <ion-icon name="chevron-forward-outline" class="text-muted"></ion-icon>
+      </div>
+      }
+    </div>
+  </div>
+  }
+
+  @if (favorites.length > 0) {
+  <div class="mb-5">
+    <p class="m-0 mb-2 text-xs font-bold uppercase tracking-wider text-muted">From Favorites</p>
+    <div class="grid grid-cols-2 gap-2">
+      @for (fav of favorites; track fav.id + ':' + fav.media_type) {
+      <div
+        class="flex items-center gap-2.5 rounded-lg border border-border bg-bg-secondary/40 p-2 cursor-pointer active:scale-98 transition-transform"
+        (click)="selectMedia(fav)"
+      >
+        <img
+          [src]="fav.poster_path ? 'https://image.tmdb.org/t/p/w92' + fav.poster_path : 'assets/no-image.png'"
+          class="h-12 w-8 rounded object-cover"
+        />
+        <div class="flex-1 min-w-0">
+          <p class="m-0 text-xs font-bold truncate">{{ fav.title }}</p>
+          <span class="text-[0.68rem] text-primary">Pick backdrop</span>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+  }
+
+  @if (recentWatched.length > 0) {
+  <div>
+    <p class="m-0 mb-2 text-xs font-bold uppercase tracking-wider text-muted">Recently Watched</p>
+    <div class="grid grid-cols-2 gap-2">
+      @for (item of recentWatched; track item.id + ':' + item.media_type) {
+      <div
+        class="flex items-center gap-2.5 rounded-lg border border-border bg-bg-secondary/40 p-2 cursor-pointer active:scale-98 transition-transform"
+        (click)="selectMedia(item)"
+      >
+        <img
+          [src]="item.poster_path ? 'https://image.tmdb.org/t/p/w92' + item.poster_path : 'assets/no-image.png'"
+          class="h-12 w-8 rounded object-cover"
+        />
+        <div class="flex-1 min-w-0">
+          <p class="m-0 text-xs font-bold truncate">{{ item.title }}</p>
+          <span class="text-[0.68rem] text-muted">{{ item.release_date ? item.release_date.slice(0, 4) : '' }}</span>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+  }
+  } @else {
+  <!-- Choosing backdrop for selected title -->
+  <div class="mb-3">
+    <h3 class="m-0 text-base font-extrabold truncate">{{ selectedTitle.title }}</h3>
+    <p class="m-0 text-xs text-muted">Select a cinematic backdrop for your profile header.</p>
+  </div>
+
+  @if (isLoading) {
+  <div class="flex flex-col items-center justify-center py-12">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p class="mt-2 text-xs text-muted">Loading TMDb backdrops...</p>
+  </div>
+  } @else if (backdrops.length === 0) {
+  <div class="rounded-xl border border-dashed border-border py-8 text-center text-muted">
+    <ion-icon name="image-outline" class="text-3xl mb-1"></ion-icon>
+    <p class="m-0 text-sm">No backdrops available for this title.</p>
+    <button class="mt-3 rounded-lg bg-bg-secondary px-3 py-1.5 text-xs text-white" (click)="backToSelection()">
+      Choose another title
+    </button>
+  </div>
+  } @else {
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    @for (backdrop of backdrops; track backdrop.file_path) {
+    <div
+      class="backdrop-tile cursor-pointer overflow-hidden rounded-xl border border-border bg-bg-secondary transition-transform active:scale-98"
+      (click)="chooseBackdrop(backdrop)"
+    >
+      <div class="aspect-[2.35/1] w-full overflow-hidden bg-bg-base">
+        <img
+          [src]="'https://image.tmdb.org/t/p/w780' + backdrop.file_path"
+          loading="lazy"
+          class="h-full w-full object-cover"
+        />
+      </div>
+    </div>
+    }
+  </div>
+  }
+  }
+</ion-content>

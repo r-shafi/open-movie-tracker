@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  OnInit,
 } from '@angular/core';
 import {
   ActionSheetController,
@@ -12,14 +13,17 @@ import {
   FavoriteEntry,
   UserDataService,
   UserList,
+  UserStats,
   WatchedEntry,
   WatchlistEntry,
 } from '../services/user-data.service';
 import { CalendarDate } from '../services/calendar-date';
 import { ToastService } from '../services/toast.service';
+import { MetadataBackfillService } from '../services/metadata-backfill.service';
 import { ImageViewerComponent } from '../shared-module/image-viewer/image-viewer.component';
 import { AddFavoriteModalComponent } from './add-favorite-modal/add-favorite-modal.component';
 import { EditProfileComponent } from './edit-profile/edit-profile.component';
+import { SetCoverModalComponent } from './set-cover-modal/set-cover-modal.component';
 
 @Component({
   selector: 'app-profile',
@@ -28,60 +32,30 @@ import { EditProfileComponent } from './edit-profile/edit-profile.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class ProfilePage {
-  activeTab: 'stats' | 'activity' | 'lists' = 'stats';
+export class ProfilePage implements OnInit {
   isEditingFavorites = false;
   activityPage = 0;
   readonly pageSize = 20;
 
-  ionViewWillEnter() {
-    this.cdr.markForCheck();
-  }
-  readonly quickLinks = [
-    {
-      label: 'Watched',
-      icon: 'eye-outline',
-      route: '/profile/watched',
-      subtitle: 'All logged titles',
-      countGetter: () => this.stats.totalWatched,
-    },
-    {
-      label: 'Watchlist',
-      icon: 'bookmark-outline',
-      route: '/profile/watchlist',
-      subtitle: 'What to watch next',
-      countGetter: () => this.userData.getWatchlist().length,
-    },
-    {
-      label: 'Liked',
-      icon: 'heart-outline',
-      route: '/profile/liked',
-      subtitle: 'Films and shows you liked',
-      countGetter: () => this.watchedEntries.filter((e) => e.liked).length,
-    },
-    {
-      label: 'Diary',
-      icon: 'calendar-clear-outline',
-      route: '/profile/diary',
-      subtitle: 'Logs by watch date',
-      countGetter: () => this.watchedEntries.length,
-    },
-    {
-      label: 'Ratings',
-      icon: 'star-outline',
-      route: '/profile/ratings',
-      subtitle: 'Your scored entries',
-      countGetter: () =>
-        this.watchedEntries.filter((e) => e.rating !== null).length,
-    },
-    {
-      label: 'Reviews',
-      icon: 'chatbubble-ellipses-outline',
-      route: '/profile/reviews',
-      subtitle: 'Written thoughts',
-      countGetter: () =>
-        this.watchedEntries.filter((e) => !!e.review.trim()).length,
-    },
+  selectedStatsYear = 'all';
+  statsTab: 'overview' | 'ratings' | 'time' | 'people' | 'genres' = 'overview';
+  coverImageFailed = false;
+
+  private cachedStats: UserStats | null = null;
+  private cachedYear: string | null = null;
+  private cachedWatchedCount: number | null = null;
+
+  readonly genreColorPalette = [
+    '#06b6d4', // Cyan
+    '#f97316', // Orange
+    '#f59e0b', // Amber
+    '#8b5cf6', // Purple
+    '#ef4444', // Rose
+    '#10b981', // Emerald
+    '#6366f1', // Indigo
+    '#ec4899', // Pink
+    '#14b8a6', // Teal
+    '#84cc16', // Lime
   ];
 
   constructor(
@@ -91,297 +65,190 @@ export class ProfilePage {
     private actionSheetCtrl: ActionSheetController,
     private cdr: ChangeDetectorRef,
     private toast: ToastService,
+    private metadataBackfill: MetadataBackfillService,
   ) {}
+
+  ngOnInit(): void {
+    this.refreshStatsCache();
+  }
+
+  ionViewWillEnter(): void {
+    this.refreshStatsCache();
+    this.cdr.markForCheck();
+  }
 
   get profile() {
     return this.userData.getProfile();
   }
 
-  selectedStatsYear = 'all';
-  roulettePick: WatchlistEntry | null = null;
+  get backfillProgress$() {
+    return this.metadataBackfill.getProgress();
+  }
 
-  get heatmapWeeks(): { weekIndex: number; days: { date: string; count: number; level: number }[] }[] {
-    const days = this.stats.activityHeatmap || [];
-    const weeks: { weekIndex: number; days: { date: string; count: number; level: number }[] }[] = [];
-    for (let i = 0; i < days.length; i += 7) {
-      weeks.push({
-        weekIndex: Math.floor(i / 7),
-        days: days.slice(i, i + 7),
-      });
+  get stats(): UserStats {
+    const watched = this.watchedEntries;
+    if (
+      !this.cachedStats ||
+      this.cachedYear !== this.selectedStatsYear ||
+      this.cachedWatchedCount !== watched.length
+    ) {
+      this.cachedStats = this.userData.getStats(this.selectedStatsYear);
+      this.cachedYear = this.selectedStatsYear;
+      this.cachedWatchedCount = watched.length;
     }
-    return weeks;
+    return this.cachedStats;
   }
 
-  getDistributionPercent(count: number): number {
-    return this.stats.totalWatched > 0 ? Math.round((count / this.stats.totalWatched) * 100) : 0;
-  }
-
-  spinRoulette(): void {
-    this.roulettePick = this.userData.pickWatchlistRoulette();
-    if (!this.roulettePick) {
-      this.toast.showToast('Your watchlist is empty! Add titles to spin.');
-    } else {
-      this.toast.showToast(`Roulette picked: "${this.roulettePick.title}"`);
-    }
-    this.cdr.markForCheck();
-  }
-
-  generateShareCard(): void {
-    const stats = this.stats;
-    const profile = this.profile;
-    const canvas = document.createElement('canvas');
-    canvas.width = 1080;
-    canvas.height = 1350;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Dark gradient background
-    const grad = ctx.createLinearGradient(0, 0, 0, 1350);
-    grad.addColorStop(0, '#0f172a');
-    grad.addColorStop(1, '#020617');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 1080, 1350);
-
-    // Subtle emerald radial glow
-    ctx.fillStyle = 'rgba(34, 197, 94, 0.08)';
-    ctx.beginPath();
-    ctx.arc(1080, 0, 500, 0, Math.PI * 2);
-    ctx.fill();
-
-    // App header
-    ctx.fillStyle = '#22c55e';
-    ctx.font = 'bold 36px system-ui, -apple-system, sans-serif';
-    ctx.fillText('OPEN MOVIE TRACKER', 80, 120);
-
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '500 24px system-ui, -apple-system, sans-serif';
-    ctx.fillText('100% On-Device · Privacy-First Analytics', 80, 160);
-
-    // User profile title
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 52px system-ui, -apple-system, sans-serif';
-    ctx.fillText(profile.displayName || 'Film Curator', 80, 260);
-
-    if (profile.bio) {
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = 'normal 26px system-ui, -apple-system, sans-serif';
-      ctx.fillText(profile.bio.slice(0, 60), 80, 305);
-    }
-
-    // Divider line
-    ctx.strokeStyle = '#334155';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(80, 350);
-    ctx.lineTo(1000, 350);
-    ctx.stroke();
-
-    // 4 Key Stats cards
-    const cards = [
-      { label: 'TITLES WATCHED', val: String(stats.totalWatched) },
-      { label: 'HOURS ESTIMATED', val: `${stats.totalHoursEstimated}h` },
-      { label: 'AVERAGE RATING', val: stats.averageRating ? `★ ${stats.averageRating}` : 'N/A' },
-      { label: 'LONGEST STREAK', val: `${stats.longestStreak} days` },
-    ];
-
-    cards.forEach((c, idx) => {
-      const x = 80 + (idx % 2) * 470;
-      const y = 400 + Math.floor(idx / 2) * 200;
-
-      ctx.fillStyle = 'rgba(30, 41, 59, 0.7)';
-      ctx.beginPath();
-      ctx.roundRect(x, y, 440, 160, 20);
-      ctx.fill();
-
-      ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      ctx.fillStyle = '#22c55e';
-      ctx.font = 'bold 52px system-ui, -apple-system, sans-serif';
-      ctx.fillText(c.val, x + 30, y + 80);
-
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = 'bold 20px system-ui, -apple-system, sans-serif';
-      ctx.fillText(c.label, x + 30, y + 125);
-    });
-
-    // Top genres
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 36px system-ui, -apple-system, sans-serif';
-    ctx.fillText('TOP GENRES', 80, 880);
-
-    const genresText = stats.topGenres.map((g) => `${g.name} (${g.count})`).join('  ·  ') || 'None recorded';
-    ctx.fillStyle = '#cbd5e1';
-    ctx.font = '500 28px system-ui, -apple-system, sans-serif';
-    ctx.fillText(genresText, 80, 935);
-
-    // Watchlist health & streak
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 36px system-ui, -apple-system, sans-serif';
-    ctx.fillText('WATCHLIST HEALTH', 80, 1040);
-
-    ctx.fillStyle = '#cbd5e1';
-    ctx.font = '500 28px system-ui, -apple-system, sans-serif';
-    ctx.fillText(`${stats.watchlistHealth.totalItems} queued  ·  ${stats.watchlistHealth.completionRate}% completion rate  ·  ${stats.watchlistHealth.averageAgeDays}d avg age`, 80, 1095);
-
-    // Footer
-    ctx.fillStyle = '#64748b';
-    ctx.font = '500 22px system-ui, -apple-system, sans-serif';
-    ctx.fillText(`Generated offline on ${new Date().toLocaleDateString()}`, 80, 1260);
-
-    // Trigger local PNG download
-    const dataUrl = canvas.toDataURL('image/png');
-    const a = document.createElement('a');
-    a.href = dataUrl;
-    a.download = `open-movie-tracker-stats-${new Date().toISOString().slice(0, 10)}.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    this.toast.showToast('Stats card downloaded as PNG.');
-  }
-
-  get stats() {
-    return this.userData.getStats(this.selectedStatsYear);
+  refreshStatsCache(): void {
+    this.cachedStats = null;
+    this.cachedYear = null;
+    this.cachedWatchedCount = null;
   }
 
   setStatsYear(year: string): void {
     this.selectedStatsYear = year;
+    this.refreshStatsCache();
     this.cdr.markForCheck();
   }
 
-  maxDecadeCount(): number {
-    const list = this.stats.decades || [];
-    if (!list.length) return 1;
-    return Math.max(...list.map((d) => d.count), 1);
-  }
-
-  get favorites(): FavoriteEntry[] {
-    return this.userData.getFavorites();
-  }
-
-  get visibleFavorites(): FavoriteEntry[] {
-    return this.favorites.slice(0, 4);
-  }
-
-  get watchedEntries(): WatchedEntry[] {
-    return this.userData.getWatchedList();
-  }
-
-  get visibleActivity(): WatchedEntry[] {
-    return this.watchedEntries.slice(
-      0,
-      (this.activityPage + 1) * this.pageSize,
-    );
-  }
-
-  get hasMoreActivity(): boolean {
-    return this.visibleActivity.length < this.watchedEntries.length;
-  }
-
-  get allLists(): UserList[] {
-    return this.userData.getLists();
-  }
-
-  get bookmarkedLists(): any[] {
-    return this.userData.getBookmarkedLists() || [];
-  }
-
-  get recentActivityEntries(): WatchedEntry[] {
-    return this.watchedEntries.slice(0, 5);
-  }
-
-  get previewLists(): UserList[] {
-    return this.allLists.slice(0, 3);
-  }
-
-  quickLinkCount(getter: () => number): number {
-    return getter();
-  }
-
-  get monthGroups(): { month: string; entries: WatchedEntry[] }[] {
-    const groups: { month: string; entries: WatchedEntry[] }[] = [];
-    const seen = new Set<string>();
-    for (const entry of this.visibleActivity) {
-      if (!entry.watchedAt || entry.dateUnknown) {
-        continue;
-      }
-      const parts = CalendarDate.parse(entry.watchedAt);
-      if (!parts) continue;
-      const key = `${parts.year}-${String(parts.month).padStart(2, '0')}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        groups.push({ month: key, entries: [] });
-      }
-      const group = groups.find((g) => g.month === key);
-      if (group) {
-        group.entries.push(entry);
-      }
-    }
-    return groups;
-  }
-
-  formatRecentActivityDate(entry: WatchedEntry): string {
-    if (entry.dateUnknown || !entry.watchedAt) {
-      return 'Date unknown';
-    }
-    return CalendarDate.formatShort(entry.watchedAt, 'Date unknown');
-  }
-
-  loadMore(event: any) {
-    this.activityPage++;
-    event.target.complete();
-    if (!this.hasMoreActivity) {
-      event.target.disabled = true;
-    }
-  }
-
-  async openEditProfile() {
-    const modal = await this.modalCtrl.create({
-      component: EditProfileComponent,
-      breakpoints: [0, 1],
-      initialBreakpoint: 1,
-    });
-    await modal.present();
-    await modal.onDidDismiss();
+  async refreshStatsData(): Promise<void> {
+    await this.metadataBackfill.refreshStats(true);
+    this.refreshStatsCache();
     this.cdr.markForCheck();
   }
 
-  async openCoverActions() {
-    await this.openImageActionSheet('cover');
+  get coverBackdropUrl(): string | null {
+    if (this.coverImageFailed) {
+      return null;
+    }
+
+    // 1. User-configured custom cover
+    const custom = this.userData.getSettings().customCover;
+    if (custom?.backdropPath) {
+      return `https://image.tmdb.org/t/p/w1280${custom.backdropPath}`;
+    }
+
+    // 2. Default: Top favorite movie's backdrop
+    const favs = this.favorites;
+    if (favs.length > 0) {
+      if (favs[0].backdrop_path) {
+        return `https://image.tmdb.org/t/p/w1280${favs[0].backdrop_path}`;
+      }
+      const favEntry = this.userData.getWatchedEntry(favs[0].media_type, favs[0].id);
+      if (favEntry?.snapshot?.backdropPath) {
+        return `https://image.tmdb.org/t/p/w1280${favEntry.snapshot.backdropPath}`;
+      }
+    }
+
+    // 3. Fallback: Highest-rated watched film with a backdrop
+    const highestRated = [...this.watchedEntries]
+      .filter((e) => typeof e.rating === 'number' && e.snapshot?.backdropPath)
+      .sort((a, b) => (b.rating || 0) - (a.rating || 0))[0];
+    if (highestRated?.snapshot?.backdropPath) {
+      return `https://image.tmdb.org/t/p/w1280${highestRated.snapshot.backdropPath}`;
+    }
+
+    // 4. Custom user uploaded base64
+    if (this.profile.coverBase64) {
+      return this.profile.coverBase64;
+    }
+
+    return null;
   }
 
-  async openAvatarActions() {
-    await this.openImageActionSheet('avatar');
+  onCoverError(): void {
+    this.coverImageFailed = true;
+    this.cdr.markForCheck();
   }
 
-  private async openImageActionSheet(type: 'avatar' | 'cover') {
-    const src =
-      type === 'avatar' ? this.profile.avatarBase64 : this.profile.coverBase64;
-    const label = type === 'avatar' ? 'Avatar' : 'Cover image';
+  async openCoverActions(): Promise<void> {
+    const buttons: any[] = [
+      {
+        text: 'Choose movie backdrop',
+        icon: 'film-outline',
+        handler: () => this.openSetCoverModal(),
+      },
+      {
+        text: 'Upload custom image',
+        icon: 'image-outline',
+        handler: () => this.pickImage('cover'),
+      },
+    ];
 
-    const buttons: any[] = [];
-    if (src) {
+    const custom = this.userData.getSettings().customCover;
+    const hasCustom = !!custom || !!this.profile.coverBase64;
+    if (hasCustom) {
       buttons.push({
-        text: `View ${label.toLowerCase()}`,
-        icon: 'eye-outline',
-        handler: () => this.viewImage(src, label),
+        text: 'Use top favorite (default)',
+        icon: 'refresh-outline',
+        handler: () => {
+          this.userData.saveSetting('customCover', null);
+          this.userData.saveProfile({ coverBase64: null });
+          this.coverImageFailed = false;
+          this.refreshStatsCache();
+          this.cdr.markForCheck();
+          this.toast.showToast('Reset to default favorite cover.');
+        },
       });
-    }
-    buttons.push({
-      text: `Change ${label.toLowerCase()}`,
-      icon: 'image-outline',
-      handler: () => this.pickImage(type),
-    });
-    if (src) {
       buttons.push({
-        text: `Remove ${label.toLowerCase()}`,
+        text: 'Remove cover (gradient only)',
         role: 'destructive',
         icon: 'trash-outline',
         handler: () => {
-          const patch =
-            type === 'avatar' ? { avatarBase64: null } : { coverBase64: null };
-          this.userData.saveProfile(patch);
+          this.userData.saveSetting('customCover', null);
+          this.userData.saveProfile({ coverBase64: null });
+          this.coverImageFailed = true;
+          this.refreshStatsCache();
+          this.cdr.markForCheck();
+        },
+      });
+    }
+
+    buttons.push({ text: 'Cancel', role: 'cancel' });
+
+    const sheet = await this.actionSheetCtrl.create({
+      header: 'Profile Cover',
+      buttons,
+    });
+    await sheet.present();
+  }
+
+  async openSetCoverModal(): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: SetCoverModalComponent,
+      breakpoints: [0, 0.95],
+      initialBreakpoint: 0.95,
+    });
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+    if (data?.updated) {
+      this.coverImageFailed = false;
+      this.refreshStatsCache();
+      this.cdr.markForCheck();
+    }
+  }
+
+  async openAvatarActions(): Promise<void> {
+    const buttons: any[] = [];
+    if (this.profile.avatarBase64) {
+      buttons.push({
+        text: 'View avatar',
+        icon: 'eye-outline',
+        handler: () => this.viewImage(this.profile.avatarBase64!, 'Avatar'),
+      });
+    }
+    buttons.push({
+      text: 'Change avatar',
+      icon: 'image-outline',
+      handler: () => this.pickImage('avatar'),
+    });
+    if (this.profile.avatarBase64) {
+      buttons.push({
+        text: 'Remove avatar',
+        role: 'destructive',
+        icon: 'trash-outline',
+        handler: () => {
+          this.userData.saveProfile({ avatarBase64: null });
           this.cdr.markForCheck();
         },
       });
@@ -389,13 +256,13 @@ export class ProfilePage {
     buttons.push({ text: 'Cancel', role: 'cancel' });
 
     const sheet = await this.actionSheetCtrl.create({
-      header: label,
+      header: 'Avatar',
       buttons,
     });
     await sheet.present();
   }
 
-  private async viewImage(src: string, alt: string) {
+  private async viewImage(src: string, alt: string): Promise<void> {
     const modal = await this.modalCtrl.create({
       component: ImageViewerComponent,
       componentProps: { src, alt },
@@ -403,21 +270,19 @@ export class ProfilePage {
     await modal.present();
   }
 
-  private pickImage(type: 'avatar' | 'cover') {
+  private pickImage(type: 'avatar' | 'cover'): void {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
     input.onchange = (event: Event) => {
       const file = (event.target as HTMLInputElement).files?.[0];
-      if (!file) {
-        return;
-      }
+      if (!file) return;
       const reader = new FileReader();
       reader.onload = () => {
         const rawUrl = reader.result as string;
         const img = new Image();
         img.onload = () => {
-          const maxDim = type === 'avatar' ? 300 : 800;
+          const maxDim = type === 'avatar' ? 300 : 1280;
           let width = img.width;
           let height = img.height;
           if (width > maxDim || height > maxDim) {
@@ -435,12 +300,14 @@ export class ProfilePage {
           const ctx = canvas.getContext('2d');
           if (ctx) {
             ctx.drawImage(img, 0, 0, width, height);
-            const resizedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+            const resizedBase64 = canvas.toDataURL('image/jpeg', 0.85);
             const patch =
               type === 'avatar'
                 ? { avatarBase64: resizedBase64 }
                 : { coverBase64: resizedBase64 };
             this.userData.saveProfile(patch);
+            this.coverImageFailed = false;
+            this.refreshStatsCache();
             this.cdr.markForCheck();
           }
         };
@@ -451,7 +318,29 @@ export class ProfilePage {
     input.click();
   }
 
-  async openAddFavorite() {
+  async openEditProfile(): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: EditProfileComponent,
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
+    });
+    await modal.present();
+    await modal.onDidDismiss();
+    this.refreshStatsCache();
+    this.cdr.markForCheck();
+  }
+
+  // ── Favorites ──────────────────────────────────────────────────────────
+
+  get favorites(): FavoriteEntry[] {
+    return this.userData.getFavorites();
+  }
+
+  get visibleFavorites(): FavoriteEntry[] {
+    return this.favorites.slice(0, 4);
+  }
+
+  async openAddFavorite(): Promise<void> {
     const modal = await this.modalCtrl.create({
       component: AddFavoriteModalComponent,
       breakpoints: [0, 1],
@@ -459,15 +348,16 @@ export class ProfilePage {
     });
     await modal.present();
     await modal.onDidDismiss();
+    this.refreshStatsCache();
     this.cdr.markForCheck();
   }
 
-  toggleFavoritesEdit() {
+  toggleFavoritesEdit(): void {
     this.isEditingFavorites = !this.isEditingFavorites;
     this.cdr.markForCheck();
   }
 
-  moveFavorite(index: number, direction: -1 | 1) {
+  moveFavorite(index: number, direction: -1 | 1): void {
     const targetIndex = index + direction;
     if (targetIndex < 0 || targetIndex >= this.visibleFavorites.length) {
       return;
@@ -477,11 +367,13 @@ export class ProfilePage {
     next[index] = next[targetIndex];
     next[targetIndex] = current;
     this.userData.reorderFavorites(next);
+    this.refreshStatsCache();
     this.cdr.markForCheck();
   }
 
-  removeFavorite(entry: FavoriteEntry) {
+  removeFavorite(entry: FavoriteEntry): void {
     this.userData.removeFavorite(entry.media_type, entry.id);
+    this.refreshStatsCache();
     this.cdr.markForCheck();
   }
 
@@ -493,16 +385,71 @@ export class ProfilePage {
     return index < this.visibleFavorites.length - 1;
   }
 
-  async createList() {
+  // ── List Cards Posters & Data ───────────────────────────────────────────
+
+  get watchedEntries(): WatchedEntry[] {
+    return this.userData.getWatchedList();
+  }
+
+  get watchedPosters(): string[] {
+    return this.watchedEntries
+      .filter((e) => e.poster_path)
+      .slice(0, 4)
+      .map((e) => `https://image.tmdb.org/t/p/w185${e.poster_path}`);
+  }
+
+  get watchlistPosters(): string[] {
+    return this.userData.getWatchlist()
+      .filter((w) => w.poster_path)
+      .slice(0, 4)
+      .map((w) => `https://image.tmdb.org/t/p/w185${w.poster_path}`);
+  }
+
+  get likedPosters(): string[] {
+    return this.watchedEntries
+      .filter((e) => e.liked && e.poster_path)
+      .slice(0, 4)
+      .map((e) => `https://image.tmdb.org/t/p/w185${e.poster_path}`);
+  }
+
+  get diaryPosters(): string[] {
+    return this.watchedEntries
+      .filter((e) => !e.dateUnknown && e.watchedAt && e.poster_path)
+      .slice(0, 4)
+      .map((e) => `https://image.tmdb.org/t/p/w185${e.poster_path}`);
+  }
+
+  get ratedPosters(): string[] {
+    return this.watchedEntries
+      .filter((e) => typeof e.rating === 'number' && e.poster_path)
+      .slice(0, 4)
+      .map((e) => `https://image.tmdb.org/t/p/w185${e.poster_path}`);
+  }
+
+  get reviewsPosters(): string[] {
+    return this.watchedEntries
+      .filter((e) => !!e.review?.trim() && e.poster_path)
+      .slice(0, 4)
+      .map((e) => `https://image.tmdb.org/t/p/w185${e.poster_path}`);
+  }
+
+  get allLists(): UserList[] {
+    return this.userData.getLists();
+  }
+
+  getListPosters(list: UserList): string[] {
+    return (list.items || [])
+      .filter((i) => i.poster_path)
+      .slice(0, 4)
+      .map((i) => `https://image.tmdb.org/t/p/w185${i.poster_path}`);
+  }
+
+  async createList(): Promise<void> {
     const alert = await this.alertCtrl.create({
       header: 'New List',
       inputs: [
         { name: 'name', type: 'text', placeholder: 'List name' },
-        {
-          name: 'description',
-          type: 'text',
-          placeholder: 'Description (optional)',
-        },
+        { name: 'description', type: 'text', placeholder: 'Description (optional)' },
       ],
       buttons: [
         { text: 'Cancel', role: 'cancel' },
@@ -510,10 +457,9 @@ export class ProfilePage {
           text: 'Create',
           handler: (data) => {
             if (data.name?.trim()) {
-              this.userData.createList(
-                data.name.trim(),
-                data.description?.trim() || '',
-              );
+              this.userData.createList(data.name.trim(), data.description?.trim() || '');
+              this.refreshStatsCache();
+              this.cdr.markForCheck();
             }
           },
         },
@@ -522,281 +468,138 @@ export class ProfilePage {
     await alert.present();
   }
 
-  async deleteList(id: string) {
+  async deleteList(id: string): Promise<void> {
     const alert = await this.alertCtrl.create({
       header: 'Delete list?',
+      message: 'This cannot be undone.',
       buttons: [
         { text: 'Cancel', role: 'cancel' },
         {
           text: 'Delete',
           role: 'destructive',
-          handler: () => this.userData.deleteList(id),
+          handler: () => {
+            this.userData.deleteList(id);
+            this.refreshStatsCache();
+            this.cdr.markForCheck();
+          },
         },
       ],
     });
     await alert.present();
   }
 
-  statCards() {
-    const s = this.stats;
-    return [
-      { label: 'Total Watched', value: s.totalWatched },
-      { label: 'Total Hours', value: s.totalHoursEstimated },
-      {
-        label: 'Avg Rating',
-        value: s.averageRating !== null ? s.averageRating.toFixed(1) : '-',
-      },
-      { label: 'Total Liked', value: s.likedCount },
-    ];
+  toggleListBookmark(list: any): void {
+    if (this.userData.isListBookmarked(list.id)) {
+      this.userData.unbookmarkList(list.id);
+    } else {
+      this.userData.bookmarkList(list);
+    }
+    this.cdr.markForCheck();
+  }
+
+  isListBookmarked(listId: string | number): boolean {
+    return this.userData.isListBookmarked(listId);
+  }
+
+  // ── Stats Visualizations Data ──────────────────────────────────────────
+
+  get currentYearWatchedCount(): number {
+    const yr = String(new Date().getFullYear());
+    return this.watchedEntries.filter(
+      (e) => !e.dateUnknown && e.watchedAt && e.watchedAt.startsWith(yr)
+    ).length;
   }
 
   get ratedEntriesCount(): number {
-    return this.watchedEntries.filter((entry) => entry.rating !== null).length;
+    return this.watchedEntries.filter((e) => typeof e.rating === 'number').length;
   }
 
-  get unratedEntriesCount(): number {
-    return this.stats.totalWatched - this.ratedEntriesCount;
+  get reviewsCount(): number {
+    return this.watchedEntries.filter((e) => !!e.review?.trim()).length;
   }
 
-  get watchlistCount(): number {
-    return this.userData.getWatchlist().length;
+  get moviePercentage(): number {
+    const total = this.stats.totalMovies + this.stats.totalTv;
+    return total > 0 ? Math.round((this.stats.totalMovies / total) * 100) : 0;
   }
 
-  get averageRatingDisplay(): string {
-    return this.stats.averageRating !== null
-      ? this.stats.averageRating.toFixed(1)
-      : '-';
+  get tvPercentage(): number {
+    const total = this.stats.totalMovies + this.stats.totalTv;
+    return total > 0 ? Math.round((this.stats.totalTv / total) * 100) : 0;
   }
 
-  get ratedCoverageDisplay(): string {
-    return this.formatPercent(this.ratedEntriesCount, this.stats.totalWatched);
-  }
-
-  get likedRatioDisplay(): string {
-    return this.formatPercent(this.stats.likedCount, this.stats.totalWatched);
-  }
-
-  get movieTvMixDisplay(): string {
-    return `${this.stats.totalMovies}M / ${this.stats.totalTv}TV`;
-  }
-
-  get currentMonthWatchedCount(): number {
-    const currentMonth = this.monthKey(new Date());
-    const bucket = this.stats.watchedByMonth.find(
-      (entry) => entry.month === currentMonth,
-    );
-    return bucket?.count || 0;
-  }
-
-  peakMonthLabel(): string {
-    if (!this.stats.watchedByMonth.length) {
-      return '-';
-    }
-    const best = [...this.stats.watchedByMonth].sort(
-      (a, b) => b.count - a.count,
-    )[0];
-    if (!best || best.count === 0) {
-      return '-';
-    }
-    return `${this.monthLabel(best.month)} ${best.month.split('-')[0]}`;
-  }
-
-  ratingRows(): Array<{
-    label: string;
-    count: number;
-    pct: number;
-    isPeak: boolean;
-  }> {
+  ratingRows(): Array<{ label: string; count: number; pct: number; isPeak: boolean }> {
     const keys = [5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5].reverse();
     const rows = keys.map((value) => {
       const label = value.toFixed(1);
       const count = this.stats.ratingsDistribution[label] || 0;
       return { label, count };
     });
-    const max = Math.max(...rows.map((row) => row.count), 1);
-    const hasData = rows.some((row) => row.count > 0);
-    return rows.map((row) => ({
-      ...row,
-      pct: (row.count / max) * 100,
-      isPeak: hasData && row.count === max,
+    const max = Math.max(...rows.map((r) => r.count), 1);
+    const hasData = rows.some((r) => r.count > 0);
+    return rows.map((r) => ({
+      ...r,
+      pct: (r.count / max) * 100,
+      isPeak: hasData && r.count === max,
     }));
   }
 
-  monthMomentumRows(): Array<{
-    label: string;
-    count: number;
-    pct: number;
-    isPeak: boolean;
-  }> {
-    const latest = this.stats.watchedByMonth.slice(-6);
-    const max = Math.max(...latest.map((row) => row.count), 1);
-    const hasData = latest.some((row) => row.count > 0);
-    return latest.map((row) => ({
-      label: this.monthLabel(row.month),
-      count: row.count,
-      pct: (row.count / max) * 100,
-      isPeak: hasData && row.count === max,
-    }));
+  get maxDirectorCount(): number {
+    const dirs = this.stats.topDirectors || [];
+    return dirs.length ? Math.max(...dirs.map((d) => d.count), 1) : 1;
   }
 
-  get hasRatingData(): boolean {
-    return this.ratingRows().some((row) => row.count > 0);
+  get maxCastCount(): number {
+    const cast = this.stats.topCast || [];
+    return cast.length ? Math.max(...cast.map((c) => c.count), 1) : 1;
   }
 
-  get hasMomentumData(): boolean {
-    return this.monthMomentumRows().some((row) => row.count > 0);
+  get maxGenreCount(): number {
+    const genres = this.stats.topGenres || [];
+    return genres.length ? Math.max(...genres.map((g) => g.count), 1) : 1;
   }
 
-  get ratingPeakSummary(): string {
-    const peak = this.ratingRows()
-      .filter((row) => row.count > 0)
-      .sort((a, b) => b.count - a.count)[0];
-    if (!peak) {
-      return 'No rating data yet';
+  get maxDecadeCount(): number {
+    const list = this.stats.decades || [];
+    return list.length ? Math.max(...list.map((d) => d.count), 1) : 1;
+  }
+
+  get maxMonthCount(): number {
+    const list = this.stats.watchedByMonth || [];
+    return list.length ? Math.max(...list.map((m) => m.count), 1) : 1;
+  }
+
+  get maxLanguageCount(): number {
+    const list = this.stats.languages || [];
+    return list.length ? Math.max(...list.map((l) => l.count), 1) : 1;
+  }
+
+  get maxCountryCount(): number {
+    const list = this.stats.productionCountries || [];
+    return list.length ? Math.max(...list.map((c) => c.count), 1) : 1;
+  }
+
+  get heatmapWeeks(): { weekIndex: number; days: { date: string; count: number; level: number }[] }[] {
+    const days = this.stats.activityHeatmap || [];
+    const weeks: { weekIndex: number; days: { date: string; count: number; level: number }[] }[] = [];
+    for (let i = 0; i < days.length; i += 7) {
+      weeks.push({
+        weekIndex: Math.floor(i / 7),
+        days: days.slice(i, i + 7),
+      });
     }
-    const suffix = peak.count === 1 ? 'log' : 'logs';
-    return `Most common: ${peak.label}★ (${peak.count} ${suffix})`;
+    return weeks;
   }
 
-  get momentumPeakSummary(): string {
-    const peak = this.monthMomentumRows()
-      .filter((row) => row.count > 0)
-      .sort((a, b) => b.count - a.count)[0];
-    if (!peak) {
-      return 'No monthly data yet';
-    }
-    const suffix = peak.count === 1 ? 'title' : 'titles';
-    return `Top month: ${peak.label} (${peak.count} ${suffix})`;
-  }
-
-  ratingBarTooltip(label: string, count: number): string {
-    const suffix = count === 1 ? 'log' : 'logs';
-    return `${label} stars: ${count} ${suffix}`;
-  }
-
-  momentumBarTooltip(label: string, count: number): string {
-    const suffix = count === 1 ? 'title' : 'titles';
-    return `${label}: ${count} ${suffix} watched`;
-  }
-
-  ratingBarHeight(count: number): number {
-    const max = Math.max(...Object.values(this.stats.ratingsDistribution), 1);
-    return max > 0 ? (count / max) * 100 : 0;
-  }
-
-  monthBarHeight(count: number): number {
-    const max = Math.max(...this.stats.watchedByMonth.map((m) => m.count), 1);
-    return max > 0 ? (count / max) * 100 : 0;
-  }
-
-  genreBarWidth(count: number): number {
-    const max = Math.max(...this.stats.topGenres.map((g) => g.count), 1);
-    return max > 0 ? (count / max) * 100 : 0;
+  getGenreColor(index: number): string {
+    return this.genreColorPalette[index % this.genreColorPalette.length];
   }
 
   monthLabel(iso: string): string {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    const m = parseInt(iso.split('-')[1], 10);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const parts = iso.split('-');
+    if (parts.length < 2) return iso;
+    const m = parseInt(parts[1], 10);
     return months[m - 1] || iso;
-  }
-
-  getMonthLabel(iso: string): string {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    const m = parseInt(iso.split('-')[1], 10);
-    return months[m - 1] || iso;
-  }
-
-  entryRating(entry: WatchedEntry): string {
-    if (entry.rating === null) {
-      return '';
-    }
-    return `★${entry.rating}`;
-  }
-
-  entryPoster(entry: WatchedEntry): string {
-    return entry.poster_path
-      ? `https://image.tmdb.org/t/p/w92${entry.poster_path}`
-      : 'assets/no-image.png';
-  }
-
-  listPoster(item: any): string {
-    return item.poster_path
-      ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
-      : 'assets/no-image.png';
-  }
-
-  activityRoute(entry: WatchedEntry): any[] {
-    return ['/' + (entry.media_type === 'tv' ? 'tv' : 'movie'), entry.id];
-  }
-
-  listCoverRoute(list: UserList): any[] {
-    return ['/list', list.id];
-  }
-
-  private monthKey(d: Date): string {
-    const year = d.getFullYear();
-    const month = `${d.getMonth() + 1}`.padStart(2, '0');
-    return `${year}-${month}`;
-  }
-
-  getListCoverPosters(list: any): string[] {
-    if (list.poster_path) {
-      return [`https://image.tmdb.org/t/p/w185${list.poster_path}`];
-    }
-    return (list.items || [])
-      .filter((i: any) => i.poster_path)
-      .slice(0, 4)
-      .map((i: any) => `https://image.tmdb.org/t/p/w92${i.poster_path}`);
-  }
-
-  getPlaceholderSlots(list: any): number[] {
-    const count = 4 - this.getListCoverPosters(list).length;
-    return count > 0 ? Array(count).fill(0) : [];
-  }
-
-  toggleListBookmark(list: any, event: Event) {
-    event.stopPropagation();
-    if (this.userData.isListBookmarked(list.id)) {
-      this.userData.unbookmarkList(list.id);
-    } else {
-      this.userData.bookmarkList(list);
-    }
-  }
-
-  isListBookmarked(listId: number): boolean {
-    return this.userData.isListBookmarked(listId);
-  }
-
-  private formatPercent(value: number, total: number): string {
-    if (!total) {
-      return '0%';
-    }
-    return `${Math.round((value / total) * 100)}%`;
   }
 }

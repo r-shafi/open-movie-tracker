@@ -137,3 +137,59 @@
   --app-toolbar-height: 56px;
   --app-tabbar-height: 56px;
 }
+
+html.light, body.light {
+  --ion-color-dark: #f8f9fa;
+  --ion-color-dark-rgb: 248, 249, 250;
+  --ion-color-dark-contrast: #212529;
+  --ion-color-dark-contrast-rgb: 33, 37, 41;
+  --ion-color-light: #e9ecef;
+  --ion-color-light-rgb: 233, 236, 239;
+  --ion-color-light-contrast: #212529;
+  --ion-color-light-contrast-rgb: 33, 37, 41;
+  --ion-color-secondary: #dee2e6;
+  --ion-color-secondary-rgb: 222, 226, 230;
+  --ion-color-secondary-contrast: #212529;
+  --ion-color-secondary-contrast-rgb: 33, 37, 41;
+  --ion-color-tertiary: #dee2e6;
+  --ion-color-tertiary-rgb: 222, 226, 230;
+  --ion-color-tertiary-contrast: #212529;
+  --ion-color-tertiary-contrast-rgb: 33, 37, 41;
+  --ion-color-medium: #6c757d;
+  --ion-color-medium-rgb: 108, 117, 125;
+  --ion-background-color: #f8f9fa;
+  --ion-background-color-rgb: 248, 249, 250;
+  --ion-text-color: #212529;
+  --ion-text-color-rgb: 33, 37, 41;
+  --ion-border-color: rgba(108, 117, 125, 0.3);
+  --ion-backdrop-color: #f8f9fa;
+  --ion-overlay-background-color: #ffffff;
+
+  --ion-item-background: #ffffff;
+  --ion-item-border-color: rgba(108, 117, 125, 0.2);
+  --ion-card-background: #ffffff;
+  --ion-toolbar-background: #ffffff;
+  --ion-tab-bar-background: #ffffff;
+  --ion-tab-bar-color: rgba(33, 37, 41, 0.7);
+
+  --ion-color-step-50: #f1f3f5;
+  --ion-color-step-100: #e9ecef;
+  --ion-color-step-150: #dee2e6;
+  --ion-color-step-200: #ced4da;
+  --ion-color-step-250: #adb5bd;
+  --ion-color-step-300: #868e96;
+  --ion-color-step-350: #6c757d;
+  --ion-color-step-400: #495057;
+
+  --app-bg: #f8f9fa;
+  --app-bg-rgb: 248, 249, 250;
+  --app-bg-secondary: #ffffff;
+  --app-bg-secondary-rgb: 255, 255, 255;
+  --app-text: #212529;
+  --app-text-rgb: 33, 37, 41;
+  --app-border: rgba(108, 117, 125, 0.25);
+  --app-muted: rgba(33, 37, 41, 0.6);
+
+  --app-shell-surface: rgba(255, 255, 255, 0.95);
+  --app-shell-border: rgba(108, 117, 125, 0.2);
+}

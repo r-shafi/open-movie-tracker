@@ -1,0 +1,34 @@
+<div
+  class="list-card shrink-0 snap-start"
+  [routerLink]="routerLink"
+  (click)="onClick()"
+>
+  <div class="list-card-cover">
+    <div class="cover-grid">
+      @for (url of displayPosters; track $index) {
+      <div class="cover-cell">
+        <img [src]="url" loading="lazy" [alt]="title" />
+      </div>
+      }
+      @for (p of placeholderSlots; track $index) {
+      <div class="cover-cell cover-cell--placeholder">
+        <ion-icon name="film-outline"></ion-icon>
+      </div>
+      }
+    </div>
+    @if (showBookmark) {
+    <button class="list-card-bookmark" (click)="onBookmark($event)" aria-label="Bookmark list">
+      <ion-icon [name]="isBookmarked ? 'bookmark' : 'bookmark-outline'"></ion-icon>
+    </button>
+    }
+  </div>
+  <div class="list-card-body">
+    <span class="list-card-name">{{ title }}</span>
+    @if (subtitle) {
+    <span class="list-card-creator">{{ subtitle }}</span>
+    }
+    <div class="list-card-meta">
+      <span>{{ count }} {{ count === 1 ? 'title' : 'titles' }}</span>
+    </div>
+  </div>
+</div>

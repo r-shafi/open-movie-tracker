@@ -1,0 +1,106 @@
+.list-card {
+  width: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--ion-color-step-50, #2a2e33);
+  border: 1px solid var(--ion-color-step-100, #343a40);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+}
+
+.list-card:active {
+  transform: scale(0.97);
+}
+
+.list-card-cover {
+  position: relative;
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+  background: var(--ion-color-step-100, #343a40);
+}
+
+.cover-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  width: 100%;
+  height: 100%;
+}
+
+.cover-cell {
+  overflow: hidden;
+  background: var(--ion-color-step-100, #343a40);
+}
+
+.cover-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cover-cell--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ion-color-step-100, #343a40);
+  color: var(--ion-color-step-300, #596167);
+  font-size: 1.2rem;
+}
+
+.list-card-bookmark {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 0;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  font-size: 1rem;
+  z-index: 1;
+  transition: background-color 0.15s ease;
+}
+
+.list-card-bookmark:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.list-card-body {
+  padding: 8px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.list-card-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ion-text-color, #ced4da);
+}
+
+.list-card-creator {
+  font-size: 0.68rem;
+  color: var(--ion-color-medium, #bcc6cc);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.65rem;
+  color: var(--ion-color-medium, #bcc6cc);
+  margin-top: 2px;
+}

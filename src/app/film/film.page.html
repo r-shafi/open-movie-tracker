@@ -407,40 +407,16 @@
         class="flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scroll-padding-left:16px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         @for (list of featuredLists; track list.id) {
-        <div class="list-card shrink-0 snap-start" [routerLink]="['/list', list.id]">
-          <div class="list-card-cover">
-            <div class="cover-grid">
-              @for (url of getListCoverPosters(list); track $index) {
-              <div class="cover-cell">
-                <img [src]="url" loading="lazy" />
-              </div>
-              }
-              @for (p of getPlaceholderSlots(list); track $index) {
-              <div class="cover-cell cover-cell--placeholder">
-                <ion-icon name="film-outline"></ion-icon>
-              </div>
-              }
-            </div>
-            <button class="list-card-bookmark" (click)="toggleListBookmark(list); $event.stopPropagation()">
-              <ion-icon [name]="isListBookmarked(list.id) ? 'bookmark' : 'bookmark-outline'"></ion-icon>
-            </button>
-          </div>
-          <div class="list-card-body">
-            <span class="list-card-name">{{ list.name }}</span>
-            @if (list.creator_username) {
-            <span class="list-card-creator">{{ list.creator_username }}</span>
-            }
-            <div class="list-card-meta">
-              <span>{{ list.item_count || 0 }} {{ (list.item_count || 0) === 1 ? 'film' : 'films' }}</span>
-              <span class="meta-sep">·</span>
-              <ion-icon name="heart" class="meta-icon"></ion-icon>
-              <span>{{ formatCount(list.favorite_count || 0) }}</span>
-              <span class="meta-sep">·</span>
-              <ion-icon name="chatbubble" class="meta-icon"></ion-icon>
-              <span>0</span>
-            </div>
-          </div>
-        </div>
+        <app-list-card
+          [title]="list.name"
+          [count]="list.item_count || 0"
+          [subtitle]="list.creator_username"
+          [posters]="getListCoverPosters(list)"
+          [showBookmark]="true"
+          [isBookmarked]="isListBookmarked(list.id)"
+          [routerLink]="['/list', list.id]"
+          (bookmarkClick)="toggleListBookmark(list)"
+        ></app-list-card>
         }
       </div>
     </div>

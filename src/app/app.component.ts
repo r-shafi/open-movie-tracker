@@ -24,6 +24,17 @@ export function applyPrimaryColor(color: 'green' | 'red'): void {
   }
 }
 
+export function applyTheme(theme: 'system' | 'light' | 'dark'): void {
+  const isLight =
+    theme === 'light' ||
+    (theme === 'system' &&
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: light)').matches);
+  document.documentElement.classList.toggle('light', isLight);
+  document.body.classList.toggle('light', isLight);
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -39,7 +50,9 @@ export class AppComponent implements OnInit, OnDestroy {
     private alertCtrl: AlertController,
     private updateService: UpdateService,
   ) {
-    applyPrimaryColor(this.userData.getSettings().primaryColor);
+    const settings = this.userData.getSettings();
+    applyPrimaryColor(settings.primaryColor);
+    applyTheme(settings.theme);
   }
 
   ngOnInit(): void {

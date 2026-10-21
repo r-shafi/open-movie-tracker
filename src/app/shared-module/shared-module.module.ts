@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { HeroBannerComponent } from './hero-banner/hero-banner.component';
 import { ImageViewerComponent } from './image-viewer/image-viewer.component';
+import { ListCardComponent } from './list-card/list-card.component';
 import { LogSheetComponent } from './log-sheet/log-sheet.component';
 import { MediaCarouselComponent } from './media-carousel/media-carousel.component';
 import { MovieCardComponent } from './movie-card/movie-card.component';
@@ -18,6 +19,7 @@ const COMPONENTS = [
   MovieCardComponent,
   HeroBannerComponent,
   PosterCardComponent,
+  ListCardComponent,
   LogSheetComponent,
   StarRatingComponent,
   MediaCarouselComponent,

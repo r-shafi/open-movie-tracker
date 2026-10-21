@@ -2,10 +2,10 @@
   <ion-toolbar>
     <ion-title>Profile</ion-title>
     <ion-buttons slot="end">
-      <ion-button color="primary" (click)="openEditProfile()">
+      <ion-button color="primary" (click)="openEditProfile()" aria-label="Edit Profile">
         <ion-icon slot="icon-only" name="create-outline"></ion-icon>
       </ion-button>
-      <ion-button routerLink="/settings">
+      <ion-button routerLink="/settings" aria-label="Settings">
         <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -13,79 +13,148 @@
 </ion-header>
 
 <ion-content>
-  <!-- Cover + Avatar -->
-  <div class="relative w-full">
+  <!-- 2.35:1 Cinematic Cover -->
+  <div class="profile-cover-container">
     <div
-      class="h-[140px] w-full cursor-pointer bg-cover bg-center"
-      [style.backgroundImage]="profile.coverBase64 ? 'url(' + profile.coverBase64 + ')' : 'none'"
-      [class.bg-gradient-to-b]="!profile.coverBase64"
-      [class.from-indigo-800]="!profile.coverBase64"
-      [class.to-purple-900]="!profile.coverBase64"
+      class="profile-cover"
+      [class.has-image]="coverBackdropUrl && !coverImageFailed"
       (click)="openCoverActions()"
-    ></div>
-    <div class="absolute -bottom-10 left-4 flex items-end gap-3">
+    >
+      @if (coverBackdropUrl && !coverImageFailed) {
+      <img
+        [src]="coverBackdropUrl"
+        class="cover-image"
+        (error)="onCoverError()"
+        alt="Profile cover backdrop"
+        loading="lazy"
+      />
+      } @else {
+      <div class="cover-gradient-fallback"></div>
+      }
+      <div class="cover-scrim"></div>
+
+      <button
+        class="cover-action-btn"
+        (click)="openCoverActions(); $event.stopPropagation()"
+        aria-label="Change profile cover"
+      >
+        <ion-icon name="camera-outline"></ion-icon>
+        <span class="cover-btn-label">Cover</span>
+      </button>
+    </div>
+
+    <!-- Avatar & Identity Overlap -->
+    <div class="profile-identity-overlap">
       <div
-        class="h-20 w-20 cursor-pointer overflow-hidden rounded-full border-4 border-bg-base bg-bg-secondary"
+        class="avatar-wrapper cursor-pointer"
         (click)="openAvatarActions()"
       >
         @if (profile.avatarBase64) {
-        <img [src]="profile.avatarBase64" class="h-full w-full object-cover" />
+        <img [src]="profile.avatarBase64" class="h-full w-full object-cover" alt="User avatar" />
         } @else {
         <ion-icon
           name="person-circle-outline"
-          class="h-full w-full text-[5rem]"
-          style="color: var(--ion-color-medium)"
+          class="h-full w-full text-[5.5rem] text-muted"
         ></ion-icon>
         }
       </div>
     </div>
   </div>
 
-  <!-- Profile info -->
-  <div class="px-4 pb-2 pt-12">
+  <!-- User Bio & Metadata -->
+  <div class="px-4 pb-2 pt-11">
     <div class="min-w-0">
-      <h2 class="m-0 text-xl font-extrabold">{{ profile.displayName }}</h2>
+      <h1 class="m-0 text-xl font-black text-main">{{ profile.displayName || 'Film Curator' }}</h1>
       @if (profile.bio) {
-      <p class="m-0 mt-1 text-[0.82rem]" style="color: var(--ion-color-medium)">
+      <p class="m-0 mt-1 text-xs text-muted leading-relaxed">
         {{ profile.bio }}
       </p>
       }
-      <p
-        class="m-0 mt-1 text-[0.72rem]"
-        style="color: var(--ion-color-step-200)"
-      >
-        Joined {{ profile.joinedAt | date:'MMMM yyyy' }} · {{ stats.totalWatched
-        }} films · {{ stats.totalHoursEstimated }}h
+      <p class="m-0 mt-1.5 text-[0.72rem] text-step-300">
+        Member since {{ profile.joinedAt | date:'MMMM yyyy' }}
       </p>
     </div>
   </div>
 
-  <div class="px-4 pb-1">
-    <div class="mb-2 mt-4 flex items-center justify-between">
-      <p
-        class="m-0 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-        style="color: var(--ion-color-medium)"
-      >
-        Favourite Films
-      </p>
+  <!-- Summary Metric Strip (5 Compact Tiles) -->
+  <div class="px-4 py-2">
+    <div class="grid grid-cols-5 gap-1.5">
+      <div class="metric-tile">
+        <span class="metric-val">{{ stats.totalWatched }}</span>
+        <span class="metric-lbl">Films</span>
+      </div>
+      <div class="metric-tile">
+        <span class="metric-val">{{ stats.totalHoursEstimated }}h</span>
+        <span class="metric-lbl">Hours</span>
+      </div>
+      <div class="metric-tile">
+        <span class="metric-val text-primary">{{ stats.averageRating ? stats.averageRating.toFixed(1) + '★' : '—' }}</span>
+        <span class="metric-lbl">Avg Rating</span>
+      </div>
+      <div class="metric-tile">
+        <span class="metric-val">{{ stats.rewatches }}</span>
+        <span class="metric-lbl">Rewatches</span>
+      </div>
+      <div class="metric-tile">
+        <span class="metric-val">{{ currentYearWatchedCount }}</span>
+        <span class="metric-lbl">This Year</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Metadata Enrichment Coverage Notice -->
+  @if (stats.coverageNotice) {
+  <div class="px-4 py-2">
+    <div class="coverage-banner">
+      <div class="flex items-start gap-2.5">
+        <ion-icon name="information-circle-outline" class="text-primary text-xl shrink-0 mt-0.5"></ion-icon>
+        <div class="flex-1 min-w-0">
+          <p class="m-0 text-xs font-bold text-main">{{ stats.coverageNotice }}</p>
+          <div class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-step-100">
+            <div class="h-full bg-primary transition-all duration-300" [style.width.%]="stats.coveragePercentage"></div>
+          </div>
+          <p class="m-0 mt-1 text-[0.68rem] text-muted">
+            {{ stats.coveragePercentage }}% enriched · Analytics update automatically
+          </p>
+        </div>
+        <button
+          class="refresh-btn shrink-0"
+          (click)="refreshStatsData()"
+          [disabled]="(backfillProgress$ | async)?.isRunning"
+        >
+          <ion-icon
+            name="refresh-outline"
+            [class.animate-spin]="(backfillProgress$ | async)?.isRunning"
+          ></ion-icon>
+          <span>Refresh</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Favorite Films Section -->
+  <div class="px-4 py-2">
+    <div class="mb-2 flex items-center justify-between">
+      <p class="section-title">Favourite Films</p>
       <button class="profile-text-btn" (click)="toggleFavoritesEdit()">
         {{ isEditingFavorites ? 'Done' : 'Edit' }}
       </button>
     </div>
 
-    @if (visibleFavorites.length) {
+    @if (visibleFavorites.length > 0) {
     <div class="favorites-row">
-      @for (fav of visibleFavorites; track fav.id + ':' + fav.media_type; let i
-      = $index) {
+      @for (fav of visibleFavorites; track fav.id + ':' + fav.media_type; let i = $index) {
       <div class="favorite-item">
         <div
           [routerLink]="isEditingFavorites ? null : ['/' + (fav.media_type === 'tv' ? 'tv' : 'movie'), fav.id]"
-          class="relative aspect-[2/3] overflow-hidden rounded-lg bg-bg-base"
+          class="relative aspect-[2/3] overflow-hidden rounded-lg bg-bg-base border border-border"
         >
           <img
             [src]="fav.poster_path ? 'https://image.tmdb.org/t/p/w185' + fav.poster_path : 'assets/no-image.png'"
             [alt]="fav.title"
             class="h-full w-full object-cover"
+            loading="lazy"
           />
           @if (isEditingFavorites) {
           <div class="favorite-controls">
@@ -93,12 +162,14 @@
               class="favorite-ctrl"
               [disabled]="!canMoveFavoriteLeft(i)"
               (click)="moveFavorite(i, -1)"
+              aria-label="Move left"
             >
               <ion-icon name="arrow-back-outline"></ion-icon>
             </button>
             <button
               class="favorite-ctrl favorite-ctrl--danger"
               (click)="removeFavorite(fav)"
+              aria-label="Remove favorite"
             >
               <ion-icon name="close-outline"></ion-icon>
             </button>
@@ -106,6 +177,7 @@
               class="favorite-ctrl"
               [disabled]="!canMoveFavoriteRight(i)"
               (click)="moveFavorite(i, 1)"
+              aria-label="Move right"
             >
               <ion-icon name="arrow-forward-outline"></ion-icon>
             </button>
@@ -113,11 +185,9 @@
           }
         </div>
       </div>
-      } @if (visibleFavorites.length < 4) {
-      <button
-        (click)="openAddFavorite()"
-        class="favorite-item favorite-item--add"
-      >
+      }
+      @if (visibleFavorites.length < 4) {
+      <button (click)="openAddFavorite()" class="favorite-item favorite-item--add" aria-label="Add favorite">
         <ion-icon name="add" class="text-2xl"></ion-icon>
       </button>
       }
@@ -125,73 +195,118 @@
     } @else {
     <div
       (click)="openAddFavorite()"
-      class="flex cursor-pointer items-center justify-center rounded-xl border border-dashed border-white/20 bg-bg-base py-8"
-      style="color: var(--ion-color-medium)"
+      class="flex cursor-pointer items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/30 py-6"
     >
-      <div class="text-center">
+      <div class="text-center text-muted">
         <ion-icon name="add" class="mb-1 text-2xl"></ion-icon>
-        <p class="m-0 text-[0.8rem]">Add your favourite films</p>
+        <p class="m-0 text-xs font-semibold">Add your favourite films</p>
       </div>
     </div>
     }
+  </div>
 
-    <p
-      class="mb-2 mt-4 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-      style="color: var(--ion-color-medium)"
+  <!-- Library & Custom Lists (Issue 5: Shared List Cards) -->
+  <div class="pt-3 pb-2">
+    <div class="mb-2 flex items-center justify-between px-4">
+      <p class="section-title">Library & Lists</p>
+      <button class="profile-text-btn" (click)="createList()">
+        + New List
+      </button>
+    </div>
+
+    <div
+      class="flex snap-x gap-2.5 overflow-x-auto px-4 pb-2 [scroll-padding-left:16px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
-      Library
-    </p>
-    <div class="grid grid-cols-2 gap-2">
-      @for (link of quickLinks; track link.route) {
-      <a
-        class="rounded-xl border px-3 py-2.5 no-underline"
-        style="
-          border-color: var(--app-border);
-          background: rgba(var(--app-bg-secondary-rgb), 0.3);
-          backdrop-filter: blur(4px);
-          color: var(--ion-text-color);
-        "
-        [routerLink]="link.route"
-      >
-        <div class="mb-1 flex items-center justify-between">
-          <div class="flex items-center gap-1.5">
-            <ion-icon [name]="link.icon"></ion-icon>
-            <span class="text-[0.78rem] font-bold">{{ link.label }}</span>
-          </div>
-          <span
-            class="rounded-full px-1.5 py-0.5 text-[0.67rem] font-extrabold"
-            style="background: rgba(var(--app-bg-secondary-rgb), 0.3)"
-          >
-            {{ quickLinkCount(link.countGetter) }}
-          </span>
-        </div>
-        <p class="m-0 text-[0.68rem]" style="color: var(--ion-color-medium)">
-          {{ link.subtitle }}
-        </p>
-      </a>
+      <!-- Watched Card -->
+      <app-list-card
+        title="Watched Collection"
+        [count]="stats.totalWatched"
+        subtitle="All logged titles"
+        [posters]="watchedPosters"
+        [routerLink]="['/profile/watched']"
+      ></app-list-card>
+
+      <!-- Watchlist Card -->
+      <app-list-card
+        title="Watchlist"
+        [count]="userData.getWatchlist().length"
+        subtitle="Queued to watch"
+        [posters]="watchlistPosters"
+        [routerLink]="['/profile/watchlist']"
+      ></app-list-card>
+
+      <!-- Liked Card -->
+      <app-list-card
+        title="Liked Titles"
+        [count]="stats.likedCount"
+        subtitle="Favorites & gems"
+        [posters]="likedPosters"
+        [routerLink]="['/profile/liked']"
+      ></app-list-card>
+
+      <!-- Diary Card -->
+      <app-list-card
+        title="Diary"
+        [count]="watchedEntries.length"
+        subtitle="Logs by watch date"
+        [posters]="diaryPosters"
+        [routerLink]="['/profile/diary']"
+      ></app-list-card>
+
+      <!-- Ratings Card -->
+      <app-list-card
+        title="Rated Titles"
+        [count]="ratedEntriesCount"
+        subtitle="Scored entries"
+        [posters]="ratedPosters"
+        [routerLink]="['/profile/ratings']"
+      ></app-list-card>
+
+      <!-- Reviews Card -->
+      <app-list-card
+        title="Reviews"
+        [count]="reviewsCount"
+        subtitle="Written thoughts"
+        [posters]="reviewsPosters"
+        [routerLink]="['/profile/reviews']"
+      ></app-list-card>
+
+      <!-- Custom Lists -->
+      @for (list of allLists; track list.id) {
+      <app-list-card
+        [title]="list.name"
+        [count]="list.items?.length || 0"
+        [subtitle]="list.description || 'Custom List'"
+        [posters]="getListPosters(list)"
+        [showBookmark]="true"
+        [isBookmarked]="isListBookmarked(list.id)"
+        [routerLink]="['/list', list.id]"
+        (bookmarkClick)="toggleListBookmark(list)"
+      ></app-list-card>
       }
     </div>
   </div>
 
-  <div class="px-4 pb-20">
-    <!-- Time window filter -->
+  <!-- Analytics Hub (Issue 4: Organized Visualizations) -->
+  <div class="px-4 pt-3 pb-24">
+    <div class="mb-3 flex items-center justify-between">
+      <p class="section-title">Analytics & Insights</p>
+    </div>
+
+    <!-- Year Filter Chips -->
     @if (stats.availableYears.length > 0) {
-    <div class="mt-3 flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+    <div class="mb-3 flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <button
-        class="rounded-full px-3 py-1 text-xs font-semibold transition-colors"
-        [class.bg-primary]="selectedStatsYear === 'all'"
-        [class.text-white]="selectedStatsYear === 'all'"
-        [style.background]="selectedStatsYear === 'all' ? null : 'var(--ion-color-step-100)'"
+        class="filter-chip"
+        [class.filter-chip--active]="selectedStatsYear === 'all'"
         (click)="setStatsYear('all')"
       >
         All Time
       </button>
       @for (y of stats.availableYears; track y) {
       <button
-        class="rounded-full px-3 py-1 text-xs font-semibold transition-colors"
-        [class.bg-primary]="selectedStatsYear === y"
-        [class.text-white]="selectedStatsYear === y"
-        [style.background]="selectedStatsYear === y ? null : 'var(--ion-color-step-100)'"
+        class="filter-chip"
+        [class.filter-chip--active]="selectedStatsYear === y"
         (click)="setStatsYear(y)"
       >
         {{ y }}
@@ -200,841 +315,422 @@
     </div>
     }
 
-    <!-- New profile insights layout -->
-    <div
-      class="mt-4 rounded-2xl border p-3"
-      style="
-        border-color: var(--ion-color-step-150);
-        background: linear-gradient(
-          145deg,
-          rgba(var(--app-bg-rgb), 0.85),
-          rgba(var(--app-bg-secondary-rgb), 0.85)
-        );
-      "
-    >
-      <p
-        class="m-0 text-[0.68rem] uppercase tracking-[0.14em] font-bold"
-        style="color: var(--app-muted)"
+    <!-- Grouped Section Chips -->
+    <div class="mb-4 flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <button
+        class="tab-chip"
+        [class.tab-chip--active]="statsTab === 'overview'"
+        (click)="statsTab = 'overview'"
       >
-        Snapshot
-      </p>
-      <div class="mt-2 grid grid-cols-2 gap-2">
-        <div
-          class="rounded-xl px-3 py-2"
-          style="background: rgba(var(--app-bg-secondary-rgb), 0.5)"
-        >
-          <p class="m-0 text-xl font-extrabold">
-            {{ stats.totalHoursEstimated }}h
-          </p>
-          <p class="m-0 text-[0.66rem]" style="color: var(--app-muted)">
-            Total hours
-          </p>
-        </div>
-        <div
-          class="rounded-xl px-3 py-2"
-          style="background: rgba(var(--ion-color-success-rgb), 0.15)"
-        >
-          <p class="m-0 text-xl font-extrabold">{{ averageRatingDisplay }}</p>
-          <p class="m-0 text-[0.66rem]" style="color: var(--app-muted)">
-            Avg rating
-          </p>
-        </div>
-        <div
-          class="rounded-xl px-3 py-2"
-          style="background: rgba(var(--ion-color-danger-rgb), 0.15)"
-        >
-          <p class="m-0 text-xl font-extrabold">{{ ratedCoverageDisplay }}</p>
-          <p class="m-0 text-[0.66rem]" style="color: var(--app-muted)">
-            Rated coverage
-          </p>
-        </div>
-        <div
-          class="rounded-xl px-3 py-2"
-          style="background: rgba(var(--app-bg-secondary-rgb), 0.5)"
-        >
-          <p class="m-0 text-xl font-extrabold">{{ likedRatioDisplay }}</p>
-          <p class="m-0 text-[0.66rem]" style="color: var(--app-muted)">
-            Liked ratio
-          </p>
-        </div>
-        <div
-          class="rounded-xl px-3 py-2"
-          style="background: rgba(var(--app-bg-secondary-rgb), 0.5)"
-        >
-          <p class="m-0 text-xl font-extrabold">{{ stats.rewatchPercentage }}%</p>
-          <p class="m-0 text-[0.66rem]" style="color: var(--app-muted)">
-            {{ stats.rewatches }} rewatches
-          </p>
+        Overview
+      </button>
+      <button
+        class="tab-chip"
+        [class.tab-chip--active]="statsTab === 'ratings'"
+        (click)="statsTab = 'ratings'"
+      >
+        Ratings
+      </button>
+      <button
+        class="tab-chip"
+        [class.tab-chip--active]="statsTab === 'time'"
+        (click)="statsTab = 'time'"
+      >
+        Time & Activity
+      </button>
+      <button
+        class="tab-chip"
+        [class.tab-chip--active]="statsTab === 'people'"
+        (click)="statsTab = 'people'"
+      >
+        People
+      </button>
+      <button
+        class="tab-chip"
+        [class.tab-chip--active]="statsTab === 'genres'"
+        (click)="statsTab = 'genres'"
+      >
+        Genres & Places
+      </button>
+    </div>
+
+    <!-- TAB 1: OVERVIEW -->
+    @if (statsTab === 'overview') {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <!-- Media Mix Donut -->
+      <div class="stat-card">
+        <h3 class="stat-card-title">Media Format Mix</h3>
+        <div class="mt-3 flex items-center justify-around">
+          <div class="relative h-28 w-28 shrink-0">
+            <svg viewBox="0 0 36 36" class="h-full w-full -rotate-90 transform">
+              <!-- Background Ring -->
+              <path
+                class="text-step-100"
+                stroke="currentColor"
+                stroke-width="4.5"
+                fill="none"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+              <!-- Movies Slice (Primary) -->
+              <path
+                stroke="var(--ion-color-primary)"
+                [attr.stroke-dasharray]="moviePercentage + ', 100'"
+                stroke-width="4.5"
+                stroke-linecap="round"
+                fill="none"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+              <span class="text-sm font-black">{{ stats.totalWatched }}</span>
+              <span class="text-[0.62rem] text-muted uppercase">Total</span>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <span class="h-2.5 w-2.5 rounded-full bg-primary"></span>
+              <span class="text-xs font-semibold">Movies</span>
+              <span class="text-xs font-bold text-muted ml-auto">{{ stats.totalMovies }} ({{ moviePercentage }}%)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="h-2.5 w-2.5 rounded-full bg-step-150"></span>
+              <span class="text-xs font-semibold">TV Shows</span>
+              <span class="text-xs font-bold text-muted ml-auto">{{ stats.totalTv }} ({{ tvPercentage }}%)</span>
+            </div>
+          </div>
         </div>
       </div>
-      <div
-        class="mt-3 rounded-xl px-3 py-2"
-        style="background: rgba(var(--app-bg-secondary-rgb), 0.4)"
-      >
-        <div class="flex items-center justify-between gap-2">
+
+      <!-- Decades Distribution -->
+      <div class="stat-card">
+        <h3 class="stat-card-title">Release Decades</h3>
+        @if (stats.decades.length > 0) {
+        <div class="mt-3 flex flex-col gap-2">
+          @for (d of stats.decades; track d.decade) {
+          <div class="flex items-center gap-2">
+            <span class="w-12 text-xs font-semibold text-muted">{{ d.decade }}</span>
+            <div class="flex-1 h-3 rounded-full bg-step-100 overflow-hidden">
+              <div
+                class="h-full bg-primary rounded-full transition-all duration-300"
+                [style.width.%]="(d.count / maxDecadeCount) * 100"
+              ></div>
+            </div>
+            <span class="w-8 text-right text-xs font-bold">{{ d.count }}</span>
+          </div>
+          }
+        </div>
+        } @else {
+        <p class="py-6 text-center text-xs text-muted">No decade release data available.</p>
+        }
+      </div>
+
+      <!-- Watchlist Health Tile -->
+      <div class="stat-card md:col-span-2">
+        <h3 class="stat-card-title">Watchlist Queue Dynamics</h3>
+        <div class="mt-3 grid grid-cols-3 gap-2 text-center">
+          <div class="rounded-lg bg-bg-secondary/40 p-2 border border-border">
+            <span class="block text-base font-extrabold text-primary">{{ stats.watchlistHealth.totalItems }}</span>
+            <span class="text-[0.65rem] text-muted uppercase">Queued</span>
+          </div>
+          <div class="rounded-lg bg-bg-secondary/40 p-2 border border-border">
+            <span class="block text-base font-extrabold">{{ stats.watchlistHealth.completionRate }}%</span>
+            <span class="text-[0.65rem] text-muted uppercase">Clear Rate</span>
+          </div>
+          <div class="rounded-lg bg-bg-secondary/40 p-2 border border-border">
+            <span class="block text-base font-extrabold">{{ stats.watchlistHealth.averageAgeDays }}d</span>
+            <span class="text-[0.65rem] text-muted uppercase">Avg Age</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- TAB 2: RATINGS -->
+    @if (statsTab === 'ratings') {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <!-- Star Rating Histogram -->
+      <div class="stat-card md:col-span-2">
+        <div class="flex items-center justify-between">
+          <h3 class="stat-card-title">Star Ratings Histogram</h3>
+          <span class="text-xs font-bold text-primary">★ {{ stats.averageRating ? stats.averageRating.toFixed(2) : '—' }} Avg</span>
+        </div>
+
+        <div class="mt-4 flex items-end justify-between gap-1.5 h-36 pt-6 pb-2 border-b border-border">
+          @for (row of ratingRows(); track row.label) {
+          <div class="flex-1 flex flex-col items-center h-full justify-end group cursor-pointer">
+            <span class="text-[0.62rem] font-bold text-muted mb-1 transition-opacity opacity-75 group-hover:opacity-100">
+              {{ row.count > 0 ? row.count : '' }}
+            </span>
+            <div
+              class="w-full rounded-t transition-all duration-300"
+              [class.bg-primary]="!row.isPeak"
+              [class.bg-emerald-400]="row.isPeak"
+              [style.height.%]="row.pct"
+              [attr.aria-label]="row.label + ' stars: ' + row.count"
+            ></div>
+          </div>
+          }
+        </div>
+        <div class="flex justify-between text-[0.65rem] text-muted pt-1">
+          @for (row of ratingRows(); track row.label) {
+          <span class="flex-1 text-center font-bold">{{ row.label }}</span>
+          }
+        </div>
+      </div>
+
+      <!-- Controversial Picks / Crowd Delta -->
+      <div class="stat-card md:col-span-2">
+        <div class="flex items-center justify-between">
+          <h3 class="stat-card-title">Crowd Rating Delta</h3>
+          <span class="text-xs text-muted">vs TMDb Community</span>
+        </div>
+        @if (stats.controversialPicks && stats.controversialPicks.length > 0) {
+        <div class="mt-3 flex flex-col gap-2">
+          @for (item of stats.controversialPicks; track item.id) {
+          <div class="flex items-center justify-between rounded-lg bg-bg-secondary/40 p-2 border border-border">
+            <span class="text-xs font-bold truncate max-w-[60%]">{{ item.title }}</span>
+            <div class="flex items-center gap-3 text-xs">
+              <span class="font-bold text-primary">You: {{ item.userRating }}★</span>
+              <span class="text-muted">TMDb: {{ item.tmdbRating }}★</span>
+              <span
+                class="rounded px-1.5 py-0.5 text-[0.65rem] font-extrabold"
+                [class.text-emerald-400]="item.delta > 0"
+                [class.text-rose-400]="item.delta < 0"
+              >
+                {{ item.delta > 0 ? '+' : '' }}{{ item.delta }}
+              </span>
+            </div>
+          </div>
+          }
+        </div>
+        } @else {
+        <p class="py-6 text-center text-xs text-muted">No crowd comparison data available yet.</p>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- TAB 3: TIME & ACTIVITY -->
+    @if (statsTab === 'time') {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <!-- 12-Month Sparkline/Bars -->
+      <div class="stat-card md:col-span-2">
+        <h3 class="stat-card-title">12-Month Watch Velocity</h3>
+        <div class="mt-4 flex items-end justify-between gap-1.5 h-32 pt-4 pb-2 border-b border-border">
+          @for (m of stats.watchedByMonth; track m.month) {
+          <div class="flex-1 flex flex-col items-center h-full justify-end">
+            <span class="text-[0.6rem] font-bold text-muted mb-1">{{ m.count > 0 ? m.count : '' }}</span>
+            <div
+              class="w-full bg-primary rounded-t transition-all duration-300"
+              [style.height.%]="(m.count / maxMonthCount) * 100"
+            ></div>
+          </div>
+          }
+        </div>
+        <div class="flex justify-between text-[0.62rem] text-muted pt-1">
+          @for (m of stats.watchedByMonth; track m.month) {
+          <span class="flex-1 text-center font-semibold">{{ monthLabel(m.month) }}</span>
+          }
+        </div>
+      </div>
+
+      <!-- Streaks & Heatmap -->
+      <div class="stat-card md:col-span-2">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="stat-card-title">Activity Calendar & Streaks</h3>
+          <div class="flex items-center gap-3 text-xs">
+            <span class="font-semibold text-primary">Current: {{ stats.currentStreak }}d</span>
+            <span class="font-semibold text-muted">Longest: {{ stats.longestStreak }}d</span>
+          </div>
+        </div>
+
+        @if (heatmapWeeks.length > 0) {
+        <div class="mt-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div class="flex gap-1 min-w-[500px]">
+            @for (w of heatmapWeeks; track w.weekIndex) {
+            <div class="flex flex-col gap-1">
+              @for (day of w.days; track day.date) {
+              <div
+                class="h-2.5 w-2.5 rounded-sm transition-colors"
+                [class.bg-step-100]="day.level === 0"
+                [class.bg-emerald-900]="day.level === 1"
+                [class.bg-emerald-700]="day.level === 2"
+                [class.bg-emerald-500]="day.level === 3"
+                [class.bg-emerald-400]="day.level === 4"
+                [title]="day.date + ': ' + day.count + ' films'"
+              ></div>
+              }
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
+
+      <!-- Weekday Distribution -->
+      @if (stats.watchedByWeekday && stats.watchedByWeekday.length > 0) {
+      <div class="stat-card md:col-span-2">
+        <h3 class="stat-card-title">Day-of-Week Distribution</h3>
+        <div class="mt-3 flex items-center justify-between gap-2">
+          @for (d of stats.watchedByWeekday; track d.day) {
+          <div class="flex-1 text-center">
+            <span class="block text-xs font-bold">{{ d.count }}</span>
+            <span class="text-[0.65rem] text-muted uppercase">{{ d.day.slice(0, 3) }}</span>
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    }
+
+    <!-- TAB 4: PEOPLE -->
+    @if (statsTab === 'people') {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <!-- Top Directors -->
+      <div class="stat-card">
+        <h3 class="stat-card-title">Top Directors</h3>
+        @if (stats.topDirectors && stats.topDirectors.length > 0) {
+        <div class="mt-3 flex flex-col gap-2.5">
+          @for (d of stats.topDirectors; track (d.id || d.name); let idx = $index) {
           <div>
-            <p class="m-0 text-[0.68rem]" style="color: var(--app-muted)">
-              Peak month
-            </p>
-            <p class="m-0 text-[0.86rem] font-semibold">
-              {{ peakMonthLabel() }}
-            </p>
-          </div>
-          <div class="text-right">
-            <p class="m-0 text-[0.68rem]" style="color: var(--app-muted)">
-              Movie/TV mix
-            </p>
-            <p class="m-0 text-[0.86rem] font-semibold">
-              {{ movieTvMixDisplay }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <p
-      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-      style="color: var(--ion-color-medium)"
-    >
-      Rating Pulse
-    </p>
-    <div
-      class="rounded-2xl border px-3 py-3"
-      style="
-        border-color: var(--ion-color-step-100);
-        background: var(--ion-color-step-50);
-      "
-    >
-      <div class="chart-meta-row">
-        <p class="chart-subtitle m-0">{{ ratingPeakSummary }}</p>
-        <span class="chart-scale-pill">0-5.0★</span>
-      </div>
-
-      @if (hasRatingData) {
-      <div
-        class="rating-pulse-bars"
-        role="img"
-        aria-label="Distribution of your ratings from 0.5 to 5.0 stars"
-      >
-        <div class="chart-grid-lines" aria-hidden="true">
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-        @for (row of ratingRows(); track row.label) {
-        <div class="rating-pulse-col">
-          <div class="rating-pulse-track">
-            <div
-              class="rating-pulse-bar"
-              [class.rating-pulse-bar--peak]="row.isPeak"
-              tabindex="0"
-              [attr.title]="ratingBarTooltip(row.label, row.count)"
-              [style.height.%]="row.pct"
-            >
-              @if (row.count > 0) {
-              <span class="chart-bar-value">{{ row.count }}</span>
-              }
+            <div class="flex items-center justify-between text-xs mb-1">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <span class="font-extrabold text-muted w-4">{{ idx + 1 }}</span>
+                <span class="font-bold truncate text-main">{{ d.name }}</span>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                @if (d.avgRating) {
+                <span class="text-primary font-semibold">{{ d.avgRating }}★</span>
+                }
+                <span class="font-extrabold">{{ d.count }} {{ d.count === 1 ? 'film' : 'films' }}</span>
+              </div>
             </div>
-          </div>
-          <span class="rating-pulse-label">{{ row.label }}</span>
-        </div>
-        }
-      </div>
-      } @else {
-      <p class="chart-empty m-0">Rate a few titles to unlock this chart.</p>
-      }
-    </div>
-
-    <p
-      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-      style="color: var(--ion-color-medium)"
-    >
-      Monthly Momentum
-    </p>
-    <div
-      class="rounded-2xl border p-3"
-      style="
-        border-color: var(--ion-color-step-100);
-        background: var(--ion-color-step-50);
-      "
-    >
-      <div class="chart-meta-row">
-        <p class="chart-subtitle m-0">{{ momentumPeakSummary }}</p>
-        <span class="chart-scale-pill">Last 6 months</span>
-      </div>
-
-      @if (hasMomentumData) {
-      <div
-        class="momentum-bars"
-        role="img"
-        aria-label="Titles watched in the last six months"
-      >
-        <div class="chart-grid-lines" aria-hidden="true">
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-        @for (row of monthMomentumRows(); track row.label) {
-        <div class="momentum-col">
-          <div class="momentum-track">
-            <div
-              class="momentum-bar"
-              [class.momentum-bar--peak]="row.isPeak"
-              [style.height.%]="row.pct"
-              tabindex="0"
-              [attr.title]="momentumBarTooltip(row.label, row.count)"
-            >
-              @if (row.count > 0) {
-              <span class="chart-bar-value">{{ row.count }}</span>
-              }
+            <div class="h-2 w-full rounded-full bg-step-100 overflow-hidden">
+              <div
+                class="h-full bg-primary rounded-full transition-all duration-300"
+                [style.width.%]="(d.count / maxDirectorCount) * 100"
+              ></div>
             </div>
-          </div>
-          <span class="momentum-label">{{ row.label }}</span>
-        </div>
-        }
-      </div>
-      } @else {
-      <p class="chart-empty m-0">
-        Watch more titles this month to build momentum.
-      </p>
-      }
-    </div>
-
-    @if (stats.topGenres.length) {
-    <p
-      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-      style="color: var(--ion-color-medium)"
-    >
-      Taste Map
-    </p>
-    <div
-      class="rounded-2xl border p-3"
-      style="
-        border-color: var(--ion-color-step-100);
-        background: var(--ion-color-step-50);
-      "
-    >
-      <div class="flex flex-wrap gap-2">
-        @for (genre of stats.topGenres; track genre.name) {
-        <span
-          class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.68rem] font-semibold"
-          style="background: var(--ion-color-step-100)"
-        >
-          <span>{{ genre.name }}</span>
-          <span style="color: var(--ion-color-medium)">{{ genre.count }}</span>
-        </span>
-        }
-      </div>
-    </div>
-    }
-
-    @if (stats.decades.length) {
-    <p
-      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-      style="color: var(--ion-color-medium)"
-    >
-      Decade Distribution
-    </p>
-    <div
-      class="rounded-2xl border p-3"
-      style="
-        border-color: var(--ion-color-step-100);
-        background: var(--ion-color-step-50);
-      "
-    >
-      <div class="space-y-2">
-        @for (dec of stats.decades; track dec.decade) {
-        <div class="flex items-center gap-2 text-xs">
-          <span class="w-12 text-medium font-semibold">{{ dec.decade }}</span>
-          <div class="h-2.5 flex-1 overflow-hidden rounded-full bg-step-100">
-            <div
-              class="h-full rounded-full bg-primary"
-              [style.width.%]="(dec.count / maxDecadeCount()) * 100"
-            ></div>
-          </div>
-          <span class="w-8 text-right font-bold">{{ dec.count }}</span>
-        </div>
-        }
-      </div>
-    </div>
-    }
-
-    @if (stats.topDirectors.length) {
-    <p
-      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-      style="color: var(--ion-color-medium)"
-    >
-      Most Watched Directors
-    </p>
-    <div
-      class="rounded-2xl border p-3"
-      style="
-        border-color: var(--ion-color-step-100);
-        background: var(--ion-color-step-50);
-      "
-    >
-      <div class="space-y-2">
-        @for (dir of stats.topDirectors; track dir.name) {
-        <div class="flex items-center justify-between text-xs py-0.5">
-          <span class="font-semibold truncate max-w-[65%]">{{ dir.name }}</span>
-          <span class="text-medium">
-            {{ dir.count }} {{ dir.count === 1 ? 'film' : 'films' }}
-            @if (dir.avgRating) {
-              · ★ {{ dir.avgRating }}
-            }
-          </span>
-        </div>
-        }
-      </div>
-    </div>
-    }
-
-    @if (stats.topCast.length) {
-    <p
-      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-      style="color: var(--ion-color-medium)"
-    >
-      Most Watched Actors
-    </p>
-    <div
-      class="rounded-2xl border p-3"
-      style="
-        border-color: var(--ion-color-step-100);
-        background: var(--ion-color-step-50);
-      "
-    >
-      <div class="space-y-2">
-        @for (actor of stats.topCast; track actor.name) {
-        <div class="flex items-center justify-between text-xs py-0.5">
-          <span class="font-semibold truncate max-w-[65%]">{{ actor.name }}</span>
-          <span class="text-medium">
-            {{ actor.count }} {{ actor.count === 1 ? 'film' : 'films' }}
-            @if (actor.avgRating) {
-              · ★ {{ actor.avgRating }}
-            }
-          </span>
-        </div>
-        }
-      </div>
-    </div>
-    }
-
-    <!-- 52-Week Activity Heatmap & Streaks -->
-    <div class="mb-2 mt-5 flex items-center justify-between">
-      <p
-        class="text-[0.75rem] font-bold uppercase tracking-[0.1em] m-0"
-        style="color: var(--ion-color-medium)"
-      >
-        Activity & Streaks
-      </p>
-      <div class="flex items-center gap-3 text-xs">
-        <span class="text-medium">Current: <strong class="text-white">{{ stats.currentStreak }}d</strong></span>
-        <span class="text-medium">Longest: <strong class="text-white">{{ stats.longestStreak }}d</strong></span>
-      </div>
-    </div>
-    <div
-      class="rounded-2xl border p-3 overflow-hidden"
-      style="
-        border-color: var(--ion-color-step-100);
-        background: var(--ion-color-step-50);
-      "
-    >
-      <div class="overflow-x-auto pb-1">
-        <div class="flex gap-1 min-w-[540px]">
-          @for (week of heatmapWeeks; track week.weekIndex) {
-          <div class="flex flex-col gap-1">
-            @for (day of week.days; track day.date) {
-            <div
-              class="h-2.5 w-2.5 rounded-[2px]"
-              [title]="day.date + ': ' + day.count + ' films'"
-              [style.background]="
-                day.level === 0 ? 'var(--ion-color-step-150, #1e293b)' :
-                day.level === 1 ? 'rgba(34, 197, 94, 0.35)' :
-                day.level === 2 ? 'rgba(34, 197, 94, 0.6)' :
-                day.level === 3 ? 'rgba(34, 197, 94, 0.85)' : '#22c55e'
-              "
-            ></div>
-            }
           </div>
           }
         </div>
-      </div>
-      <div class="mt-2 flex items-center justify-between text-[0.65rem] text-medium">
-        <span>52 weeks ago</span>
-        <div class="flex items-center gap-1">
-          <span>Less</span>
-          <span class="h-2 w-2 rounded-[1px] bg-step-150 inline-block"></span>
-          <span class="h-2 w-2 rounded-[1px] bg-green-500/40 inline-block"></span>
-          <span class="h-2 w-2 rounded-[1px] bg-green-500 inline-block"></span>
-          <span>More</span>
-        </div>
-        <span>Today</span>
-      </div>
-      @if (stats.undatedCount > 0) {
-      <p class="mt-2 mb-0 text-[0.7rem] text-medium border-t pt-2" style="border-color: var(--ion-color-step-100)">
-        ℹ️ {{ stats.undatedCount }} {{ stats.undatedCount === 1 ? 'film has' : 'films have' }} no logged watch date (excluded from heatmap and streaks).
-      </p>
-      }
-    </div>
-
-    <!-- Watching by Weekday -->
-    @if (stats.totalWatched > 0) {
-    <p
-      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-      style="color: var(--ion-color-medium)"
-    >
-      Watching by Weekday
-    </p>
-    <div
-      class="rounded-2xl border p-3"
-      style="
-        border-color: var(--ion-color-step-100);
-        background: var(--ion-color-step-50);
-      "
-    >
-      <div class="grid grid-cols-7 gap-1 text-center">
-        @for (item of stats.watchedByWeekday; track item.day) {
-        <div class="flex flex-col items-center">
-          <span class="text-[0.65rem] text-medium font-semibold">{{ item.day }}</span>
-          <div class="h-16 w-full flex items-end justify-center my-1 bg-step-100/40 rounded">
-            <div
-              class="w-full rounded bg-primary"
-              [style.height.%]="getDistributionPercent(item.count)"
-              [style.min-height.px]="item.count > 0 ? 4 : 0"
-            ></div>
-          </div>
-          <span class="text-[0.7rem] font-bold">{{ item.count }}</span>
-          <span class="text-[0.6rem] text-medium">{{ getDistributionPercent(item.count) }}%</span>
-        </div>
+        } @else {
+        <p class="py-6 text-center text-xs text-muted">No director data available yet.</p>
         }
       </div>
-    </div>
-    }
 
-    <!-- Runtime Distribution -->
-    @if (stats.runtimeDistribution.length) {
-    <p
-      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-      style="color: var(--ion-color-medium)"
-    >
-      Runtime Distribution
-    </p>
-    <div
-      class="rounded-2xl border p-3"
-      style="
-        border-color: var(--ion-color-step-100);
-        background: var(--ion-color-step-50);
-      "
-    >
-      <div class="space-y-2">
-        @for (item of stats.runtimeDistribution; track item.range) {
-        <div class="flex items-center gap-2 text-xs">
-          <span class="w-24 text-medium font-semibold truncate">{{ item.range }}</span>
-          <div class="h-2.5 flex-1 overflow-hidden rounded-full bg-step-100">
-            <div
-              class="h-full rounded-full bg-primary"
-              [style.width.%]="getDistributionPercent(item.count)"
-            ></div>
-          </div>
-          <span class="w-16 text-right font-bold">{{ item.count }} ({{ getDistributionPercent(item.count) }}%)</span>
-        </div>
-        }
-      </div>
-    </div>
-    }
-
-    <!-- Countries & Languages -->
-    @if (stats.productionCountries.length || stats.languages.length) {
-    <div class="grid grid-cols-2 gap-3 mt-5">
-      @if (stats.productionCountries.length) {
-      <div>
-        <p
-          class="mb-2 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-          style="color: var(--ion-color-medium)"
-        >
-          Top Countries
-        </p>
-        <div
-          class="rounded-2xl border p-3 space-y-1.5"
-          style="
-            border-color: var(--ion-color-step-100);
-            background: var(--ion-color-step-50);
-          "
-        >
-          @for (c of stats.productionCountries; track c.country) {
-          <div class="flex items-center justify-between text-xs">
-            <span class="font-semibold">{{ c.country }}</span>
-            <span class="text-medium">{{ c.count }}</span>
+      <!-- Top Cast -->
+      <div class="stat-card">
+        <h3 class="stat-card-title">Top Actors</h3>
+        @if (stats.topCast && stats.topCast.length > 0) {
+        <div class="mt-3 flex flex-col gap-2.5">
+          @for (c of stats.topCast; track (c.id || c.name); let idx = $index) {
+          <div>
+            <div class="flex items-center justify-between text-xs mb-1">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <span class="font-extrabold text-muted w-4">{{ idx + 1 }}</span>
+                <span class="font-bold truncate text-main">{{ c.name }}</span>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                @if (c.avgRating) {
+                <span class="text-primary font-semibold">{{ c.avgRating }}★</span>
+                }
+                <span class="font-extrabold">{{ c.count }} {{ c.count === 1 ? 'film' : 'films' }}</span>
+              </div>
+            </div>
+            <div class="h-2 w-full rounded-full bg-step-100 overflow-hidden">
+              <div
+                class="h-full bg-primary rounded-full transition-all duration-300"
+                [style.width.%]="(c.count / maxCastCount) * 100"
+              ></div>
+            </div>
           </div>
           }
         </div>
+        } @else {
+        <p class="py-6 text-center text-xs text-muted">No cast data available yet.</p>
+        }
       </div>
-      }
-      @if (stats.languages.length) {
-      <div>
-        <p
-          class="mb-2 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-          style="color: var(--ion-color-medium)"
-        >
-          Top Languages
-        </p>
-        <div
-          class="rounded-2xl border p-3 space-y-1.5"
-          style="
-            border-color: var(--ion-color-step-100);
-            background: var(--ion-color-step-50);
-          "
-        >
+    </div>
+    }
+
+    <!-- TAB 5: GENRES & PLACES -->
+    @if (statsTab === 'genres') {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <!-- Categorical Genre Bars -->
+      <div class="stat-card md:col-span-2">
+        <h3 class="stat-card-title">Genre Distribution</h3>
+        @if (stats.topGenres && stats.topGenres.length > 0) {
+        <div class="mt-3 flex flex-col gap-2.5">
+          @for (g of stats.topGenres; track g.name; let idx = $index) {
+          <div>
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="font-bold text-main">{{ g.name }}</span>
+              <span class="font-extrabold">{{ g.count }} {{ g.count === 1 ? 'film' : 'films' }}</span>
+            </div>
+            <div class="h-2.5 w-full rounded-full bg-step-100 overflow-hidden">
+              <div
+                class="h-full rounded-full transition-all duration-300"
+                [style.backgroundColor]="getGenreColor(idx)"
+                [style.width.%]="(g.count / maxGenreCount) * 100"
+              ></div>
+            </div>
+          </div>
+          }
+        </div>
+        } @else {
+        <p class="py-6 text-center text-xs text-muted">No genre data available yet.</p>
+        }
+      </div>
+
+      <!-- Languages -->
+      <div class="stat-card">
+        <h3 class="stat-card-title">Original Languages</h3>
+        @if (stats.languages && stats.languages.length > 0) {
+        <div class="mt-3 flex flex-col gap-2">
           @for (l of stats.languages; track l.language) {
           <div class="flex items-center justify-between text-xs">
-            <span class="font-semibold uppercase">{{ l.language }}</span>
-            <span class="text-medium">{{ l.count }}</span>
-          </div>
-          }
-        </div>
-      </div>
-      }
-    </div>
-    }
-
-    <!-- Crowd Delta & Controversy -->
-    @if (stats.controversialPicks.length) {
-    <p
-      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-      style="color: var(--ion-color-medium)"
-    >
-      TMDb Crowd Controversy
-    </p>
-    <div
-      class="rounded-2xl border p-3"
-      style="
-        border-color: var(--ion-color-step-100);
-        background: var(--ion-color-step-50);
-      "
-    >
-      <div class="mb-3 flex items-center justify-between border-b pb-2 text-xs" style="border-color: var(--ion-color-step-100)">
-        <span class="text-medium">Avg divergence from TMDb</span>
-        <span class="font-bold text-primary">±{{ stats.crowdDeltaAverage }} pts</span>
-      </div>
-      <div class="space-y-2">
-        @for (item of stats.controversialPicks; track item.id) {
-        <div class="flex items-center justify-between text-xs">
-          <span class="truncate max-w-[55%] font-semibold">{{ item.title }}</span>
-          <div class="flex items-center gap-2">
-            <span class="text-medium">You: ★{{ item.userRating }}</span>
-            <span class="text-medium">TMDb: ★{{ item.tmdbRating }}</span>
-            <span
-              class="font-bold rounded px-1.5 py-0.5 text-[0.65rem] bg-step-100"
-              [class.text-green-400]="item.delta > 0"
-              [class.text-red-400]="item.delta < 0"
-            >
-              {{ item.delta > 0 ? '+' : '' }}{{ item.delta }}
-            </span>
-          </div>
-        </div>
-        }
-      </div>
-    </div>
-    }
-
-    <!-- TV Show Analytics -->
-    @if (stats.totalTv > 0 || stats.tvAnalytics.episodesWatched > 0) {
-    <p
-      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-      style="color: var(--ion-color-medium)"
-    >
-      TV Series Analytics
-    </p>
-    <div
-      class="grid grid-cols-2 gap-2"
-    >
-      <div
-        class="rounded-2xl border p-3"
-        style="
-          border-color: var(--ion-color-step-100);
-          background: var(--ion-color-step-50);
-        "
-      >
-        <p class="m-0 text-2xl font-bold text-primary">{{ stats.tvAnalytics.episodesWatched }}</p>
-        <p class="m-0 text-[0.7rem] uppercase font-semibold text-medium">Episodes Watched</p>
-      </div>
-      <div
-        class="rounded-2xl border p-3"
-        style="
-          border-color: var(--ion-color-step-100);
-          background: var(--ion-color-step-50);
-        "
-      >
-        <p class="m-0 text-2xl font-bold text-primary">{{ stats.tvAnalytics.totalTvHours }}h</p>
-        <p class="m-0 text-[0.7rem] uppercase font-semibold text-medium">TV Watch Time</p>
-      </div>
-      <div
-        class="rounded-2xl border p-3"
-        style="
-          border-color: var(--ion-color-step-100);
-          background: var(--ion-color-step-50);
-        "
-      >
-        <p class="m-0 text-2xl font-bold text-primary">{{ stats.tvAnalytics.inProgressShows }}</p>
-        <p class="m-0 text-[0.7rem] uppercase font-semibold text-medium">In-Progress Shows</p>
-      </div>
-      <div
-        class="rounded-2xl border p-3"
-        style="
-          border-color: var(--ion-color-step-100);
-          background: var(--ion-color-step-50);
-        "
-      >
-        <p class="m-0 text-2xl font-bold text-primary">{{ stats.tvAnalytics.completedSeasons }}</p>
-        <p class="m-0 text-[0.7rem] uppercase font-semibold text-medium">Seasons Equivalent</p>
-      </div>
-    </div>
-    }
-
-    <!-- Watchlist Health & Roulette -->
-    <p
-      class="mb-2 mt-5 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-      style="color: var(--ion-color-medium)"
-    >
-      Watchlist Health & Roulette
-    </p>
-    <div
-      class="rounded-2xl border p-3 space-y-3"
-      style="
-        border-color: var(--ion-color-step-100);
-        background: var(--ion-color-step-50);
-      "
-    >
-      <div class="grid grid-cols-3 gap-2 text-center">
-        <div>
-          <p class="m-0 text-lg font-bold text-primary">{{ stats.watchlistHealth.totalItems }}</p>
-          <p class="m-0 text-[0.65rem] text-medium">In Queue</p>
-        </div>
-        <div>
-          <p class="m-0 text-lg font-bold text-primary">{{ stats.watchlistHealth.completionRate }}%</p>
-          <p class="m-0 text-[0.65rem] text-medium">Cleared</p>
-        </div>
-        <div>
-          <p class="m-0 text-lg font-bold text-primary">{{ stats.watchlistHealth.averageAgeDays }}d</p>
-          <p class="m-0 text-[0.65rem] text-medium">Avg Age</p>
-        </div>
-      </div>
-
-      <div class="border-t pt-3" style="border-color: var(--ion-color-step-100)">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="m-0 text-xs font-bold">Watchlist Roulette</p>
-            <p class="m-0 text-[0.7rem] text-medium">Can't decide what to watch? Spin for a pick.</p>
-          </div>
-          <ion-button size="small" fill="outline" color="primary" (click)="spinRoulette()">
-            <ion-icon name="shuffle-outline" slot="start"></ion-icon>
-            Spin
-          </ion-button>
-        </div>
-
-        @if (roulettePick) {
-        <div class="mt-2.5 flex items-center gap-3 rounded-xl p-2 bg-step-100/50">
-          <div class="min-w-0 flex-1">
-            <p class="m-0 text-xs font-bold text-primary">🎲 Picked for you:</p>
-            <p class="m-0 text-sm font-semibold truncate">{{ roulettePick.title }}</p>
-            <p class="m-0 text-[0.65rem] text-medium">{{ roulettePick.release_date | date:'yyyy' }} · {{ roulettePick.media_type | uppercase }}</p>
-          </div>
-          <ion-button size="small" fill="solid" color="primary" [routerLink]="['/' + roulettePick.media_type, roulettePick.id]">
-            View
-          </ion-button>
-        </div>
-        }
-      </div>
-    </div>
-
-    <!-- Export Shareable Stats Card -->
-    <div class="mt-5">
-      <ion-button expand="block" fill="outline" color="primary" (click)="generateShareCard()">
-        <ion-icon name="share-social-outline" slot="start"></ion-icon>
-        Export Shareable Stats Card (PNG)
-      </ion-button>
-    </div>
-
-    <p
-      class="mb-2 mt-4 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-      style="color: var(--ion-color-medium)"
-    >
-      Recent Activity
-    </p>
-
-    @if (recentActivityEntries.length) { @for (entry of recentActivityEntries;
-    track entry.entryId || (entry.media_type + ':' + entry.id)) {
-    <div
-      class="mb-2 flex cursor-pointer items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/5"
-      [routerLink]="activityRoute(entry)"
-    >
-      <img
-        [src]="entryPoster(entry)"
-        class="h-[60px] w-[40px] shrink-0 overflow-hidden rounded object-cover bg-bg-base"
-      />
-      <div class="min-w-0 flex-1">
-        <p class="m-0 truncate text-[0.85rem] font-bold">{{ entry.title }}</p>
-        <p class="m-0 text-[0.7rem]" style="color: var(--ion-color-medium)">
-          {{ formatRecentActivityDate(entry) }} @if (entry.liked) {
-          <span class="ml-1 text-red-400">♥</span>
-          } @if (entry.rewatch) {
-          <span class="ml-1">↺</span>
-          }
-        </p>
-      </div>
-      @if (entry.rating) {
-      <span
-        class="shrink-0 rounded px-2 py-0.5 text-[0.7rem] font-bold text-white"
-        style="background: var(--ion-color-primary)"
-      >
-        ★{{ entry.rating }}
-      </span>
-      }
-    </div>
-    } } @else {
-    <div
-      class="rounded-xl border px-3 py-4 text-center"
-      style="
-        border-color: var(--ion-color-step-100);
-        background: var(--ion-color-step-50);
-      "
-    >
-      <p class="m-0 text-[0.8rem]" style="color: var(--ion-color-medium)">
-        No recent activity yet.
-      </p>
-    </div>
-    }
-
-    <div class="mt-5 flex items-center justify-between">
-      <p
-        class="m-0 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-        style="color: var(--ion-color-medium)"
-      >
-        Lists
-      </p>
-      <ion-button
-        fill="clear"
-        color="primary"
-        size="small"
-        (click)="createList()"
-        >New List</ion-button
-      >
-    </div>
-
-    @if (previewLists.length) { @for (list of previewLists; track list.id) {
-    <div
-      class="mb-3 rounded-xl border px-3 py-3"
-      style="border-color: var(--ion-color-step-100)"
-    >
-      <div class="mb-2 flex items-center justify-between">
-        <div
-          class="min-w-0 flex-1 cursor-pointer"
-          [routerLink]="listCoverRoute(list)"
-        >
-          <p class="m-0 text-[0.95rem] font-bold">{{ list.name }}</p>
-          @if (list.description) {
-          <p
-            class="m-0 mt-[2px] text-[0.72rem]"
-            style="color: var(--ion-color-medium)"
-          >
-            {{ list.description }}
-          </p>
-          }
-          <p
-            class="m-0 mt-[2px] text-[0.68rem]"
-            style="color: var(--ion-color-step-200)"
-          >
-            {{ list.items.length }} items
-          </p>
-        </div>
-        <ion-button
-          fill="clear"
-          color="danger"
-          size="small"
-          (click)="deleteList(list.id)"
-        >
-          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-        </ion-button>
-      </div>
-      @if (list.items.length) {
-      <div
-        class="flex gap-1.5 cursor-pointer"
-        [routerLink]="listCoverRoute(list)"
-      >
-        @for (item of list.items.slice(0, 4); track item.media_type + ':' +
-        item.id) {
-        <img
-          [src]="listPoster(item)"
-          class="h-[60px] w-[40px] rounded object-cover bg-bg-base"
-        />
-        }
-      </div>
-      }
-    </div>
-    } } @else {
-    <div
-      class="rounded-xl border px-3 py-4 text-center"
-      style="
-        border-color: var(--ion-color-step-100);
-        background: var(--ion-color-step-50);
-      "
-    >
-      <p class="m-0 text-[0.8rem]" style="color: var(--ion-color-medium)">
-        No lists yet. Create one to get started.
-      </p>
-    </div>
-    }
-
-    <!-- Bookmarked Lists -->
-    @if (bookmarkedLists.length) {
-    <div class="mt-5 flex items-center justify-between px-0 pb-2.5 pt-0">
-      <p
-        class="m-0 text-[0.75rem] font-bold uppercase tracking-[0.1em]"
-        style="color: var(--ion-color-medium)"
-      >
-        Bookmarked Lists
-      </p>
-    </div>
-    <div
-      class="flex snap-x gap-3 overflow-x-auto pb-2 [scroll-padding-left:0] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-    >
-      @for (list of bookmarkedLists; track list.id) {
-      <div class="list-card shrink-0 snap-start" [routerLink]="['/list', list.id]">
-        <div class="list-card-cover">
-          <div class="cover-grid">
-            @for (url of getListCoverPosters(list); track $index) {
-            <div class="cover-cell">
-              <img [src]="url" loading="lazy" />
+            <span class="font-semibold uppercase tracking-wider text-muted">{{ l.language }}</span>
+            <div class="flex-1 mx-2 h-2 rounded-full bg-step-100 overflow-hidden">
+              <div
+                class="h-full bg-primary rounded-full"
+                [style.width.%]="(l.count / maxLanguageCount) * 100"
+              ></div>
             </div>
-            }
-            @for (p of getPlaceholderSlots(list); track $index) {
-            <div class="cover-cell cover-cell--placeholder">
-              <ion-icon name="film-outline"></ion-icon>
-            </div>
-            }
+            <span class="font-bold">{{ l.count }}</span>
           </div>
-          <button class="list-card-bookmark" (click)="toggleListBookmark(list, $event)">
-            <ion-icon [name]="isListBookmarked(list.id) ? 'bookmark' : 'bookmark-outline'"></ion-icon>
-          </button>
+          }
         </div>
-        <div class="list-card-body">
-          <span class="list-card-name">{{ list.name }}</span>
-          <span class="list-card-count">{{ list.item_count || 0 }} films</span>
-        </div>
+        } @else {
+        <p class="py-6 text-center text-xs text-muted">No language data available yet.</p>
+        }
       </div>
-      }
-    </div>
-    }
 
-    @if (allLists.length > 3) {
-    <p
-      class="mt-1 text-center text-[0.72rem]"
-      style="color: var(--ion-color-medium)"
-    >
-      Showing 3 of {{ allLists.length }} lists
-    </p>
+      <!-- Production Countries -->
+      <div class="stat-card">
+        <h3 class="stat-card-title">Production Countries</h3>
+        @if (stats.productionCountries && stats.productionCountries.length > 0) {
+        <div class="mt-3 flex flex-col gap-2">
+          @for (c of stats.productionCountries; track c.country) {
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-semibold uppercase tracking-wider text-muted">{{ c.country }}</span>
+            <div class="flex-1 mx-2 h-2 rounded-full bg-step-100 overflow-hidden">
+              <div
+                class="h-full bg-primary rounded-full"
+                [style.width.%]="(c.count / maxCountryCount) * 100"
+              ></div>
+            </div>
+            <span class="font-bold">{{ c.count }}</span>
+          </div>
+          }
+        </div>
+        } @else {
+        <p class="py-6 text-center text-xs text-muted">No country data available yet.</p>
+        }
+      </div>
+    </div>
     }
   </div>
 </ion-content>
