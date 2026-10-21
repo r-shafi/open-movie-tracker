@@ -39,3 +39,6 @@ android/build/
 *.p12
 local.properties
 android/local.properties
+
+# Real user data exports - never commit
+letterboxd-*.zip

@@ -1,0 +1,115 @@
+{
+  "fullExpected": {
+    "totalWatched": 1000,
+    "totalMovies": 804,
+    "totalTv": 196,
+    "rewatches": 143,
+    "likedCount": 334,
+    "averageRating": 3.25,
+    "enrichedCount": 1000,
+    "langCounts": {
+      "en": 650,
+      "fr": 120,
+      "ja": 90,
+      "ko": 60,
+      "es": 50,
+      "de": 30
+    },
+    "topDirectors": [
+      {
+        "name": "Alfred Hitchcock",
+        "count": 22
+      },
+      {
+        "name": "Steven Spielberg",
+        "count": 18
+      },
+      {
+        "name": "Martin Scorsese",
+        "count": 15
+      },
+      {
+        "name": "Christopher Nolan",
+        "count": 12
+      },
+      {
+        "name": "Quentin Tarantino",
+        "count": 9
+      },
+      {
+        "name": "Hayao Miyazaki",
+        "count": 8
+      },
+      {
+        "name": "Bong Joon-ho",
+        "count": 7
+      },
+      {
+        "name": "Denis Villeneuve",
+        "count": 6
+      },
+      {
+        "name": "Greta Gerwig",
+        "count": 5
+      },
+      {
+        "name": "Guillermo del Toro",
+        "count": 4
+      }
+    ]
+  },
+  "partialExpected": {
+    "totalWatched": 1000,
+    "totalMovies": 804,
+    "totalTv": 196,
+    "rewatches": 143,
+    "likedCount": 334,
+    "averageRating": 3.25,
+    "enrichedCount": 300,
+    "langCounts": {
+      "en": 300
+    },
+    "topDirectors": [
+      {
+        "name": "Alfred Hitchcock",
+        "count": 7
+      },
+      {
+        "name": "Steven Spielberg",
+        "count": 6
+      },
+      {
+        "name": "Martin Scorsese",
+        "count": 5
+      },
+      {
+        "name": "Christopher Nolan",
+        "count": 4
+      },
+      {
+        "name": "Wes Anderson",
+        "count": 3
+      },
+      {
+        "name": "Quentin Tarantino",
+        "count": 3
+      },
+      {
+        "name": "Hayao Miyazaki",
+        "count": 3
+      },
+      {
+        "name": "Bong Joon-ho",
+        "count": 3
+      },
+      {
+        "name": "Denis Villeneuve",
+        "count": 2
+      },
+      {
+        "name": "Greta Gerwig",
+        "count": 2
+      }
+    ]
+  }
+}

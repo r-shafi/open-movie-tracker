@@ -340,6 +340,24 @@ function generateSeedData(state = 'light') {
     };
   }
 
+  if (state === 'synthetic-1000') {
+    const fs = require('fs');
+    const path = require('path');
+    const fixturePath = path.join(__dirname, '../../tests/fixtures/synthetic-1000-profile.json');
+    if (fs.existsSync(fixturePath)) {
+      return JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+    }
+  }
+
+  if (state === 'synthetic-30pct') {
+    const fs = require('fs');
+    const path = require('path');
+    const fixturePath = path.join(__dirname, '../../tests/fixtures/synthetic-30pct-profile.json');
+    if (fs.existsSync(fixturePath)) {
+      return JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
+    }
+  }
+
   return {};
 }
 
