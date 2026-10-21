@@ -22,6 +22,13 @@ import { HapticFeedbackService } from '../services/haptic-feedback.service';
 import { ToastService } from '../services/toast.service';
 import { MetadataBackfillService } from '../services/metadata-backfill.service';
 import { ImageViewerComponent } from '../shared-module/image-viewer/image-viewer.component';
+import {
+  formatCountry,
+  formatDurationDetail,
+  formatDurationHero,
+  formatLanguage,
+  formatRating,
+} from '../services/analytics-format';
 import { AddFavoriteModalComponent } from './add-favorite-modal/add-favorite-modal.component';
 import { EditProfileComponent } from './edit-profile/edit-profile.component';
 import { SetCoverModalComponent } from './set-cover-modal/set-cover-modal.component';
@@ -615,5 +622,29 @@ export class ProfilePage implements OnInit {
     if (parts.length < 2) return iso;
     const m = parseInt(parts[1], 10);
     return months[m - 1] || iso;
+  }
+
+  get watchlistEntries(): WatchlistEntry[] {
+    return this.userData.getWatchlist();
+  }
+
+  formatHeroDuration(hours: number): string {
+    return formatDurationHero(hours);
+  }
+
+  formatDetailDuration(hours: number): string {
+    return formatDurationDetail(hours);
+  }
+
+  getLanguageDisplayName(code: string): string {
+    return formatLanguage(code);
+  }
+
+  getCountryDisplayName(code: string): string {
+    return formatCountry(code);
+  }
+
+  get isDegenerateFormat(): boolean {
+    return this.stats.totalMovies === 0 || this.stats.totalTv === 0;
   }
 }

@@ -1,0 +1,50 @@
+<div class="ratings-histogram-card" role="region" aria-label="Star ratings distribution histogram">
+  <div class="histogram-header">
+    <div>
+      <h3 class="histogram-title">Star Ratings</h3>
+      <span class="histogram-subtitle">{{ totalRated }} rated titles</span>
+    </div>
+    <div class="histogram-summary-chips">
+      @if (peakRatingLabel) {
+      <span class="histogram-chip histogram-chip--peak" title="Most frequent star rating">
+        Peak: {{ peakRatingLabel }}
+      </span>
+      }
+      <span class="histogram-chip histogram-chip--avg" title="Overall average rating: {{ formattedAverage }}">
+        Avg: {{ compactAverage }}★
+      </span>
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <div class="bars-area">
+      @for (row of rows; track row.label) {
+      <div
+        class="bar-column"
+        [class.bar-column--peak]="row.isPeak"
+        [attr.aria-label]="row.label + ' stars: ' + row.count + ' titles'"
+        tabindex="0"
+      >
+        <span class="bar-count" [class.bar-count--visible]="row.count > 0">
+          {{ row.count > 0 ? row.count : '' }}
+        </span>
+        <div class="bar-track">
+          <div
+            class="bar-fill"
+            [class.bar-fill--peak]="row.isPeak"
+            [style.height.%]="row.heightPercent"
+          ></div>
+        </div>
+      </div>
+      }
+    </div>
+
+    <div class="labels-row">
+      @for (row of rows; track row.label) {
+      <span class="axis-label" [class.axis-label--peak]="row.isPeak">
+        {{ row.label }}
+      </span>
+      }
+    </div>
+  </div>
+</div>

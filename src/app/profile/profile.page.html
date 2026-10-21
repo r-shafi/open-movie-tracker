@@ -287,83 +287,134 @@
     </div>
   </div>
 
-  <!-- Analytics Hub (Issue 4: Organized Visualizations) -->
+  <!-- Analytics Hub -->
   <div class="px-4 pt-3 pb-24">
-    <div class="mb-3 flex items-center justify-between">
-      <p class="section-title">Analytics & Insights</p>
-    </div>
+    <!-- Live Enrichment Progress Bar -->
+    <app-enrichment-bar></app-enrichment-bar>
 
-    <!-- Year Filter Chips -->
-    @if (stats.availableYears.length > 0) {
-    <div class="mb-3 flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <button
-        class="filter-chip"
-        [class.filter-chip--active]="selectedStatsYear === 'all'"
-        (click)="setStatsYear('all')"
-      >
-        All Time
-      </button>
-      @for (y of stats.availableYears; track y) {
-      <button
-        class="filter-chip"
-        [class.filter-chip--active]="selectedStatsYear === y"
-        (click)="setStatsYear(y)"
-      >
-        {{ y }}
-      </button>
-      }
-    </div>
-    }
+    <!-- Compact Sticky Controls & Navigation -->
+    <div class="analytics-sticky-controls">
+      <div class="analytics-toolbar">
+        <p class="section-title">Analytics & Insights</p>
+        @if (stats.availableYears.length > 0) {
+        <div class="year-select-container">
+          <select
+            class="year-select"
+            [value]="selectedStatsYear"
+            (change)="setStatsYear($any($event.target).value)"
+            aria-label="Filter analytics by year"
+          >
+            <option value="all">All Time</option>
+            @for (y of stats.availableYears; track y) {
+            <option [value]="y">{{ y }}</option>
+            }
+          </select>
+          <ion-icon name="chevron-down" class="year-select-icon"></ion-icon>
+        </div>
+        }
+      </div>
 
-    <!-- Grouped Section Chips -->
-    <div class="mb-4 flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <button
-        class="tab-chip"
-        [class.tab-chip--active]="statsTab === 'overview'"
-        (click)="statsTab = 'overview'"
-      >
-        Overview
-      </button>
-      <button
-        class="tab-chip"
-        [class.tab-chip--active]="statsTab === 'ratings'"
-        (click)="statsTab = 'ratings'"
-      >
-        Ratings
-      </button>
-      <button
-        class="tab-chip"
-        [class.tab-chip--active]="statsTab === 'time'"
-        (click)="statsTab = 'time'"
-      >
-        Time & Activity
-      </button>
-      <button
-        class="tab-chip"
-        [class.tab-chip--active]="statsTab === 'people'"
-        (click)="statsTab = 'people'"
-      >
-        People
-      </button>
-      <button
-        class="tab-chip"
-        [class.tab-chip--active]="statsTab === 'genres'"
-        (click)="statsTab = 'genres'"
-      >
-        Genres & Places
-      </button>
+      <!-- Grouped Section Tabs -->
+      <div class="analytics-nav-tabs">
+        <button
+          class="tab-chip"
+          [class.tab-chip--active]="statsTab === 'overview'"
+          (click)="statsTab = 'overview'"
+        >
+          Overview
+        </button>
+        <button
+          class="tab-chip"
+          [class.tab-chip--active]="statsTab === 'ratings'"
+          (click)="statsTab = 'ratings'"
+        >
+          Ratings
+        </button>
+        <button
+          class="tab-chip"
+          [class.tab-chip--active]="statsTab === 'time'"
+          (click)="statsTab = 'time'"
+        >
+          Time & Activity
+        </button>
+        <button
+          class="tab-chip"
+          [class.tab-chip--active]="statsTab === 'people'"
+          (click)="statsTab = 'people'"
+        >
+          People
+        </button>
+        <button
+          class="tab-chip"
+          [class.tab-chip--active]="statsTab === 'genres'"
+          (click)="statsTab = 'genres'"
+        >
+          Genres & Insights
+        </button>
+      </div>
     </div>
 
     <!-- TAB 1: OVERVIEW -->
     @if (statsTab === 'overview') {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-      <!-- Media Mix Donut -->
+      <!-- Total Watch Time Hero Card -->
+      <div class="stat-card">
+        <h3 class="stat-card-title">Total Watch Time</h3>
+        <div class="mt-2 flex flex-col">
+          <span class="text-2xl font-black text-primary tracking-tight">
+            {{ formatHeroDuration(stats.totalHoursKnown) }}
+          </span>
+          <span class="text-xs font-semibold text-main mt-0.5" [title]="formatDetailDuration(stats.totalHoursKnown)">
+            {{ formatDetailDuration(stats.totalHoursKnown) }}
+          </span>
+          <div class="mt-3 pt-2 border-t border-border flex flex-col gap-1 text-[0.65rem] text-muted">
+            <span>Known runtimes: <strong>{{ stats.knownRuntimeCount }}/{{ stats.totalWatched }}</strong> ({{ stats.knownRuntimePercentage }}% coverage)</span>
+            <span>Imputed estimate: ~{{ stats.totalHoursEstimated }}h total</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Library Volume & Velocity Card -->
+      <div class="stat-card">
+        <h3 class="stat-card-title">Catalog Summary</h3>
+        <div class="mt-2 grid grid-cols-2 gap-2">
+          <div class="metric-tile">
+            <span class="metric-val text-primary">{{ stats.totalWatched }}</span>
+            <span class="metric-lbl">Total Watched</span>
+          </div>
+          <div class="metric-tile">
+            <span class="metric-val">{{ ratedEntriesCount }}</span>
+            <span class="metric-lbl">Rated ({{ stats.averageRating ? stats.averageRating.toFixed(2) : '—' }}★)</span>
+          </div>
+          <div class="metric-tile">
+            <span class="metric-val">{{ stats.rewatchPercentage }}%</span>
+            <span class="metric-lbl">{{ stats.rewatches }} Rewatches</span>
+          </div>
+          <div class="metric-tile">
+            <span class="metric-val">{{ reviewsCount }}</span>
+            <span class="metric-lbl">Reviews</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Media Mix Donut (or Collapsed if 100% movies/tv) -->
       <div class="stat-card">
         <h3 class="stat-card-title">Media Format Mix</h3>
+        @if (isDegenerateFormat) {
+        <div class="mt-3 flex items-center justify-between p-3 rounded-lg bg-bg-secondary/40 border border-border">
+          <div class="flex items-center gap-2.5">
+            <ion-icon name="film-outline" class="text-xl text-primary"></ion-icon>
+            <div>
+              <span class="block text-xs font-bold text-main">{{ stats.totalMovies > 0 ? '100% Movies' : '100% TV Shows' }}</span>
+              <span class="text-[0.65rem] text-muted">{{ stats.totalWatched }} total catalog items</span>
+            </div>
+          </div>
+          <span class="text-xs font-black text-primary">{{ stats.totalWatched }}</span>
+        </div>
+        } @else {
         <div class="mt-3 flex items-center justify-around">
-          <div class="relative h-28 w-28 shrink-0">
+          <div class="relative h-24 w-24 shrink-0">
             <svg viewBox="0 0 36 36" class="h-full w-full -rotate-90 transform">
-              <!-- Background Ring -->
               <path
                 class="text-step-100"
                 stroke="currentColor"
@@ -371,9 +422,8 @@
                 fill="none"
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
               />
-              <!-- Movies Slice (Primary) -->
               <path
-                stroke="var(--ion-color-primary)"
+                stroke="var(--ion-color-primary, #10b981)"
                 [attr.stroke-dasharray]="moviePercentage + ', 100'"
                 stroke-width="4.5"
                 stroke-linecap="round"
@@ -383,13 +433,13 @@
             </svg>
             <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
               <span class="text-sm font-black">{{ stats.totalWatched }}</span>
-              <span class="text-[0.62rem] text-muted uppercase">Total</span>
+              <span class="text-[0.58rem] text-muted uppercase">Total</span>
             </div>
           </div>
 
           <div class="flex flex-col gap-2">
             <div class="flex items-center gap-2">
-              <span class="h-2.5 w-2.5 rounded-full bg-primary"></span>
+              <span class="h-2.5 w-2.5 rounded-full" style="background-color: var(--ion-color-primary, #10b981)"></span>
               <span class="text-xs font-semibold">Movies</span>
               <span class="text-xs font-bold text-muted ml-auto">{{ stats.totalMovies }} ({{ moviePercentage }}%)</span>
             </div>
@@ -400,9 +450,10 @@
             </div>
           </div>
         </div>
+        }
       </div>
 
-      <!-- Decades Distribution -->
+      <!-- Release Decades -->
       <div class="stat-card">
         <h3 class="stat-card-title">Release Decades</h3>
         @if (stats.decades.length > 0) {
@@ -410,9 +461,10 @@
           @for (d of stats.decades; track d.decade) {
           <div class="flex items-center gap-2">
             <span class="w-12 text-xs font-semibold text-muted">{{ d.decade }}</span>
-            <div class="flex-1 h-3 rounded-full bg-step-100 overflow-hidden">
+            <div class="flex-1 h-2.5 rounded-full bg-step-100 overflow-hidden">
               <div
-                class="h-full bg-primary rounded-full transition-all duration-300"
+                class="h-full rounded-full transition-all duration-300"
+                style="background-color: var(--ion-color-primary, #10b981)"
                 [style.width.%]="(d.count / maxDecadeCount) * 100"
               ></div>
             </div>
@@ -428,18 +480,22 @@
       <!-- Watchlist Health Tile -->
       <div class="stat-card md:col-span-2">
         <h3 class="stat-card-title">Watchlist Queue Dynamics</h3>
-        <div class="mt-3 grid grid-cols-3 gap-2 text-center">
-          <div class="rounded-lg bg-bg-secondary/40 p-2 border border-border">
-            <span class="block text-base font-extrabold text-primary">{{ stats.watchlistHealth.totalItems }}</span>
-            <span class="text-[0.65rem] text-muted uppercase">Queued</span>
+        <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2 text-center">
+          <div class="metric-tile">
+            <span class="metric-val text-primary">{{ stats.watchlistHealth.totalItems }}</span>
+            <span class="metric-lbl">Queued</span>
           </div>
-          <div class="rounded-lg bg-bg-secondary/40 p-2 border border-border">
-            <span class="block text-base font-extrabold">{{ stats.watchlistHealth.completionRate }}%</span>
-            <span class="text-[0.65rem] text-muted uppercase">Clear Rate</span>
+          <div class="metric-tile">
+            <span class="metric-val">{{ formatHeroDuration(stats.watchlistHealth.runtimeToClearHours) }}</span>
+            <span class="metric-lbl">Backlog Time</span>
           </div>
-          <div class="rounded-lg bg-bg-secondary/40 p-2 border border-border">
-            <span class="block text-base font-extrabold">{{ stats.watchlistHealth.averageAgeDays }}d</span>
-            <span class="text-[0.65rem] text-muted uppercase">Avg Age</span>
+          <div class="metric-tile">
+            <span class="metric-val">{{ stats.watchlistHealth.medianAgeDays }}d</span>
+            <span class="metric-lbl">Median Age</span>
+          </div>
+          <div class="metric-tile">
+            <span class="metric-val">{{ stats.watchlistHealth.completionRate }}%</span>
+            <span class="metric-lbl">Catalog Cleared</span>
           </div>
         </div>
       </div>
@@ -448,138 +504,61 @@
 
     <!-- TAB 2: RATINGS -->
     @if (statsTab === 'ratings') {
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-      <!-- Star Rating Histogram -->
-      <div class="stat-card md:col-span-2">
-        <div class="flex items-center justify-between">
-          <h3 class="stat-card-title">Star Ratings Histogram</h3>
-          <span class="text-xs font-bold text-primary">★ {{ stats.averageRating ? stats.averageRating.toFixed(2) : '—' }} Avg</span>
-        </div>
+    <div class="flex flex-col gap-3">
+      <!-- Ratings Histogram Component -->
+      <app-ratings-histogram
+        [ratingsDistribution]="stats.ratingsDistribution"
+        [averageRating]="stats.averageRating"
+        [totalRated]="ratedEntriesCount"
+      ></app-ratings-histogram>
 
-        <div class="mt-4 flex items-end justify-between gap-1.5 h-36 pt-6 pb-2 border-b border-border">
-          @for (row of ratingRows(); track row.label) {
-          <div class="flex-1 flex flex-col items-center h-full justify-end group cursor-pointer">
-            <span class="text-[0.62rem] font-bold text-muted mb-1 transition-opacity opacity-75 group-hover:opacity-100">
-              {{ row.count > 0 ? row.count : '' }}
-            </span>
-            <div
-              class="w-full rounded-t transition-all duration-300"
-              [class.bg-primary]="!row.isPeak"
-              [class.bg-emerald-400]="row.isPeak"
-              [style.height.%]="row.pct"
-              [attr.aria-label]="row.label + ' stars: ' + row.count"
-            ></div>
-          </div>
-          }
-        </div>
-        <div class="flex justify-between text-[0.65rem] text-muted pt-1">
-          @for (row of ratingRows(); track row.label) {
-          <span class="flex-1 text-center font-bold">{{ row.label }}</span>
-          }
-        </div>
-      </div>
-
-      <!-- Controversial Picks / Crowd Delta -->
-      <div class="stat-card md:col-span-2">
-        <div class="flex items-center justify-between">
-          <h3 class="stat-card-title">Crowd Rating Delta</h3>
-          <span class="text-xs text-muted">vs TMDb Community</span>
-        </div>
-        @if (stats.controversialPicks && stats.controversialPicks.length > 0) {
-        <div class="mt-3 flex flex-col gap-2">
-          @for (item of stats.controversialPicks; track item.id) {
-          <div class="flex items-center justify-between rounded-lg bg-bg-secondary/40 p-2 border border-border">
-            <span class="text-xs font-bold truncate max-w-[60%]">{{ item.title }}</span>
-            <div class="flex items-center gap-3 text-xs">
-              <span class="font-bold text-primary">You: {{ item.userRating }}★</span>
-              <span class="text-muted">TMDb: {{ item.tmdbRating }}★</span>
-              <span
-                class="rounded px-1.5 py-0.5 text-[0.65rem] font-extrabold"
-                [class.text-emerald-400]="item.delta > 0"
-                [class.text-rose-400]="item.delta < 0"
-              >
-                {{ item.delta > 0 ? '+' : '' }}{{ item.delta }}
-              </span>
-            </div>
-          </div>
-          }
-        </div>
-        } @else {
-        <p class="py-6 text-center text-xs text-muted">No crowd comparison data available yet.</p>
-        }
-      </div>
+      <!-- Diverging Crowd Delta Component -->
+      <app-diverging-crowd
+        [highestAboveCrowd]="stats.highestAboveCrowd"
+        [highestBelowCrowd]="stats.highestBelowCrowd"
+        [crowdDeltaAverage]="stats.crowdDeltaAverage"
+        [contrarianScore]="stats.contrarianScore"
+        [generosityScore]="stats.generosityScore"
+      ></app-diverging-crowd>
     </div>
     }
 
     <!-- TAB 3: TIME & ACTIVITY -->
     @if (statsTab === 'time') {
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-      <!-- 12-Month Sparkline/Bars -->
-      <div class="stat-card md:col-span-2">
-        <h3 class="stat-card-title">12-Month Watch Velocity</h3>
-        <div class="mt-4 flex items-end justify-between gap-1.5 h-32 pt-4 pb-2 border-b border-border">
-          @for (m of stats.watchedByMonth; track m.month) {
-          <div class="flex-1 flex flex-col items-center h-full justify-end">
-            <span class="text-[0.6rem] font-bold text-muted mb-1">{{ m.count > 0 ? m.count : '' }}</span>
-            <div
-              class="w-full bg-primary rounded-t transition-all duration-300"
-              [style.height.%]="(m.count / maxMonthCount) * 100"
-            ></div>
-          </div>
-          }
-        </div>
-        <div class="flex justify-between text-[0.62rem] text-muted pt-1">
-          @for (m of stats.watchedByMonth; track m.month) {
-          <span class="flex-1 text-center font-semibold">{{ monthLabel(m.month) }}</span>
-          }
-        </div>
-      </div>
+    <div class="flex flex-col gap-3">
+      <!-- 12-Month Watch Velocity Component -->
+      <app-watch-velocity
+        [watchedByMonth]="stats.watchedByMonth"
+        [undatedCount]="stats.undatedCount"
+        [totalWatched]="stats.totalWatched"
+      ></app-watch-velocity>
 
-      <!-- Streaks & Heatmap -->
-      <div class="stat-card md:col-span-2">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="stat-card-title">Activity Calendar & Streaks</h3>
-          <div class="flex items-center gap-3 text-xs">
-            <span class="font-semibold text-primary">Current: {{ stats.currentStreak }}d</span>
-            <span class="font-semibold text-muted">Longest: {{ stats.longestStreak }}d</span>
-          </div>
-        </div>
+      <!-- 365-Day Activity Calendar & Streaks Component -->
+      <app-activity-calendar
+        [activityHeatmap]="stats.activityHeatmap"
+        [currentStreak]="stats.currentStreak"
+        [longestStreak]="stats.longestStreak"
+        [undatedCount]="stats.undatedCount"
+      ></app-activity-calendar>
 
-        @if (heatmapWeeks.length > 0) {
-        <div class="mt-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <div class="flex gap-1 min-w-[500px]">
-            @for (w of heatmapWeeks; track w.weekIndex) {
-            <div class="flex flex-col gap-1">
-              @for (day of w.days; track day.date) {
-              <div
-                class="h-2.5 w-2.5 rounded-sm transition-colors"
-                [class.bg-step-100]="day.level === 0"
-                [class.bg-emerald-900]="day.level === 1"
-                [class.bg-emerald-700]="day.level === 2"
-                [class.bg-emerald-500]="day.level === 3"
-                [class.bg-emerald-400]="day.level === 4"
-                [title]="day.date + ': ' + day.count + ' films'"
-              ></div>
-              }
-            </div>
-            }
-          </div>
-        </div>
-        }
-      </div>
-
-      <!-- Weekday Distribution -->
+      <!-- Day-of-Week Distribution -->
       @if (stats.watchedByWeekday && stats.watchedByWeekday.length > 0) {
-      <div class="stat-card md:col-span-2">
+      <div class="stat-card">
         <h3 class="stat-card-title">Day-of-Week Distribution</h3>
         <div class="mt-3 flex items-center justify-between gap-2">
           @for (d of stats.watchedByWeekday; track d.day) {
           <div class="flex-1 text-center">
-            <span class="block text-xs font-bold">{{ d.count }}</span>
+            <span class="block text-xs font-bold text-main">{{ d.count }}</span>
             <span class="text-[0.65rem] text-muted uppercase">{{ d.day.slice(0, 3) }}</span>
           </div>
           }
         </div>
+        @if (stats.undatedCount > 0) {
+        <div class="mt-3 pt-2 border-t border-border flex items-center gap-1.5 text-[0.65rem] text-muted">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <span>{{ stats.undatedCount }} films without a watch date are not shown</span>
+        </div>
+        }
       </div>
       }
     </div>
@@ -587,80 +566,36 @@
 
     <!-- TAB 4: PEOPLE -->
     @if (statsTab === 'people') {
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-      <!-- Top Directors -->
-      <div class="stat-card">
-        <h3 class="stat-card-title">Top Directors</h3>
-        @if (stats.topDirectors && stats.topDirectors.length > 0) {
-        <div class="mt-3 flex flex-col gap-2.5">
-          @for (d of stats.topDirectors; track (d.id || d.name); let idx = $index) {
-          <div>
-            <div class="flex items-center justify-between text-xs mb-1">
-              <div class="flex items-center gap-1.5 min-w-0">
-                <span class="font-extrabold text-muted w-4">{{ idx + 1 }}</span>
-                <span class="font-bold truncate text-main">{{ d.name }}</span>
-              </div>
-              <div class="flex items-center gap-2 shrink-0">
-                @if (d.avgRating) {
-                <span class="text-primary font-semibold">{{ d.avgRating }}★</span>
-                }
-                <span class="font-extrabold">{{ d.count }} {{ d.count === 1 ? 'film' : 'films' }}</span>
-              </div>
-            </div>
-            <div class="h-2 w-full rounded-full bg-step-100 overflow-hidden">
-              <div
-                class="h-full bg-primary rounded-full transition-all duration-300"
-                [style.width.%]="(d.count / maxDirectorCount) * 100"
-              ></div>
-            </div>
-          </div>
-          }
-        </div>
-        } @else {
-        <p class="py-6 text-center text-xs text-muted">No director data available yet.</p>
-        }
-      </div>
+    <div class="flex flex-col gap-3">
+      <!-- Directorial Row -->
+      <app-people-carousel
+        title="Top Directors"
+        [people]="stats.topDirectors"
+        [userAverageRating]="stats.averageRating"
+        [coveragePercent]="stats.coverage.directors.percent"
+        [coveredCount]="stats.coverage.directors.covered"
+        [totalWatched]="stats.totalWatched"
+        role="director"
+      ></app-people-carousel>
 
-      <!-- Top Cast -->
-      <div class="stat-card">
-        <h3 class="stat-card-title">Top Actors</h3>
-        @if (stats.topCast && stats.topCast.length > 0) {
-        <div class="mt-3 flex flex-col gap-2.5">
-          @for (c of stats.topCast; track (c.id || c.name); let idx = $index) {
-          <div>
-            <div class="flex items-center justify-between text-xs mb-1">
-              <div class="flex items-center gap-1.5 min-w-0">
-                <span class="font-extrabold text-muted w-4">{{ idx + 1 }}</span>
-                <span class="font-bold truncate text-main">{{ c.name }}</span>
-              </div>
-              <div class="flex items-center gap-2 shrink-0">
-                @if (c.avgRating) {
-                <span class="text-primary font-semibold">{{ c.avgRating }}★</span>
-                }
-                <span class="font-extrabold">{{ c.count }} {{ c.count === 1 ? 'film' : 'films' }}</span>
-              </div>
-            </div>
-            <div class="h-2 w-full rounded-full bg-step-100 overflow-hidden">
-              <div
-                class="h-full bg-primary rounded-full transition-all duration-300"
-                [style.width.%]="(c.count / maxCastCount) * 100"
-              ></div>
-            </div>
-          </div>
-          }
-        </div>
-        } @else {
-        <p class="py-6 text-center text-xs text-muted">No cast data available yet.</p>
-        }
-      </div>
+      <!-- Acting Row -->
+      <app-people-carousel
+        title="Top Actors"
+        [people]="stats.topCast"
+        [userAverageRating]="stats.averageRating"
+        [coveragePercent]="stats.coverage.cast.percent"
+        [coveredCount]="stats.coverage.cast.covered"
+        [totalWatched]="stats.totalWatched"
+        role="actor"
+      ></app-people-carousel>
     </div>
     }
 
-    <!-- TAB 5: GENRES & PLACES -->
+    <!-- TAB 5: GENRES & INSIGHTS -->
     @if (statsTab === 'genres') {
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div class="flex flex-col gap-3">
       <!-- Categorical Genre Bars -->
-      <div class="stat-card md:col-span-2">
+      <div class="stat-card">
         <h3 class="stat-card-title">Genre Distribution</h3>
         @if (stats.topGenres && stats.topGenres.length > 0) {
         <div class="mt-3 flex flex-col gap-2.5">
@@ -685,51 +620,69 @@
         }
       </div>
 
-      <!-- Languages -->
-      <div class="stat-card">
-        <h3 class="stat-card-title">Original Languages</h3>
-        @if (stats.languages && stats.languages.length > 0) {
-        <div class="mt-3 flex flex-col gap-2">
-          @for (l of stats.languages; track l.language) {
-          <div class="flex items-center justify-between text-xs">
-            <span class="font-semibold uppercase tracking-wider text-muted">{{ l.language }}</span>
-            <div class="flex-1 mx-2 h-2 rounded-full bg-step-100 overflow-hidden">
-              <div
-                class="h-full bg-primary rounded-full"
-                [style.width.%]="(l.count / maxLanguageCount) * 100"
-              ></div>
-            </div>
-            <span class="font-bold">{{ l.count }}</span>
+      <!-- Languages & Countries Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <!-- Languages -->
+        <div class="stat-card">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="stat-card-title">Original Languages</h3>
+            <span class="text-[0.65rem] text-muted">{{ stats.coverage.languages.percent }}% coverage</span>
           </div>
+          @if (stats.languages && stats.languages.length > 0) {
+          <div class="mt-3 flex flex-col gap-2">
+            @for (l of stats.languages; track l.language) {
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-semibold text-main truncate max-w-[120px]">{{ getLanguageDisplayName(l.language) }}</span>
+              <div class="flex-1 mx-2 h-2 rounded-full bg-step-100 overflow-hidden">
+                <div
+                  class="h-full rounded-full"
+                  style="background-color: var(--ion-color-primary, #10b981)"
+                  [style.width.%]="(l.count / maxLanguageCount) * 100"
+                ></div>
+              </div>
+              <span class="font-bold text-muted">{{ l.count }}</span>
+            </div>
+            }
+          </div>
+          } @else {
+          <p class="py-6 text-center text-xs text-muted">No language data available yet.</p>
           }
         </div>
-        } @else {
-        <p class="py-6 text-center text-xs text-muted">No language data available yet.</p>
-        }
+
+        <!-- Production Countries -->
+        <div class="stat-card">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="stat-card-title">Production Countries</h3>
+            <span class="text-[0.65rem] text-muted">{{ stats.coverage.countries.percent }}% coverage</span>
+          </div>
+          @if (stats.productionCountries && stats.productionCountries.length > 0) {
+          <div class="mt-3 flex flex-col gap-2">
+            @for (c of stats.productionCountries; track c.country) {
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-semibold text-main truncate max-w-[120px]">{{ getCountryDisplayName(c.country) }}</span>
+              <div class="flex-1 mx-2 h-2 rounded-full bg-step-100 overflow-hidden">
+                <div
+                  class="h-full rounded-full"
+                  style="background-color: var(--ion-color-primary, #10b981)"
+                  [style.width.%]="(c.count / maxCountryCount) * 100"
+                ></div>
+              </div>
+              <span class="font-bold text-muted">{{ c.count }}</span>
+            </div>
+            }
+          </div>
+          } @else {
+          <p class="py-6 text-center text-xs text-muted">No country data available yet.</p>
+          }
+        </div>
       </div>
 
-      <!-- Production Countries -->
-      <div class="stat-card">
-        <h3 class="stat-card-title">Production Countries</h3>
-        @if (stats.productionCountries && stats.productionCountries.length > 0) {
-        <div class="mt-3 flex flex-col gap-2">
-          @for (c of stats.productionCountries; track c.country) {
-          <div class="flex items-center justify-between text-xs">
-            <span class="font-semibold uppercase tracking-wider text-muted">{{ c.country }}</span>
-            <div class="flex-1 mx-2 h-2 rounded-full bg-step-100 overflow-hidden">
-              <div
-                class="h-full bg-primary rounded-full"
-                [style.width.%]="(c.count / maxCountryCount) * 100"
-              ></div>
-            </div>
-            <span class="font-bold">{{ c.count }}</span>
-          </div>
-          }
-        </div>
-        } @else {
-        <p class="py-6 text-center text-xs text-muted">No country data available yet.</p>
-        }
-      </div>
+      <!-- Advanced Derived Taste Insights -->
+      <app-taste-insights
+        [watched]="watchedEntries"
+        [watchlist]="watchlistEntries"
+        [globalAverageRating]="stats.averageRating || 3.0"
+      ></app-taste-insights>
     </div>
     }
   </div>

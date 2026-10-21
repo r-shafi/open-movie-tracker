@@ -1,0 +1,50 @@
+<div class="velocity-card" role="region" aria-label="12-Month watch velocity chart">
+  <div class="velocity-header">
+    <div>
+      <h3 class="velocity-title">12-Month Watch Velocity</h3>
+      <span class="velocity-subtitle">{{ total12MonthWatched }} logged in past year</span>
+    </div>
+    <div class="velocity-chips">
+      <span class="velocity-chip">Avg: {{ averagePerMonth }}/mo</span>
+    </div>
+  </div>
+
+  <div class="velocity-chart">
+    <div class="bars-area">
+      @for (bar of bars; track bar.month) {
+      <div
+        class="bar-column"
+        [class.bar-column--peak]="bar.isPeak"
+        [attr.aria-label]="bar.label + ': ' + bar.count + ' films'"
+        tabindex="0"
+      >
+        <span class="bar-count" [class.bar-count--visible]="bar.count > 0">
+          {{ bar.count > 0 ? bar.count : '' }}
+        </span>
+        <div class="bar-track">
+          <div
+            class="bar-fill"
+            [class.bar-fill--peak]="bar.isPeak"
+            [style.height.%]="bar.heightPercent"
+          ></div>
+        </div>
+      </div>
+      }
+    </div>
+
+    <div class="labels-row">
+      @for (bar of bars; track bar.month) {
+      <span class="axis-label" [class.axis-label--peak]="bar.isPeak">
+        {{ bar.label }}
+      </span>
+      }
+    </div>
+  </div>
+
+  @if (undatedCount > 0) {
+  <div class="velocity-footnote">
+    <ion-icon name="information-circle-outline" class="footnote-icon"></ion-icon>
+    <span>{{ undatedCount }} films without a watch date are not shown in timeline charts</span>
+  </div>
+  }
+</div>

@@ -1,0 +1,48 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>{{ title }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="people-grid">
+    @for (person of people; track (person.id || person.name); let idx = $index) {
+    <a
+      class="person-card"
+      [routerLink]="person.id ? ['/person', person.id] : null"
+      (click)="person.id && dismiss()"
+      [attr.aria-label]="person.name + ': ' + person.count + ' titles'"
+    >
+      <div class="portrait-wrapper">
+        <span class="rank-badge">#{{ idx + 1 }}</span>
+        @if (getPhotoUrl(person.profilePath)) {
+        <img
+          [src]="getPhotoUrl(person.profilePath)"
+          [alt]="person.name"
+          class="portrait-img"
+          loading="lazy"
+        />
+        } @else {
+        <div class="portrait-fallback">
+          <span>{{ getInitials(person.name) }}</span>
+        </div>
+        }
+      </div>
+
+      <span class="person-name" [title]="person.name">{{ person.name }}</span>
+      <span class="person-count">{{ person.count }} {{ person.count === 1 ? 'title' : 'titles' }}</span>
+
+      @if (person.avgRating !== null) {
+      <span class="rating-chip" [ngClass]="getRatingClass(person.avgRating)">
+        ★ {{ person.avgRating }}
+      </span>
+      }
+    </a>
+    }
+  </div>
+</ion-content>

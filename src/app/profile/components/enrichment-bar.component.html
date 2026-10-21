@@ -1,0 +1,60 @@
+@if (progress && (progress.isRunning || progress.isPaused || progress.completed < progress.total)) {
+<div class="enrichment-card" role="region" aria-label="Metadata enrichment status">
+  <div class="enrichment-header">
+    <div class="enrichment-info">
+      <div class="status-indicator" [class.status-indicator--paused]="progress.isPaused"></div>
+      <span class="status-title font-bold">
+        {{ progress.isPaused ? 'Enrichment Paused' : 'Backfilling Catalog Metadata' }}
+      </span>
+      <span class="progress-counts font-bold">
+        {{ progress.completed }}/{{ progress.total }} ({{ percent }}%)
+      </span>
+    </div>
+
+    <div class="enrichment-controls">
+      @if (progress.isRunning || progress.isPaused) {
+      <button
+        class="pause-resume-btn"
+        (click)="togglePause()"
+        [attr.aria-label]="progress.isPaused ? 'Resume enrichment' : 'Pause enrichment'"
+      >
+        <ion-icon [name]="progress.isPaused ? 'play' : 'pause'"></ion-icon>
+        <span>{{ progress.isPaused ? 'Resume' : 'Pause' }}</span>
+      </button>
+      }
+    </div>
+  </div>
+
+  <div class="progress-track">
+    <div
+      class="progress-fill"
+      [class.progress-fill--paused]="progress.isPaused"
+      [style.width.%]="percent"
+    ></div>
+  </div>
+
+  <div class="enrichment-meta">
+    <span class="current-title truncate">
+      @if (progress.currentTitle && progress.isRunning) {
+      Fetching: <em>{{ progress.currentTitle }}</em>
+      } @else if (progress.isPaused) {
+      Paused by user
+      } @else {
+      Processing metadata snapshots...
+      }
+    </span>
+
+    <div class="rate-eta">
+      @if (ratePerMinute > 0 && progress.isRunning) {
+      <span>{{ ratePerMinute }}/min</span>
+      }
+      @if (estimatedTimeRemaining && progress.isRunning) {
+      <span>· ETA: {{ estimatedTimeRemaining }}</span>
+      }
+      @if (progress.failedCount > 0) {
+      <span class="failed-chip font-bold">· {{ progress.failedCount }} failed</span>
+      }
+    </div>
+  </div>
+</div>
+}

@@ -1,0 +1,159 @@
+.diverging-card {
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(var(--app-bg-secondary-rgb, 33, 37, 41), 0.35);
+  border: 1px solid var(--app-border, rgba(52, 58, 64, 0.7));
+  backdrop-filter: blur(4px);
+}
+
+.diverging-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.diverging-title {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ion-text-color, #ced4da);
+}
+
+.diverging-subtitle {
+  font-size: 0.68rem;
+  color: var(--ion-color-medium, #bcc6cc);
+  font-weight: 600;
+}
+
+.diverging-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.score-chip {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  background: rgba(var(--ion-color-step-150-rgb, 44, 48, 53), 0.7);
+  color: var(--ion-text-color, #ced4da);
+  border: 1px solid var(--app-border, rgba(52, 58, 64, 0.7));
+}
+
+.score-chip--pos {
+  background: rgba(var(--ion-color-primary-rgb, 16, 185, 129), 0.15);
+  color: var(--ion-color-primary, #10b981);
+  border-color: rgba(var(--ion-color-primary-rgb, 16, 185, 129), 0.3);
+}
+
+.score-chip--neg {
+  background: rgba(var(--ion-color-danger-rgb, 239, 68, 68), 0.15);
+  color: #fb7185;
+  border-color: rgba(var(--ion-color-danger-rgb, 239, 68, 68), 0.3);
+}
+
+.diverging-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.diverging-column {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.column-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 0;
+}
+
+.column-header--above {
+  color: #34d399;
+}
+
+.column-header--below {
+  color: #fb7185;
+}
+
+.diverging-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.delta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(var(--app-bg-secondary-rgb, 33, 37, 41), 0.5);
+  border: 1px solid var(--app-border, rgba(52, 58, 64, 0.5));
+}
+
+.delta-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  padding-right: 8px;
+}
+
+.delta-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ion-text-color, #ced4da);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.delta-ratings {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.65rem;
+  margin-top: 2px;
+}
+
+.user-score {
+  color: var(--ion-color-primary, #10b981);
+}
+
+.tmdb-score {
+  color: var(--ion-color-medium, #bcc6cc);
+}
+
+.delta-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.delta-badge--above {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.delta-badge--below {
+  background: rgba(244, 63, 94, 0.18);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.35);
+}

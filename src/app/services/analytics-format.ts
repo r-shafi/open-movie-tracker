@@ -212,3 +212,26 @@ export class AnalyticsFormat {
     return COMMON_COUNTRIES[upper] || upper;
   }
 }
+
+export const formatDurationHero = (hours: number): string =>
+  AnalyticsFormat.formatDurationCompact(Math.round(hours * 60));
+
+export const formatDurationDetail = (hours: number): string =>
+  AnalyticsFormat.formatDurationDetailed(Math.round(hours * 60));
+
+export const formatRating = (rating: number | null | undefined, decimals = 1): string => {
+  if (typeof rating !== 'number' || isNaN(rating)) return '—';
+  return rating.toFixed(decimals);
+};
+
+export const formatLanguage = (code: string): string =>
+  AnalyticsFormat.getLanguageName(code);
+
+export const formatCountry = (code: string): string =>
+  AnalyticsFormat.getCountryName(code);
+
+export const formatNumber = (count: number): string =>
+  AnalyticsFormat.formatCount(count);
+
+export const formatPercent = (pct: number, decimals = 0): string =>
+  AnalyticsFormat.formatPercent(pct, decimals);

@@ -1,0 +1,62 @@
+<div class="people-card" role="region" [attr.aria-label]="title + ' carousel'">
+  <div class="people-header">
+    <div>
+      <div class="title-with-badge">
+        <h3 class="people-title">{{ title }}</h3>
+        @if (isProvisional) {
+        <span class="provisional-chip" title="Enrichment in progress: rankings will refine as more titles are backfilled">
+          Provisional · {{ coveredCount }}/{{ totalWatched }}
+        </span>
+        }
+      </div>
+      <span class="people-subtitle">Ranked by titles watched in catalog</span>
+    </div>
+
+    @if (people && people.length > 5) {
+    <button class="see-all-btn" (click)="openSeeAll()">
+      See all ({{ people.length }})
+    </button>
+    }
+  </div>
+
+  @if (people && people.length > 0) {
+  <div class="carousel-container">
+    <div class="carousel-track">
+      @for (person of people; track (person.id || person.name); let idx = $index) {
+      <a
+        class="person-slide"
+        [routerLink]="person.id ? ['/person', person.id] : null"
+        [attr.aria-label]="person.name + ': ' + person.count + ' titles'"
+      >
+        <div class="portrait-wrapper">
+          <span class="rank-badge">#{{ idx + 1 }}</span>
+          @if (getPhotoUrl(person.profilePath)) {
+          <img
+            [src]="getPhotoUrl(person.profilePath)"
+            [alt]="person.name"
+            class="portrait-img"
+            loading="lazy"
+          />
+          } @else {
+          <div class="portrait-fallback">
+            <span>{{ getInitials(person.name) }}</span>
+          </div>
+          }
+        </div>
+
+        <span class="person-name" [title]="person.name">{{ person.name }}</span>
+        <span class="person-count">{{ person.count }} {{ person.count === 1 ? 'title' : 'titles' }}</span>
+
+        @if (person.avgRating !== null) {
+        <span class="rating-chip" [ngClass]="getRatingClass(person.avgRating)">
+          ★ {{ person.avgRating }}
+        </span>
+        }
+      </a>
+      }
+    </div>
+  </div>
+  } @else {
+  <p class="py-6 text-center text-xs text-muted">No data available yet.</p>
+  }
+</div>

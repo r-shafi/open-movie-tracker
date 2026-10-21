@@ -1,0 +1,165 @@
+<div class="taste-insights-container" role="region" aria-label="Taste Insights and Derived Analytics">
+  <!-- 1. Obscurity & Hipster Index -->
+  @if (obscurity && obscurity.ratedCoverageCount > 0) {
+  <div class="insight-card">
+    <div class="card-header">
+      <div>
+        <h3 class="card-title">Catalog Obscurity & Hipster Index</h3>
+        <span class="card-subtitle">{{ obscurity.label }}</span>
+      </div>
+      <div class="score-display">
+        <span class="score-num font-black">{{ obscurity.hipsterScore }}</span>
+        <span class="score-denom">/100</span>
+      </div>
+    </div>
+
+    <!-- Tier breakdown bar -->
+    <div class="tier-bar-track">
+      @if (obscurity.tiers.obscureCount > 0) {
+      <div
+        class="tier-segment tier-segment--obscure"
+        [style.width.%]="(obscurity.tiers.obscureCount / obscurity.ratedCoverageCount) * 100"
+        title="Obscure & Indie (<1k votes): {{ obscurity.tiers.obscureCount }}"
+      ></div>
+      }
+      @if (obscurity.tiers.modestCount > 0) {
+      <div
+        class="tier-segment tier-segment--modest"
+        [style.width.%]="(obscurity.tiers.modestCount / obscurity.ratedCoverageCount) * 100"
+        title="Modest (<5k votes): {{ obscurity.tiers.modestCount }}"
+      ></div>
+      }
+      @if (obscurity.tiers.mainstreamCount > 0) {
+      <div
+        class="tier-segment tier-segment--mainstream"
+        [style.width.%]="(obscurity.tiers.mainstreamCount / obscurity.ratedCoverageCount) * 100"
+        title="Mainstream (5k-20k votes): {{ obscurity.tiers.mainstreamCount }}"
+      ></div>
+      }
+      @if (obscurity.tiers.blockbusterCount > 0) {
+      <div
+        class="tier-segment tier-segment--blockbuster"
+        [style.width.%]="(obscurity.tiers.blockbusterCount / obscurity.ratedCoverageCount) * 100"
+        title="Blockbuster (20k+ votes): {{ obscurity.tiers.blockbusterCount }}"
+      ></div>
+      }
+    </div>
+
+    <div class="tier-labels">
+      <span class="tier-legend-item"><span class="dot dot--obscure"></span>Indie/Rare ({{ obscurity.tiers.obscurePercent }}%)</span>
+      <span class="tier-legend-item"><span class="dot dot--modest"></span>Modest</span>
+      <span class="tier-legend-item"><span class="dot dot--mainstream"></span>Popular</span>
+      <span class="tier-legend-item"><span class="dot dot--blockbuster"></span>Blockbuster</span>
+    </div>
+
+    @if (obscurity.hiddenGems.length > 0) {
+    <div class="hidden-gems-list">
+      <span class="subheading">Highest Rated Hidden Gems (&lt;2k votes)</span>
+      <div class="gem-chips">
+        @for (gem of obscurity.hiddenGems; track gem.id) {
+        <div class="gem-chip">
+          <span class="gem-title truncate">{{ gem.title }}</span>
+          <span class="gem-rating">★ {{ gem.userRating }}</span>
+          <span class="gem-votes">({{ gem.tmdbVoteCount }} votes)</span>
+        </div>
+        }
+      </div>
+    </div>
+    }
+  </div>
+  }
+
+  <!-- 2. Film Age at Viewing -->
+  @if (filmAge && filmAge.datedCount > 0) {
+  <div class="insight-card">
+    <div class="card-header">
+      <div>
+        <h3 class="card-title">Film Age at Viewing</h3>
+        <span class="card-subtitle">Preference for fresh releases vs vintage cinema</span>
+      </div>
+      <div class="stat-badge">
+        <span class="stat-badge-val font-bold">~{{ filmAge.averageAgeYears }}y</span>
+        <span class="stat-badge-lbl">Avg Age</span>
+      </div>
+    </div>
+
+    <div class="age-distribution">
+      @for (cat of filmAge.categories; track cat.label) {
+      <div class="age-row">
+        <span class="age-label">{{ cat.label }}</span>
+        <div class="age-bar-track">
+          <div class="age-bar-fill" [style.width.%]="cat.percent"></div>
+        </div>
+        <span class="age-percent font-bold">{{ cat.percent }}%</span>
+      </div>
+      }
+    </div>
+
+    @if (filmAge.oldestWatched) {
+    <div class="oldest-footer">
+      <ion-icon name="time-outline"></ion-icon>
+      <span>Oldest watched: <strong>{{ filmAge.oldestWatched.title }}</strong> ({{ filmAge.oldestWatched.releaseYear }}, watched at age {{ filmAge.oldestWatched.ageAtViewing }}y)</span>
+    </div>
+    }
+  </div>
+  }
+
+  <!-- 3. Rewatch Dynamics -->
+  @if (rewatchDynamics && rewatchDynamics.totalRewatches > 0) {
+  <div class="insight-card">
+    <div class="card-header">
+      <div>
+        <h3 class="card-title">Rewatch Dynamics</h3>
+        <span class="card-subtitle">{{ rewatchDynamics.uniqueRewatchedTitles }} titles revisited multiple times</span>
+      </div>
+      @if (rewatchDynamics.averageRatingShift !== null) {
+      <div class="stat-badge" [class.stat-badge--pos]="rewatchDynamics.averageRatingShift > 0">
+        <span class="stat-badge-val font-bold">
+          {{ rewatchDynamics.averageRatingShift > 0 ? '+' : '' }}{{ rewatchDynamics.averageRatingShift }}★
+        </span>
+        <span class="stat-badge-lbl">Rewatch Shift</span>
+      </div>
+      }
+    </div>
+
+    @if (rewatchDynamics.mostRewatched.length > 0) {
+    <div class="rewatch-list">
+      @for (item of rewatchDynamics.mostRewatched; track item.id) {
+      <div class="rewatch-item">
+        <span class="rewatch-title truncate">{{ item.title }}</span>
+        <span class="rewatch-count font-extrabold">{{ item.watchCount }}x</span>
+      </div>
+      }
+    </div>
+    }
+  </div>
+  }
+
+  <!-- 4. Watchlist Predicted Ratings -->
+  @if (watchlistPredictions.length > 0) {
+  <div class="insight-card">
+    <div class="card-header">
+      <div>
+        <h3 class="card-title">Queue Match Predictions</h3>
+        <span class="card-subtitle">Estimated rating based on your director & genre affinities</span>
+      </div>
+    </div>
+
+    <div class="prediction-list">
+      @for (item of watchlistPredictions; track item.id) {
+      <div class="prediction-row">
+        <div class="prediction-info">
+          <span class="prediction-title truncate">{{ item.title }}</span>
+          @if (item.reasons.length > 0) {
+          <span class="prediction-reasons truncate">{{ item.reasons.join(' · ') }}</span>
+          }
+        </div>
+        <div class="prediction-badge font-extrabold">
+          <span>Est. {{ item.predictedRating }}★</span>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+  }
+</div>

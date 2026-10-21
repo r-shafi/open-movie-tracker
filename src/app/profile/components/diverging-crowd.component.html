@@ -1,0 +1,80 @@
+<div class="diverging-card" role="region" aria-label="Crowd Rating Divergence">
+  <div class="diverging-header">
+    <div>
+      <h3 class="diverging-title">Crowd Rating Divergence</h3>
+      <span class="diverging-subtitle">Your taste vs TMDb global consensus</span>
+    </div>
+
+    <div class="diverging-chips">
+      @if (contrarianScore !== null) {
+      <span class="score-chip" title="Mean absolute divergence from TMDb community">
+        Contrarian: ±{{ contrarianScore }}★
+      </span>
+      }
+      @if (generosityScore !== null) {
+      <span
+        class="score-chip"
+        [class.score-chip--pos]="generosityScore > 0"
+        [class.score-chip--neg]="generosityScore < 0"
+        title="Net average divergence: positive means you rate higher than consensus"
+      >
+        Bias: {{ generosityScore > 0 ? '+' : '' }}{{ generosityScore }}★
+      </span>
+      }
+    </div>
+  </div>
+
+  @if (hasData) {
+  <div class="diverging-grid">
+    <!-- Highest Above Crowd (You rated higher) -->
+    @if (highestAboveCrowd.length > 0) {
+    <div class="diverging-column">
+      <div class="column-header column-header--above">
+        <ion-icon name="arrow-up-circle-outline"></ion-icon>
+        <span>Rated Higher Than Crowd</span>
+      </div>
+      <div class="diverging-items">
+        @for (item of highestAboveCrowd; track item.id) {
+        <div class="delta-row">
+          <div class="delta-info">
+            <span class="delta-title" [title]="item.title">{{ item.title }}</span>
+            <div class="delta-ratings">
+              <span class="user-score font-bold">You: {{ item.userRating }}★</span>
+              <span class="tmdb-score">TMDb: {{ item.tmdbRating }}★</span>
+            </div>
+          </div>
+          <span class="delta-badge delta-badge--above">+{{ item.delta }}★</span>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- Highest Below Crowd (You rated lower) -->
+    @if (highestBelowCrowd.length > 0) {
+    <div class="diverging-column">
+      <div class="column-header column-header--below">
+        <ion-icon name="arrow-down-circle-outline"></ion-icon>
+        <span>Rated Lower Than Crowd</span>
+      </div>
+      <div class="diverging-items">
+        @for (item of highestBelowCrowd; track item.id) {
+        <div class="delta-row">
+          <div class="delta-info">
+            <span class="delta-title" [title]="item.title">{{ item.title }}</span>
+            <div class="delta-ratings">
+              <span class="user-score font-bold">You: {{ item.userRating }}★</span>
+              <span class="tmdb-score">TMDb: {{ item.tmdbRating }}★</span>
+            </div>
+          </div>
+          <span class="delta-badge delta-badge--below">{{ item.delta }}★</span>
+        </div>
+        }
+      </div>
+    </div>
+    }
+  </div>
+  } @else {
+  <p class="py-6 text-center text-xs text-muted">No crowd comparison data available yet.</p>
+  }
+</div>

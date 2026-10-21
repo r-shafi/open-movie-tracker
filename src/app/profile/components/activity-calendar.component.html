@@ -1,0 +1,86 @@
+<div class="calendar-card" role="region" aria-label="365-Day Activity Heatmap">
+  <div class="calendar-header">
+    <div>
+      <h3 class="calendar-title">Activity Calendar</h3>
+      <span class="calendar-subtitle">Trailing 365 days</span>
+    </div>
+    <div class="calendar-streaks">
+      <span class="streak-chip streak-chip--current">
+        <ion-icon name="flame"></ion-icon>
+        Current: {{ currentStreak }}d
+      </span>
+      <span class="streak-chip">
+        <ion-icon name="trophy-outline"></ion-icon>
+        Best: {{ longestStreak }}d
+      </span>
+    </div>
+  </div>
+
+  @if (weeks.length > 0) {
+  <div class="heatmap-scroll-area">
+    <div class="heatmap-grid-container">
+      <!-- Weekday Labels Column -->
+      <div class="weekday-labels">
+        <span class="weekday-label">Mon</span>
+        <span class="weekday-label">Wed</span>
+        <span class="weekday-label">Fri</span>
+      </div>
+
+      <!-- Month Labels & Cells -->
+      <div class="heatmap-main">
+        <div class="month-labels-row">
+          @for (header of monthHeaders; track header.label + header.colIndex) {
+          <span
+            class="month-label"
+            [style.grid-column-start]="header.colIndex + 1"
+          >
+            {{ header.label }}
+          </span>
+          }
+        </div>
+
+        <div class="weeks-grid">
+          @for (w of weeks; track w.weekIndex) {
+          <div class="week-column">
+            @for (day of w.days; track day.date) {
+            <div
+              class="day-cell"
+              [class.day-cell--lvl-0]="day.level === 0"
+              [class.day-cell--lvl-1]="day.level === 1"
+              [class.day-cell--lvl-2]="day.level === 2"
+              [class.day-cell--lvl-3]="day.level === 3"
+              [class.day-cell--lvl-4]="day.level === 4"
+              [attr.aria-label]="day.date + ': ' + day.count + ' films'"
+              [title]="day.date + ': ' + day.count + (day.count === 1 ? ' film' : ' films')"
+            ></div>
+            }
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Intensity Legend -->
+  <div class="heatmap-footer">
+    @if (undatedCount > 0) {
+    <div class="calendar-footnote">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      <span>{{ undatedCount }} films without a watch date are not shown</span>
+    </div>
+    }
+
+    <div class="legend-scale">
+      <span class="legend-text">Less</span>
+      <span class="day-cell day-cell--lvl-0"></span>
+      <span class="day-cell day-cell--lvl-1"></span>
+      <span class="day-cell day-cell--lvl-2"></span>
+      <span class="day-cell day-cell--lvl-3"></span>
+      <span class="day-cell day-cell--lvl-4"></span>
+      <span class="legend-text">More</span>
+    </div>
+  </div>
+  } @else {
+  <p class="py-6 text-center text-xs text-muted">No watch dates recorded yet.</p>
+  }
+</div>
