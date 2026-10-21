@@ -22,7 +22,14 @@ export class PeopleModalComponent {
   @Input() userAverageRating: number | null = null;
   @Input() role: 'director' | 'actor' = 'director';
 
+  imageFailedMap = new Set<string | number>();
+
   constructor(private modalCtrl: ModalController) {}
+
+  onImageError(person: PersonItem): void {
+    const key = person.id || person.name;
+    this.imageFailedMap.add(key);
+  }
 
   dismiss(): void {
     this.modalCtrl.dismiss();

@@ -2,7 +2,7 @@
   <div class="calendar-header">
     <div>
       <h3 class="calendar-title">Activity Calendar</h3>
-      <span class="calendar-subtitle">Trailing 365 days</span>
+      <span class="calendar-subtitle">{{ calendarSubtitle }}</span>
     </div>
     <div class="calendar-streaks">
       <span class="streak-chip streak-chip--current">
@@ -50,8 +50,9 @@
               [class.day-cell--lvl-2]="day.level === 2"
               [class.day-cell--lvl-3]="day.level === 3"
               [class.day-cell--lvl-4]="day.level === 4"
-              [attr.aria-label]="day.date + ': ' + day.count + ' films'"
-              [title]="day.date + ': ' + day.count + (day.count === 1 ? ' film' : ' films')"
+              [class.day-cell--today]="day.isToday"
+              [attr.aria-label]="day.date + ': ' + day.count + ' films' + (day.isToday ? ' (Today)' : '')"
+              [title]="day.date + ': ' + day.count + (day.count === 1 ? ' film' : ' films') + (day.isToday ? ' (Today)' : '')"
             ></div>
             }
           </div>

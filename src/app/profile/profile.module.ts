@@ -19,6 +19,7 @@ import { PeopleCarouselComponent } from './components/people-carousel.component'
 import { PeopleModalComponent } from './components/people-modal.component';
 import { TasteInsightsComponent } from './components/taste-insights.component';
 import { EnrichmentBarComponent } from './components/enrichment-bar.component';
+import { WorldMapComponent } from './components/world-map.component';
 
 @NgModule({
   imports: [
@@ -41,6 +42,7 @@ import { EnrichmentBarComponent } from './components/enrichment-bar.component';
     PeopleModalComponent,
     TasteInsightsComponent,
     EnrichmentBarComponent,
+    WorldMapComponent,
   ],
 })
 export class ProfilePageModule {}

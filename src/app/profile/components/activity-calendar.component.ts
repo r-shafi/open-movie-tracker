@@ -4,6 +4,7 @@ interface DayCell {
   date: string;
   count: number;
   level: number;
+  isToday?: boolean;
 }
 
 interface WeekColumn {
@@ -28,8 +29,16 @@ export class ActivityCalendarComponent {
   @Input() currentStreak = 0;
   @Input() longestStreak = 0;
   @Input() undatedCount = 0;
+  @Input() selectedYear = 'all';
 
   private readonly monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  get calendarSubtitle(): string {
+    if (this.selectedYear && this.selectedYear !== 'all') {
+      return `Full year ${this.selectedYear}`;
+    }
+    return 'Trailing 365 days';
+  }
 
   get weeks(): WeekColumn[] {
     const days = this.activityHeatmap || [];

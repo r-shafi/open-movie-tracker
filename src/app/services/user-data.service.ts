@@ -17,8 +17,8 @@ export interface MediaMetadataSnapshot {
   releaseDate?: string;
   originalLanguage?: string;
   productionCountries?: string[];
-  directors?: Array<{ id: number; name: string; profilePath?: string | null }>;
-  topCast?: Array<{ id: number; name: string; profilePath?: string | null }>;
+  directors?: Array<{ id: number; name: string; profilePath?: string | null; gender?: number }>;
+  topCast?: Array<{ id: number; name: string; profilePath?: string | null; gender?: number }>;
   tmdbVoteAverage?: number;
   tmdbVoteCount?: number;
   tmdbPopularity?: number;
@@ -170,7 +170,9 @@ export interface UserStats {
   rewatchPercentage: number;
   decades: { decade: string; count: number }[];
   topDirectors: { id?: number; name: string; count: number; avgRating: number | null; profilePath?: string | null }[];
-  topCast: { id?: number; name: string; count: number; avgRating: number | null; profilePath?: string | null }[];
+  topCast: { id?: number; name: string; count: number; avgRating: number | null; profilePath?: string | null; gender?: number }[];
+  topActors: { id?: number; name: string; count: number; avgRating: number | null; profilePath?: string | null }[];
+  topActresses: { id?: number; name: string; count: number; avgRating: number | null; profilePath?: string | null }[];
   availableYears: string[];
   undatedCount: number;
   enrichedCount: number;
@@ -179,7 +181,7 @@ export interface UserStats {
   coverage: MetricCoverageSummary;
 
   // Letterboxd Pro Analytics
-  activityHeatmap: { date: string; count: number; level: number }[];
+  activityHeatmap: { date: string; count: number; level: number; isToday?: boolean }[];
   currentStreak: number;
   longestStreak: number;
   watchedByWeekday: { day: string; count: number }[];
@@ -985,8 +987,8 @@ export class UserDataService {
 
   public static calculateActivityHeatmap(
     watched: WatchedEntry[],
-    days = 364,
-  ): { date: string; count: number; level: number }[] {
+    targetYearOrDays?: string | number,
+  ): { date: string; count: number; level: number; isToday?: boolean }[] {
     const dayCounts: Record<string, number> = {};
     watched.forEach((e) => {
       if (e.watchedAt && !e.dateUnknown && !e.approximateDate) {
@@ -997,13 +999,38 @@ export class UserDataService {
       }
     });
 
-    const result: { date: string; count: number; level: number }[] = [];
     const now = new Date();
     const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const todayEpoch = CalendarDate.toEpochDays(todayStr);
 
-    for (let i = days - 1; i >= 0; i--) {
-      const targetEpoch = todayEpoch - i;
+    const isYear = typeof targetYearOrDays === 'string' && /^\d{4}$/.test(targetYearOrDays);
+
+    let startEpoch: number;
+    let endEpoch: number;
+
+    if (isYear) {
+      const year = parseInt(targetYearOrDays, 10);
+      const startStr = `${year}-01-01`;
+      const endStr = `${year}-12-31`;
+      const yStartEpoch = CalendarDate.toEpochDays(startStr);
+      const yEndEpoch = CalendarDate.toEpochDays(endStr);
+
+      // Pad to Monday at start: in Unix epoch (1970-01-01 was Thursday = 3), Monday is ((epoch + 3) % 7 === 0)
+      const startDow = ((yStartEpoch + 3) % 7 + 7) % 7; // 0=Mon, 6=Sun
+      startEpoch = yStartEpoch - startDow;
+
+      // Pad to Sunday at end
+      const endDow = ((yEndEpoch + 3) % 7 + 7) % 7;
+      endEpoch = yEndEpoch + (6 - endDow);
+    } else {
+      const days = typeof targetYearOrDays === 'number' ? targetYearOrDays : 364;
+      endEpoch = todayEpoch;
+      startEpoch = todayEpoch - (days - 1);
+    }
+
+    const result: { date: string; count: number; level: number; isToday?: boolean }[] = [];
+
+    for (let targetEpoch = startEpoch; targetEpoch <= endEpoch; targetEpoch++) {
       // Convert epoch days to YYYY-MM-DD mathematically without timezone conversions
       const a = targetEpoch + 2440588 + 32044;
       const b = Math.floor((4 * a + 3) / 146097);
@@ -1023,7 +1050,12 @@ export class UserDataService {
       else if (count === 3) level = 3;
       else if (count >= 4) level = 4;
 
-      result.push({ date: dateStr, count, level });
+      result.push({
+        date: dateStr,
+        count,
+        level,
+        isToday: dateStr === todayStr,
+      });
     }
 
     return result;
@@ -1340,10 +1372,10 @@ export class UserDataService {
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
-    // Top Cast (aggregated by TMDb person id, fallback to name; min 3 ratings for avgRating)
+    // Top Cast, Actors & Actresses (aggregated by TMDb person id, fallback to name; min 3 ratings for avgRating)
     const castMap = new Map<
       string | number,
-      { id?: number; name: string; count: number; ratings: number[]; profilePath?: string | null }
+      { id?: number; name: string; count: number; ratings: number[]; profilePath?: string | null; gender?: number }
     >();
     watched.forEach((e) => {
       e.snapshot?.topCast?.forEach((c) => {
@@ -1355,35 +1387,50 @@ export class UserDataService {
           count: 0,
           ratings: [],
           profilePath: c.profilePath || null,
+          gender: c.gender,
         };
         current.count++;
         if (c.profilePath && !current.profilePath) {
           current.profilePath = c.profilePath;
         }
+        if (c.gender && !current.gender) {
+          current.gender = c.gender;
+        }
         if (typeof e.rating === 'number') current.ratings.push(e.rating);
         castMap.set(key, current);
       });
     });
-    const topCast = Array.from(castMap.values())
-      .map((data) => ({
-        id: data.id,
-        name: data.name,
-        count: data.count,
-        profilePath: data.profilePath || null,
-        avgRating:
-          data.ratings.length >= 3
-            ? Number(
-                (
-                  data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length
-                ).toFixed(1),
-              )
-            : null,
-      }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+
+    const formatPerson = (data: {
+      id?: number;
+      name: string;
+      count: number;
+      ratings: number[];
+      profilePath?: string | null;
+      gender?: number;
+    }) => ({
+      id: data.id,
+      name: data.name,
+      count: data.count,
+      profilePath: data.profilePath || null,
+      gender: data.gender,
+      avgRating:
+        data.ratings.length >= 3
+          ? Number(
+              (
+                data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length
+              ).toFixed(1),
+            )
+          : null,
+    });
+
+    const allCast = Array.from(castMap.values()).map(formatPerson).sort((a, b) => b.count - a.count);
+    const topCast = allCast.slice(0, 10);
+    const topActors = allCast.filter((c) => c.gender === 2).slice(0, 10);
+    const topActresses = allCast.filter((c) => c.gender === 1).slice(0, 10);
 
     // Activity heatmap & streaks
-    const activityHeatmap = UserDataService.calculateActivityHeatmap(watched);
+    const activityHeatmap = UserDataService.calculateActivityHeatmap(watched, yearFilter);
     const validDates = watched
       .filter((e) => e.watchedAt && !e.dateUnknown && !e.approximateDate)
       .map((e) => e.watchedAt!);
@@ -1512,6 +1559,8 @@ export class UserDataService {
       decades,
       topDirectors,
       topCast,
+      topActors,
+      topActresses,
       availableYears,
       undatedCount,
       enrichedCount,

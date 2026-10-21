@@ -18,20 +18,23 @@
       (click)="person.id && dismiss()"
       [attr.aria-label]="person.name + ': ' + person.count + ' titles'"
     >
-      <div class="portrait-wrapper">
+      <div class="portrait-container">
         <span class="rank-badge">#{{ idx + 1 }}</span>
-        @if (getPhotoUrl(person.profilePath)) {
-        <img
-          [src]="getPhotoUrl(person.profilePath)"
-          [alt]="person.name"
-          class="portrait-img"
-          loading="lazy"
-        />
-        } @else {
-        <div class="portrait-fallback">
-          <span>{{ getInitials(person.name) }}</span>
+        <div class="portrait-wrapper">
+          @if (getPhotoUrl(person.profilePath) && !imageFailedMap.has(person.id || person.name)) {
+          <img
+            [src]="getPhotoUrl(person.profilePath)"
+            [alt]="person.name"
+            class="portrait-img"
+            loading="lazy"
+            (error)="onImageError(person)"
+          />
+          } @else {
+          <div class="portrait-fallback">
+            <span>{{ getInitials(person.name) }}</span>
+          </div>
+          }
         </div>
-        }
       </div>
 
       <span class="person-name" [title]="person.name">{{ person.name }}</span>

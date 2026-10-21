@@ -197,11 +197,12 @@ export class MetadataBackfillService {
 
       const topCast = details.credits?.cast
         ? details.credits.cast
-            .slice(0, 5)
+            .slice(0, 10)
             .map((c: any) => ({
               id: c.id,
               name: c.name,
               profilePath: c.profile_path || null,
+              gender: typeof c.gender === 'number' ? c.gender : 0,
             }))
         : [];
 
@@ -245,10 +246,11 @@ export class MetadataBackfillService {
         : (details.last_episode_to_air?.runtime || undefined);
 
       const castList = details.aggregate_credits?.cast || details.credits?.cast || [];
-      const topCast = castList.slice(0, 5).map((c: any) => ({
+      const topCast = castList.slice(0, 10).map((c: any) => ({
         id: c.id,
         name: c.name,
         profilePath: c.profile_path || null,
+        gender: typeof c.gender === 'number' ? c.gender : 0,
       }));
 
       let directors = details.created_by && details.created_by.length

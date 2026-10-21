@@ -156,6 +156,15 @@
   box-shadow: 0 0 4px rgba(52, 211, 153, 0.5);
 }
 
+.day-cell--today {
+  outline: 2px solid var(--ion-color-primary, #10b981);
+  outline-offset: 1px;
+  border-radius: 2px;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 0 6px rgba(var(--ion-color-primary-rgb, 16, 185, 129), 0.7);
+}
+
 .heatmap-footer {
   display: flex;
   flex-wrap: wrap;

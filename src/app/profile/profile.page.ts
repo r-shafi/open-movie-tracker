@@ -600,6 +600,18 @@ export class ProfilePage implements OnInit {
     return list.length ? Math.max(...list.map((c) => c.count), 1) : 1;
   }
 
+  get maxWeekdayCount(): number {
+    const list = this.stats.watchedByWeekday || [];
+    return list.length ? Math.max(...list.map((w) => w.count), 1) : 1;
+  }
+
+  getPeakWeekday(): string {
+    const list = this.stats.watchedByWeekday || [];
+    if (!list.length) return '—';
+    const sorted = [...list].sort((a, b) => b.count - a.count);
+    return sorted[0].count > 0 ? sorted[0].day : '—';
+  }
+
   get heatmapWeeks(): { weekIndex: number; days: { date: string; count: number; level: number }[] }[] {
     const days = this.stats.activityHeatmap || [];
     const weeks: { weekIndex: number; days: { date: string; count: number; level: number }[] }[] = [];

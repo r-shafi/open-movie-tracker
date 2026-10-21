@@ -18,7 +18,14 @@ export class PeopleCarouselComponent {
   @Input() totalWatched = 0;
   @Input() role: 'director' | 'actor' = 'director';
 
+  imageFailedMap = new Set<string | number>();
+
   constructor(private modalCtrl: ModalController) {}
+
+  onImageError(person: PersonItem): void {
+    const key = person.id || person.name;
+    this.imageFailedMap.add(key);
+  }
 
   get isProvisional(): boolean {
     return this.coveragePercent < 100;
