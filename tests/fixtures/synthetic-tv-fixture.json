@@ -1,0 +1,91 @@
+{
+  "mva_watched": {
+    "tv-entry-1": {
+      "entryId": "tv-entry-1",
+      "id": 1396,
+      "media_type": "tv",
+      "title": "Breaking Bad",
+      "poster_path": "/ggFHVNu6YYI5L9pCfOacjizRGt.jpg",
+      "watchedAt": "2024-03-01T00:00:00.000Z",
+      "dateUnknown": false,
+      "rewatch": false,
+      "rating": 5.0,
+      "snapshot": {
+        "runtimeMinutes": 47,
+        "genres": [{ "id": 18, "name": "Drama" }, { "id": 80, "name": "Crime" }],
+        "releaseYear": 2008,
+        "directors": [{ "id": 66633, "name": "Vince Gilligan", "profilePath": "/rLSUZ8YVbWqZ86j26W8jT41jXfG.jpg" }],
+        "topCast": [{ "id": 17419, "name": "Bryan Cranston", "profilePath": "/7Jahy5LZX2Fo8fGJltMreAI49hC.jpg" }],
+        "tmdbVoteAverage": 8.9,
+        "posterPath": "/ggFHVNu6YYI5L9pCfOacjizRGt.jpg"
+      }
+    },
+    "tv-entry-2": {
+      "entryId": "tv-entry-2",
+      "id": 115036,
+      "media_type": "tv",
+      "title": "Severance",
+      "poster_path": "/jt1vH7k7J7Z2M3k7hJ8q3L8vX.jpg",
+      "watchedAt": "2024-04-10T00:00:00.000Z",
+      "dateUnknown": false,
+      "rewatch": false,
+      "rating": 4.5,
+      "snapshot": {
+        "runtimeMinutes": 55,
+        "genres": [{ "id": 18, "name": "Drama" }, { "id": 9648, "name": "Mystery" }, { "id": 878, "name": "Sci-Fi" }],
+        "releaseYear": 2022,
+        "directors": [{ "id": 73421, "name": "Ben Stiller", "profilePath": "/k6L2r2O5Z4D9t5w.jpg" }],
+        "topCast": [{ "id": 8219, "name": "Adam Scott", "profilePath": "/8k2V8v7L2.jpg" }],
+        "tmdbVoteAverage": 8.4,
+        "posterPath": "/jt1vH7k7J7Z2M3k7hJ8q3L8vX.jpg"
+      }
+    },
+    "tv-entry-3": {
+      "entryId": "tv-entry-3",
+      "id": 19885,
+      "media_type": "tv",
+      "title": "Sherlock",
+      "poster_path": "/7WTsnXTQQmstDJWzxHRVbt3hw2Q.jpg",
+      "watchedAt": "2024-05-15T00:00:00.000Z",
+      "dateUnknown": false,
+      "rewatch": false,
+      "rating": 4.0,
+      "snapshot": {
+        "runtimeMinutes": 90,
+        "genres": [{ "id": 80, "name": "Crime" }, { "id": 18, "name": "Drama" }, { "id": 9648, "name": "Mystery" }],
+        "releaseYear": 2010,
+        "directors": [{ "id": 23412, "name": "Paul McGuigan", "profilePath": "/mcguigan.jpg" }],
+        "topCast": [{ "id": 71580, "name": "Benedict Cumberbatch", "profilePath": "/cumberbatch.jpg" }],
+        "tmdbVoteAverage": 8.5,
+        "posterPath": "/7WTsnXTQQmstDJWzxHRVbt3hw2Q.jpg"
+      }
+    }
+  },
+  "mva_watchlist": {
+    "movie:157336": {
+      "id": 157336,
+      "media_type": "movie",
+      "title": "Interstellar",
+      "poster_path": "/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+      "release_date": "2014-11-05",
+      "addedAt": "2023-01-15T12:00:00.000Z"
+    },
+    "movie:550": {
+      "id": 550,
+      "media_type": "movie",
+      "title": "Fight Club",
+      "poster_path": "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
+      "release_date": "1999-10-15",
+      "addedAt": "2023-06-20T12:00:00.000Z"
+    }
+  },
+  "mva_settings": {
+    "episodeWatched": {
+      "1396-1-1": true, "1396-1-2": true, "1396-1-3": true, "1396-1-4": true, "1396-1-5": true, "1396-1-6": true, "1396-1-7": true,
+      "1396-2-1": true, "1396-2-2": true, "1396-2-3": true, "1396-2-4": true, "1396-2-5": true, "1396-2-6": true, "1396-2-7": true, "1396-2-8": true, "1396-2-9": true, "1396-2-10": true, "1396-2-11": true, "1396-2-12": true, "1396-2-13": true,
+      "115036-1-1": true, "115036-1-2": true, "115036-1-3": true, "115036-1-4": true, "115036-1-5": true,
+      "19885-0-1": true,
+      "19885-1-1": true, "19885-1-2": true
+    }
+  }
+}

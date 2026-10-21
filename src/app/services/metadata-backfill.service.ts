@@ -186,11 +186,23 @@ export class MetadataBackfillService {
       if (!details) return;
 
       const directors = details.credits?.crew
-        ? details.credits.crew.filter((c: any) => c.job === 'Director').map((c: any) => ({ id: c.id, name: c.name }))
+        ? details.credits.crew
+            .filter((c: any) => c.job === 'Director')
+            .map((c: any) => ({
+              id: c.id,
+              name: c.name,
+              profilePath: c.profile_path || null,
+            }))
         : [];
 
       const topCast = details.credits?.cast
-        ? details.credits.cast.slice(0, 5).map((c: any) => ({ id: c.id, name: c.name }))
+        ? details.credits.cast
+            .slice(0, 5)
+            .map((c: any) => ({
+              id: c.id,
+              name: c.name,
+              profilePath: c.profile_path || null,
+            }))
         : [];
 
       const snapshot: MediaMetadataSnapshot = {
@@ -203,6 +215,22 @@ export class MetadataBackfillService {
         directors,
         topCast,
         tmdbVoteAverage: details.vote_average,
+        tmdbVoteCount: details.vote_count,
+        tmdbPopularity: details.popularity,
+        belongsToCollection: details.belongs_to_collection
+          ? {
+              id: details.belongs_to_collection.id,
+              name: details.belongs_to_collection.name,
+              posterPath: details.belongs_to_collection.poster_path || null,
+            }
+          : null,
+        productionCompanies: details.production_companies
+          ? details.production_companies.map((c: any) => ({
+              id: c.id,
+              name: c.name,
+              country: c.origin_country,
+            }))
+          : [],
         posterPath: details.poster_path,
         backdropPath: details.backdrop_path,
       };
@@ -216,15 +244,30 @@ export class MetadataBackfillService {
         ? details.episode_run_time[0]
         : (details.last_episode_to_air?.runtime || undefined);
 
-      const topCast = (details.aggregate_credits?.cast || details.credits?.cast)
-        ? (details.aggregate_credits?.cast || details.credits?.cast).slice(0, 5).map((c: any) => ({ id: c.id, name: c.name }))
+      const castList = details.aggregate_credits?.cast || details.credits?.cast || [];
+      const topCast = castList.slice(0, 5).map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        profilePath: c.profile_path || null,
+      }));
+
+      let directors = details.created_by && details.created_by.length
+        ? details.created_by.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            profilePath: c.profile_path || null,
+          }))
         : [];
 
-      const directors = details.created_by && details.created_by.length
-        ? details.created_by.map((c: any) => ({ id: c.id, name: c.name }))
-        : (details.credits?.crew
-            ? details.credits.crew.filter((c: any) => c.job === 'Director').map((c: any) => ({ id: c.id, name: c.name }))
-            : []);
+      if (!directors.length && details.credits?.crew) {
+        directors = details.credits.crew
+          .filter((c: any) => c.job === 'Director')
+          .map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            profilePath: c.profile_path || null,
+          }));
+      }
 
       const snapshot: MediaMetadataSnapshot = {
         runtimeMinutes: runtime,
@@ -236,6 +279,18 @@ export class MetadataBackfillService {
         directors,
         topCast,
         tmdbVoteAverage: details.vote_average,
+        tmdbVoteCount: details.vote_count,
+        tmdbPopularity: details.popularity,
+        numberOfEpisodes: details.number_of_episodes,
+        numberOfSeasons: details.number_of_seasons,
+        episodeRuntimes: details.episode_run_time || (runtime ? [runtime] : undefined),
+        productionCompanies: details.production_companies
+          ? details.production_companies.map((c: any) => ({
+              id: c.id,
+              name: c.name,
+              country: c.origin_country,
+            }))
+          : [],
         posterPath: details.poster_path,
         backdropPath: details.backdrop_path,
       };

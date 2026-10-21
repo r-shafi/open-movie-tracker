@@ -4,9 +4,11 @@ import { of } from 'rxjs';
 import { UserDataService } from './user-data.service';
 import { MetadataBackfillService } from './metadata-backfill.service';
 import { TmdbService } from './tmdb.service';
+import { ToastService } from './toast.service';
 import fullProfileFixture from '../../../tests/fixtures/synthetic-1000-profile.json';
 import partialProfileFixture from '../../../tests/fixtures/synthetic-30pct-profile.json';
 import expectedStatsFixture from '../../../tests/fixtures/synthetic-expected-stats.json';
+import tvFixture from '../../../tests/fixtures/synthetic-tv-fixture.json';
 
 describe('Analytics & Stats Correctness (Phase 1)', () => {
   let userData: UserDataService;
@@ -189,6 +191,113 @@ describe('Analytics & Stats Correctness (Phase 1)', () => {
       expect(finalStats.topDirectors[0].count).toBe(22);
       expect(finalStats.languages.find((l) => l.language === 'en')?.count).toBe(650);
       expect(finalStats.languages.find((l) => l.language === 'fr')?.count).toBe(120);
+    });
+  });
+
+  describe('Synthetic TV fixture & Watchlist queue dynamics', () => {
+    beforeEach(() => {
+      seedFixture(tvFixture);
+    });
+
+    it('should calculate TV hours from episodes actually watched, including specials', () => {
+      const stats = userData.getStats();
+
+      // Breaking Bad: 20 eps @ 47m = 940m
+      // Severance: 5 eps @ 55m = 275m
+      // Sherlock: 3 eps (including S0 special) @ 90m = 270m
+      // Total: 28 eps = 1485m = 24.75h -> 24.8h
+      expect(stats.totalTv).toBe(3);
+      expect(stats.tvAnalytics.episodesWatched).toBe(28);
+      expect(stats.tvAnalytics.totalTvHours).toBe(24.8);
+      expect(stats.totalHoursKnown).toBe(24.8);
+    });
+
+    it('should compute real watchlist age dynamics from addedAt timestamps', () => {
+      const stats = userData.getStats();
+
+      expect(stats.watchlistHealth.totalItems).toBe(2);
+      expect(stats.watchlistHealth.averageAgeDays).toBeGreaterThan(300);
+      expect(stats.watchlistHealth.medianAgeDays).toBeGreaterThan(300);
+      expect(stats.watchlistHealth.oldestAgeDays).toBeGreaterThanOrEqual(stats.watchlistHealth.medianAgeDays);
+      expect(stats.watchlistHealth.runtimeToClearHours).toBeGreaterThan(0);
+    });
+
+    it('should preserve crew and cast profilePath on top directors and top cast', () => {
+      const stats = userData.getStats();
+
+      const vince = stats.topDirectors.find((d) => d.name === 'Vince Gilligan');
+      expect(vince).toBeDefined();
+      expect(vince?.profilePath).toBe('/rLSUZ8YVbWqZ86j26W8jT41jXfG.jpg');
+
+      const bryan = stats.topCast.find((c) => c.name === 'Bryan Cranston');
+      expect(bryan).toBeDefined();
+      expect(bryan?.profilePath).toBe('/7Jahy5LZX2Fo8fGJltMreAI49hC.jpg');
+    });
+  });
+
+  describe('Bidirectional Crowd Delta & Metric Coverage', () => {
+    beforeEach(() => {
+      seedFixture(fullProfileFixture);
+    });
+
+    it('should report per-metric coverage summaries with individual rates', () => {
+      const stats = userData.getStats();
+
+      expect(stats.coverage).toBeDefined();
+      expect(stats.coverage.directors.percent).toBe(100);
+      expect(stats.coverage.cast.percent).toBe(100);
+      expect(stats.coverage.runtimes.percent).toBe(80);
+      expect(stats.coverage.runtimes.covered).toBe(804);
+      expect(stats.coverage.genres.percent).toBe(100);
+      expect(stats.coverage.languages.percent).toBe(100);
+      expect(stats.coverage.dates.covered).toBe(1000 - stats.undatedCount);
+      expect(stats.coverage.dates.percent).toBe(97);
+    });
+
+    it('should compute bidirectional crowd delta picks and contrarian/generosity scores', () => {
+      const stats = userData.getStats();
+
+      expect(stats.crowdDeltaAverage).not.toBeNull();
+      expect(stats.contrarianScore).not.toBeNull();
+      expect(stats.generosityScore).toBe(stats.crowdDeltaAverage);
+
+      expect(stats.controversialPicks.length).toBeLessThanOrEqual(5);
+      expect(stats.highestAboveCrowd.length).toBeLessThanOrEqual(5);
+      expect(stats.highestBelowCrowd.length).toBeLessThanOrEqual(5);
+
+      stats.highestAboveCrowd.forEach((item) => {
+        expect(item.delta).toBeGreaterThan(0);
+      });
+      stats.highestBelowCrowd.forEach((item) => {
+        expect(item.delta).toBeLessThan(0);
+      });
+    });
+  });
+
+  describe('Schema V4 migration', () => {
+    it('should migrate schema v3 to v4 and populate missing addedAt timestamps on watchlist', () => {
+      localStorage.clear();
+      localStorage.setItem('mva_schema_version', '3');
+      localStorage.setItem(
+        'mva_watchlist',
+        JSON.stringify({
+          'movie:100': {
+            id: 100,
+            media_type: 'movie',
+            title: 'Legacy Watchlist Movie',
+          },
+        })
+      );
+
+      // Instantiating a new service triggers migration
+      const migratedUserData = new UserDataService(TestBed.inject(ToastService));
+      expect(localStorage.getItem('mva_schema_version')).toBe('4');
+
+      const watchlist = migratedUserData.getWatchlist();
+      expect(watchlist.length).toBe(1);
+      expect(watchlist[0].id).toBe(100);
+      expect(watchlist[0].addedAt).toBeTruthy();
+      expect(new Date(watchlist[0].addedAt).getTime()).not.toBeNaN();
     });
   });
 });

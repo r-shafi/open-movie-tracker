@@ -17,11 +17,18 @@ export interface MediaMetadataSnapshot {
   releaseDate?: string;
   originalLanguage?: string;
   productionCountries?: string[];
-  directors?: Array<{ id: number; name: string }>;
-  topCast?: Array<{ id: number; name: string }>;
+  directors?: Array<{ id: number; name: string; profilePath?: string | null }>;
+  topCast?: Array<{ id: number; name: string; profilePath?: string | null }>;
   tmdbVoteAverage?: number;
+  tmdbVoteCount?: number;
+  tmdbPopularity?: number;
+  belongsToCollection?: { id: number; name: string; posterPath?: string | null } | null;
+  productionCompanies?: Array<{ id: number; name: string; country?: string }>;
   posterPath?: string | null;
   backdropPath?: string | null;
+  numberOfEpisodes?: number;
+  numberOfSeasons?: number;
+  episodeRuntimes?: number[];
 }
 
 export interface WatchedEntry {
@@ -54,6 +61,7 @@ export interface WatchlistEntry {
   addedAt: string;
   release_date?: string;
   first_air_date?: string;
+  snapshot?: MediaMetadataSnapshot;
 }
 
 export interface FavoriteEntry {
@@ -120,11 +128,38 @@ export interface ImportResult {
   };
 }
 
+export interface MetricCoverage {
+  covered: number;
+  total: number;
+  percent: number;
+}
+
+export interface MetricCoverageSummary {
+  directors: MetricCoverage;
+  cast: MetricCoverage;
+  genres: MetricCoverage;
+  languages: MetricCoverage;
+  countries: MetricCoverage;
+  runtimes: MetricCoverage;
+  dates: MetricCoverage;
+}
+
+export interface CrowdDeltaItem {
+  id: number;
+  title: string;
+  userRating: number;
+  tmdbRating: number;
+  delta: number;
+}
+
 export interface UserStats {
   totalWatched: number;
   totalMovies: number;
   totalTv: number;
   totalHoursEstimated: number;
+  totalHoursKnown: number;
+  knownRuntimeCount: number;
+  knownRuntimePercentage: number;
   averageRating: number | null;
   ratingsDistribution: Record<string, number>;
   watchedByMonth: { month: string; count: number }[];
@@ -134,13 +169,14 @@ export interface UserStats {
   firstWatches: number;
   rewatchPercentage: number;
   decades: { decade: string; count: number }[];
-  topDirectors: { id?: number; name: string; count: number; avgRating: number | null }[];
-  topCast: { id?: number; name: string; count: number; avgRating: number | null }[];
+  topDirectors: { id?: number; name: string; count: number; avgRating: number | null; profilePath?: string | null }[];
+  topCast: { id?: number; name: string; count: number; avgRating: number | null; profilePath?: string | null }[];
   availableYears: string[];
   undatedCount: number;
   enrichedCount: number;
   coveragePercentage: number;
   coverageNotice?: string;
+  coverage: MetricCoverageSummary;
 
   // Letterboxd Pro Analytics
   activityHeatmap: { date: string; count: number; level: number }[];
@@ -151,7 +187,11 @@ export interface UserStats {
   productionCountries: { country: string; count: number }[];
   languages: { language: string; count: number }[];
   crowdDeltaAverage: number | null;
-  controversialPicks: { id: number; title: string; userRating: number; tmdbRating: number; delta: number }[];
+  contrarianScore: number | null;
+  generosityScore: number | null;
+  controversialPicks: CrowdDeltaItem[];
+  highestAboveCrowd: CrowdDeltaItem[];
+  highestBelowCrowd: CrowdDeltaItem[];
   genreAverages: { name: string; avgRating: number; count: number }[];
   decadeAverages: { decade: string; avgRating: number; count: number }[];
   tvAnalytics: {
@@ -163,7 +203,9 @@ export interface UserStats {
   watchlistHealth: {
     totalItems: number;
     completionRate: number;
+    medianAgeDays: number;
     averageAgeDays: number;
+    oldestAgeDays: number;
     runtimeToClearHours: number;
   };
 }
@@ -177,7 +219,7 @@ export interface BackfillItemStatus {
 
 @Injectable({ providedIn: 'root' })
 export class UserDataService {
-  readonly SCHEMA_VERSION = 3;
+  readonly SCHEMA_VERSION = 4;
   readonly SCHEMA_VERSION_KEY = 'mva_schema_version';
   readonly PROFILE_KEY = 'mva_profile';
   readonly WATCHED_KEY = 'mva_watched';
@@ -240,6 +282,7 @@ export class UserDataService {
     this.migrateFromLegacy();
     this.migrateToSchemaV2();
     this.migrateToSchemaV3();
+    this.migrateToSchemaV4();
   }
 
   // ── Profile ──────────────────────────────────────────────────────────────
@@ -632,14 +675,17 @@ export class UserDataService {
     );
   }
 
-  addToWatchlist(item: Omit<WatchlistEntry, 'addedAt'>): void {
+  addToWatchlist(item: Omit<WatchlistEntry, 'addedAt'> & { addedAt?: string }): void {
     const record = this.readJson<Record<string, WatchlistEntry>>(
       this.WATCHLIST_KEY,
       {},
     );
     const key = `${item.media_type}:${item.id}`;
     if (!record[key]) {
-      record[key] = { ...item, addedAt: new Date().toISOString() };
+      record[key] = {
+        ...item,
+        addedAt: item.addedAt || new Date().toISOString(),
+      };
       this.writeJson(this.WATCHLIST_KEY, record);
     }
   }
@@ -1024,16 +1070,22 @@ export class UserDataService {
     watched: WatchedEntry[],
   ): {
     crowdDeltaAverage: number | null;
-    controversialPicks: { id: number; title: string; userRating: number; tmdbRating: number; delta: number }[];
+    contrarianScore: number | null;
+    generosityScore: number | null;
+    controversialPicks: CrowdDeltaItem[];
+    highestAboveCrowd: CrowdDeltaItem[];
+    highestBelowCrowd: CrowdDeltaItem[];
   } {
-    const scored: { id: number; title: string; userRating: number; tmdbRating: number; delta: number }[] = [];
+    const scored: CrowdDeltaItem[] = [];
     let deltaSum = 0;
+    let absDeltaSum = 0;
 
     watched.forEach((e) => {
       if (typeof e.rating === 'number' && e.snapshot?.tmdbVoteAverage) {
         const tmdbRating = Number((e.snapshot.tmdbVoteAverage / 2).toFixed(1));
         const delta = Number((e.rating - tmdbRating).toFixed(1));
         deltaSum += delta;
+        absDeltaSum += Math.abs(delta);
         scored.push({
           id: e.id,
           title: e.title,
@@ -1046,10 +1098,20 @@ export class UserDataService {
 
     scored.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
     const crowdDeltaAverage = scored.length ? Number((deltaSum / scored.length).toFixed(2)) : null;
+    const contrarianScore = scored.length ? Number((absDeltaSum / scored.length).toFixed(2)) : null;
+    const generosityScore = crowdDeltaAverage;
+
+    const controversialPicks = scored.slice(0, 5);
+    const highestAboveCrowd = [...scored].filter((s) => s.delta > 0).sort((a, b) => b.delta - a.delta).slice(0, 5);
+    const highestBelowCrowd = [...scored].filter((s) => s.delta < 0).sort((a, b) => a.delta - b.delta).slice(0, 5);
 
     return {
       crowdDeltaAverage,
-      controversialPicks: scored.slice(0, 5),
+      contrarianScore,
+      generosityScore,
+      controversialPicks,
+      highestAboveCrowd,
+      highestBelowCrowd,
     };
   }
 
@@ -1075,16 +1137,55 @@ export class UserDataService {
     const totalTv = watched.filter((e) => e.media_type === 'tv').length;
     const undatedCount = allWatched.filter((e) => e.dateUnknown || !e.watchedAt || e.approximateDate).length;
 
-    // Use actual snapshot runtimes where available, otherwise fall back to 1.8h (108 mins)
-    let totalMinutes = 0;
-    watched.forEach((entry) => {
+    // Movie Watch Time (exact from known runtimes; each viewing/rewatch contributes)
+    const movieEntries = watched.filter((e) => e.media_type === 'movie');
+    const tvEntries = watched.filter((e) => e.media_type === 'tv');
+
+    let knownMovieMinutes = 0;
+    let knownMovieCount = 0;
+    movieEntries.forEach((entry) => {
       if (entry.snapshot?.runtimeMinutes && entry.snapshot.runtimeMinutes > 0) {
-        totalMinutes += entry.snapshot.runtimeMinutes;
-      } else {
-        totalMinutes += entry.media_type === 'tv' ? 45 : 108;
+        knownMovieMinutes += entry.snapshot.runtimeMinutes;
+        knownMovieCount++;
       }
     });
-    const totalHoursEstimated = Number((totalMinutes / 60).toFixed(1));
+
+    const avgKnownMovieRuntime = knownMovieCount > 0 ? (knownMovieMinutes / knownMovieCount) : 108;
+    const unknownMovieCount = movieEntries.length - knownMovieCount;
+    const estimatedMovieMinutes = knownMovieMinutes + (unknownMovieCount * avgKnownMovieRuntime);
+
+    // TV Watch Time (sum of episodes actually watched)
+    const settings = this.getSettingsRecord();
+    const episodeMap = settings.episodeWatched || {};
+    let tvEpisodesWatchedMinutes = 0;
+    let episodesWatchedCount = 0;
+    let tvEstimatedTotalMinutes = 0;
+
+    tvEntries.forEach((entry) => {
+      const showPrefix = `${entry.id}-`;
+      const watchedEpKeys = Object.keys(episodeMap).filter((k) => k.startsWith(showPrefix) && episodeMap[k]);
+      const defaultEpRuntime = entry.snapshot?.runtimeMinutes || (entry.snapshot?.episodeRuntimes?.[0]) || 45;
+      const rewatchMultiplier = entry.rewatch ? 2 : 1;
+
+      if (watchedEpKeys.length > 0) {
+        episodesWatchedCount += watchedEpKeys.length;
+        const showMinutes = watchedEpKeys.length * defaultEpRuntime * rewatchMultiplier;
+        tvEpisodesWatchedMinutes += showMinutes;
+        tvEstimatedTotalMinutes += showMinutes;
+      } else {
+        const epCount = entry.snapshot?.numberOfEpisodes || 10;
+        const showMinutes = epCount * defaultEpRuntime * rewatchMultiplier;
+        tvEstimatedTotalMinutes += showMinutes;
+      }
+    });
+
+    const totalMinutesKnown = knownMovieMinutes + tvEpisodesWatchedMinutes;
+    const totalHoursKnown = Number((totalMinutesKnown / 60).toFixed(1));
+    const totalMinutesEstimated = estimatedMovieMinutes + tvEstimatedTotalMinutes;
+    const totalHoursEstimated = Number((totalMinutesEstimated / 60).toFixed(1));
+
+    const knownRuntimeCount = knownMovieCount + (episodesWatchedCount > 0 ? tvEntries.length : 0);
+    const knownRuntimePercentage = totalWatched > 0 ? Math.round((knownRuntimeCount / totalWatched) * 100) : 100;
 
     const rated = watched.filter((e) => typeof e.rating === 'number');
     const averageRating = rated.length
@@ -1200,7 +1301,7 @@ export class UserDataService {
     // Top Directors (aggregated by TMDb person id, fallback to name; min 3 ratings for avgRating)
     const directorMap = new Map<
       string | number,
-      { id?: number; name: string; count: number; ratings: number[] }
+      { id?: number; name: string; count: number; ratings: number[]; profilePath?: string | null }
     >();
     watched.forEach((e) => {
       e.snapshot?.directors?.forEach((d) => {
@@ -1211,8 +1312,12 @@ export class UserDataService {
           name: d.name,
           count: 0,
           ratings: [],
+          profilePath: d.profilePath || null,
         };
         current.count++;
+        if (d.profilePath && !current.profilePath) {
+          current.profilePath = d.profilePath;
+        }
         if (typeof e.rating === 'number') current.ratings.push(e.rating);
         directorMap.set(key, current);
       });
@@ -1222,6 +1327,7 @@ export class UserDataService {
         id: data.id,
         name: data.name,
         count: data.count,
+        profilePath: data.profilePath || null,
         avgRating:
           data.ratings.length >= 3
             ? Number(
@@ -1237,7 +1343,7 @@ export class UserDataService {
     // Top Cast (aggregated by TMDb person id, fallback to name; min 3 ratings for avgRating)
     const castMap = new Map<
       string | number,
-      { id?: number; name: string; count: number; ratings: number[] }
+      { id?: number; name: string; count: number; ratings: number[]; profilePath?: string | null }
     >();
     watched.forEach((e) => {
       e.snapshot?.topCast?.forEach((c) => {
@@ -1248,8 +1354,12 @@ export class UserDataService {
           name: c.name,
           count: 0,
           ratings: [],
+          profilePath: c.profilePath || null,
         };
         current.count++;
+        if (c.profilePath && !current.profilePath) {
+          current.profilePath = c.profilePath;
+        }
         if (typeof e.rating === 'number') current.ratings.push(e.rating);
         castMap.set(key, current);
       });
@@ -1259,6 +1369,7 @@ export class UserDataService {
         id: data.id,
         name: data.name,
         count: data.count,
+        profilePath: data.profilePath || null,
         avgRating:
           data.ratings.length >= 3
             ? Number(
@@ -1307,38 +1418,78 @@ export class UserDataService {
       .slice(0, 10);
 
     // Crowd Delta & Controversy
-    const { crowdDeltaAverage, controversialPicks } = UserDataService.calculateControversialPicks(watched);
+    const {
+      crowdDeltaAverage,
+      contrarianScore,
+      generosityScore,
+      controversialPicks,
+      highestAboveCrowd,
+      highestBelowCrowd,
+    } = UserDataService.calculateControversialPicks(watched);
+
+    // Metric-level coverage
+    const coveredDirectors = watched.filter((e) => (e.snapshot?.directors?.length || 0) > 0).length;
+    const coveredCast = watched.filter((e) => (e.snapshot?.topCast?.length || 0) > 0).length;
+    const coveredGenres = watched.filter((e) => (e.snapshot?.genres?.length || 0) > 0 || (e.tags?.length || 0) > 0).length;
+    const coveredLanguages = watched.filter((e) => !!e.snapshot?.originalLanguage).length;
+    const coveredCountries = watched.filter((e) => (e.snapshot?.productionCountries?.length || 0) > 0).length;
+    const coveredRuntimes = knownRuntimeCount;
+    const coveredDates = watched.filter((e) => !e.dateUnknown && !!e.watchedAt && !e.approximateDate).length;
+
+    const makeCoverage = (covered: number, total: number): MetricCoverage => ({
+      covered,
+      total,
+      percent: total > 0 ? Math.round((covered / total) * 100) : 100,
+    });
+
+    const coverage: MetricCoverageSummary = {
+      directors: makeCoverage(coveredDirectors, totalWatched),
+      cast: makeCoverage(coveredCast, totalWatched),
+      genres: makeCoverage(coveredGenres, totalWatched),
+      languages: makeCoverage(coveredLanguages, totalWatched),
+      countries: makeCoverage(coveredCountries, totalWatched),
+      runtimes: makeCoverage(coveredRuntimes, totalWatched),
+      dates: makeCoverage(coveredDates, totalWatched),
+    };
 
     // TV Analytics
-    const settings = this.getSettingsRecord();
-    const episodeMap = settings.episodeWatched || {};
-    const episodesWatched = Object.values(episodeMap).filter(Boolean).length;
+    const episodeTotalWatched = episodesWatchedCount > 0 ? episodesWatchedCount : Object.values(episodeMap).filter(Boolean).length;
     const tvShowIds = new Set(Object.keys(episodeMap).map((k) => k.split('-')[0]));
     const inProgressShows = tvShowIds.size;
     const tvAnalytics = {
-      episodesWatched,
-      completedSeasons: Math.floor(episodesWatched / 10), // approximate full season equivalent
+      episodesWatched: episodeTotalWatched,
+      completedSeasons: Math.floor(episodeTotalWatched / 10), // approximate full season equivalent
       inProgressShows,
-      totalTvHours: Number(((totalTv * 45) / 60).toFixed(1)),
+      totalTvHours: Number(((episodesWatchedCount > 0 ? tvEpisodesWatchedMinutes : tvEstimatedTotalMinutes) / 60).toFixed(1)),
     };
 
     // Watchlist Health
     const watchlist = this.getWatchlist();
     const now = new Date().getTime();
     let totalAgeMs = 0;
+    const agesDays: number[] = [];
+    let backlogMinutes = 0;
     watchlist.forEach((w) => {
       const addedTime = w.addedAt ? new Date(w.addedAt).getTime() : now;
-      totalAgeMs += Math.max(0, now - addedTime);
+      const ageMs = Math.max(0, now - addedTime);
+      totalAgeMs += ageMs;
+      agesDays.push(Math.round(ageMs / (1000 * 60 * 60 * 24)));
+      backlogMinutes += (w.snapshot?.runtimeMinutes && w.snapshot.runtimeMinutes > 0) ? w.snapshot.runtimeMinutes : 108;
     });
+    agesDays.sort((a, b) => a - b);
+    const medianAgeDays = agesDays.length === 0 ? 0 : agesDays[Math.floor(agesDays.length / 2)];
+    const oldestAgeDays = agesDays.length === 0 ? 0 : agesDays[agesDays.length - 1];
     const averageAgeDays = watchlist.length ? Math.round(totalAgeMs / (watchlist.length * 1000 * 60 * 60 * 24)) : 0;
     const totalPotential = totalWatched + watchlist.length;
     const completionRate = totalPotential > 0 ? Math.round((totalWatched / totalPotential) * 100) : 0;
-    const runtimeToClearHours = Number(((watchlist.length * 108) / 60).toFixed(1));
+    const runtimeToClearHours = Number((backlogMinutes / 60).toFixed(1));
 
     const watchlistHealth = {
       totalItems: watchlist.length,
       completionRate,
+      medianAgeDays,
       averageAgeDays,
+      oldestAgeDays,
       runtimeToClearHours,
     };
 
@@ -1347,6 +1498,9 @@ export class UserDataService {
       totalMovies,
       totalTv,
       totalHoursEstimated,
+      totalHoursKnown,
+      knownRuntimeCount,
+      knownRuntimePercentage,
       averageRating,
       ratingsDistribution,
       watchedByMonth,
@@ -1363,6 +1517,7 @@ export class UserDataService {
       enrichedCount,
       coveragePercentage,
       coverageNotice,
+      coverage,
       activityHeatmap,
       currentStreak,
       longestStreak,
@@ -1371,7 +1526,11 @@ export class UserDataService {
       productionCountries,
       languages,
       crowdDeltaAverage,
+      contrarianScore,
+      generosityScore,
       controversialPicks,
+      highestAboveCrowd,
+      highestBelowCrowd,
       genreAverages,
       decadeAverages,
       tvAnalytics,
@@ -1886,6 +2045,30 @@ export class UserDataService {
       this.writeJson(this.WATCHED_KEY, rawWatched);
     }
     localStorage.setItem(this.SCHEMA_VERSION_KEY, '3');
+  }
+
+  private migrateToSchemaV4(): void {
+    const currentVersion = Number(localStorage.getItem(this.SCHEMA_VERSION_KEY) || '1');
+    if (currentVersion >= 4) {
+      return;
+    }
+
+    const rawWatchlist = this.readJson<Record<string, any>>(this.WATCHLIST_KEY, {});
+    let modified = false;
+
+    Object.keys(rawWatchlist).forEach((key) => {
+      const item = rawWatchlist[key];
+      if (!item) return;
+      if (!item.addedAt || typeof item.addedAt !== 'string') {
+        item.addedAt = new Date().toISOString();
+        modified = true;
+      }
+    });
+
+    if (modified) {
+      this.writeJson(this.WATCHLIST_KEY, rawWatchlist);
+    }
+    localStorage.setItem(this.SCHEMA_VERSION_KEY, '4');
   }
 
   private migrateFromLegacy(): void {
