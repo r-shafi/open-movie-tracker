@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.2](https://github.com/r-shafi/open-movie-tracker/compare/v0.16.1...v0.16.2) (2026-10-21)
+
+
+### Bug Fixes
+
+* **profile:** fix year velocity and ratings, migrate cast gender, and show actresses ([c7ed9f9](https://github.com/r-shafi/open-movie-tracker/commit/c7ed9f9a4749a7abc7b878e5fa5d786738c68a79))
+
 ## [0.16.1](https://github.com/r-shafi/open-movie-tracker/compare/v0.16.0...v0.16.1) (2026-10-21)
 
 
