@@ -3,13 +3,18 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { RouterLink } from '@angular/router';
 import { By } from '@angular/platform-browser';
 import { IonicModule, ModalController } from '@ionic/angular';
+import { of } from 'rxjs';
 import { PeopleCarouselComponent } from './people-carousel.component';
 import { PeopleModalComponent } from './people-modal.component';
+import { TmdbService } from '../../services/tmdb.service';
+import { UserDataService } from '../../services/user-data.service';
 
 describe('PeopleCarouselComponent & Routing', () => {
   let component: PeopleCarouselComponent;
   let fixture: ComponentFixture<PeopleCarouselComponent>;
   let modalCtrlSpy: jasmine.SpyObj<ModalController>;
+  let tmdbMock: any;
+  let userDataMock: any;
 
   const mockPeople = [
     {
@@ -30,11 +35,22 @@ describe('PeopleCarouselComponent & Routing', () => {
 
   beforeEach(async () => {
     modalCtrlSpy = jasmine.createSpyObj('ModalController', ['create']);
+    tmdbMock = {
+      getPersonDetails: jasmine.createSpy('getPersonDetails').and.returnValue(of(null)),
+    };
+    userDataMock = {
+      getPersonPhoto: jasmine.createSpy('getPersonPhoto').and.returnValue(null),
+      savePersonPhoto: jasmine.createSpy('savePersonPhoto'),
+    };
 
     await TestBed.configureTestingModule({
       declarations: [PeopleCarouselComponent, PeopleModalComponent],
       imports: [IonicModule.forRoot(), RouterTestingModule],
-      providers: [{ provide: ModalController, useValue: modalCtrlSpy }],
+      providers: [
+        { provide: ModalController, useValue: modalCtrlSpy },
+        { provide: TmdbService, useValue: tmdbMock },
+        { provide: UserDataService, useValue: userDataMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PeopleCarouselComponent);

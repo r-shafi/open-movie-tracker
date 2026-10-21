@@ -1,6 +1,10 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { PersonItem, PeopleModalComponent } from './people-modal.component';
+import { TmdbService } from '../../services/tmdb.service';
+import { UserDataService } from '../../services/user-data.service';
 
 @Component({
   selector: 'app-people-carousel',
@@ -9,7 +13,7 @@ import { PersonItem, PeopleModalComponent } from './people-modal.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class PeopleCarouselComponent {
+export class PeopleCarouselComponent implements OnInit, OnChanges {
   @Input() title = 'People';
   @Input() people: PersonItem[] = [];
   @Input() userAverageRating: number | null = null;
@@ -20,7 +24,47 @@ export class PeopleCarouselComponent {
 
   imageFailedMap = new Set<string | number>();
 
-  constructor(private modalCtrl: ModalController) {}
+  constructor(
+    private modalCtrl: ModalController,
+    private tmdb: TmdbService,
+    private userData: UserDataService,
+    private cdr: ChangeDetectorRef,
+  ) {}
+
+  ngOnInit(): void {
+    this.resolveMissingPhotos();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.people) {
+      this.resolveMissingPhotos();
+    }
+  }
+
+  private resolveMissingPhotos(): void {
+    if (!this.people || !this.people.length) return;
+    this.people.slice(0, 10).forEach((person) => {
+      if (!person.profilePath && person.id) {
+        const cached = this.userData.getPersonPhoto(person.id);
+        if (cached) {
+          person.profilePath = cached;
+          this.cdr.markForCheck();
+          return;
+        }
+
+        this.tmdb
+          .getPersonDetails(person.id)
+          .pipe(catchError(() => of(null)))
+          .subscribe((res: any) => {
+            if (res && res.profile_path) {
+              person.profilePath = res.profile_path;
+              this.userData.savePersonPhoto(person.id!, res.profile_path);
+              this.cdr.markForCheck();
+            }
+          });
+      }
+    });
+  }
 
   onImageError(person: PersonItem): void {
     const key = person.id || person.name;

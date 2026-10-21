@@ -72,6 +72,17 @@ export class WorldMapComponent implements AfterViewInit, OnChanges {
     if (upper === 'ES') return 'Spain';
     if (upper === 'CA') return 'Canada';
     if (upper === 'AU') return 'Australia';
+    if (upper === 'BD') return 'Bangladesh';
+    if (upper === 'IN') return 'India';
+    if (upper === 'HK') return 'Hong Kong';
+    if (upper === 'TW') return 'Taiwan';
+    if (upper === 'TR') return 'Turkey';
+    if (upper === 'DK') return 'Denmark';
+    if (upper === 'BE') return 'Belgium';
+    if (upper === 'SE') return 'Sweden';
+    if (upper === 'NO') return 'Norway';
+    if (upper === 'BR') return 'Brazil';
+    if (upper === 'ID') return 'Indonesia';
     try {
       return this.regionNames?.of(upper) || upper;
     } catch {
@@ -81,12 +92,15 @@ export class WorldMapComponent implements AfterViewInit, OnChanges {
 
   get topCountries(): Array<{ code: string; name: string; count: number; percent: string }> {
     const list = this.countries || [];
-    return list.slice(0, 6).map((c) => ({
-      code: c.country,
-      name: this.getCountryDisplayName(c.country),
-      count: c.count,
-      percent: this.totalWatched > 0 ? ((c.count / this.totalWatched) * 100).toFixed(1) : '0',
-    }));
+    return list
+      .filter((c) => c.count > 0)
+      .slice(0, 24)
+      .map((c) => ({
+        code: c.country,
+        name: this.getCountryDisplayName(c.country),
+        count: c.count,
+        percent: this.totalWatched > 0 ? ((c.count / this.totalWatched) * 100).toFixed(1) : '0',
+      }));
   }
 
   get coveredCountriesCount(): number {

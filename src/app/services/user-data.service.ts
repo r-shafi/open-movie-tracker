@@ -234,6 +234,7 @@ export class UserDataService {
   readonly LIST_SCROLL_KEY = 'mva_list_scroll';
   readonly BACKUP_KEY = 'mva_backup_before_import';
   readonly BACKFILL_STATUS_KEY = 'mva_backfill_status';
+  readonly PERSON_PHOTOS_KEY = 'mva_person_photos';
 
   private inMemoryCache = new Map<string, any>();
 
@@ -286,6 +287,59 @@ export class UserDataService {
     this.migrateToSchemaV3();
     this.migrateToSchemaV4();
     this.migrateToSchemaV5();
+    this.harvestCachedPersonPhotos();
+  }
+
+  private harvestCachedPersonPhotos(): void {
+    const photos = this.readJson<Record<string, string>>(this.PERSON_PHOTOS_KEY, {});
+    let modified = false;
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('tmdb_cache_v2:')) {
+          const raw = localStorage.getItem(key);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            const data = parsed.data || {};
+            const cast = data.credits?.cast || data.aggregate_credits?.cast || [];
+            const crew = data.credits?.crew || data.aggregate_credits?.crew || [];
+            const allMembers = [...cast, ...crew];
+            if (Array.isArray(allMembers)) {
+              for (const c of allMembers) {
+                if (c && c.profile_path) {
+                  if (c.id && !photos[String(c.id)]) {
+                    photos[String(c.id)] = c.profile_path;
+                    modified = true;
+                  }
+                  if (c.name && !photos[c.name]) {
+                    photos[c.name] = c.profile_path;
+                    modified = true;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+    if (modified) {
+      this.writeJson(this.PERSON_PHOTOS_KEY, photos);
+    }
+  }
+
+  getPersonPhoto(id: number | string): string | null {
+    if (!id) return null;
+    const photos = this.readJson<Record<string, string>>(this.PERSON_PHOTOS_KEY, {});
+    return photos[String(id)] || null;
+  }
+
+  savePersonPhoto(id: number | string, path: string): void {
+    if (!id || !path) return;
+    const photos = this.readJson<Record<string, string>>(this.PERSON_PHOTOS_KEY, {});
+    photos[String(id)] = path;
+    this.writeJson(this.PERSON_PHOTOS_KEY, photos);
   }
 
   // ── Profile ──────────────────────────────────────────────────────────────
@@ -1333,6 +1387,7 @@ export class UserDataService {
         : undefined;
 
     // Top Directors (aggregated by TMDb person id, fallback to name; min 3 ratings for avgRating)
+    const personPhotos = this.readJson<Record<string, string>>(this.PERSON_PHOTOS_KEY, {});
     const directorMap = new Map<
       string | number,
       { id?: number; name: string; count: number; ratings: number[]; profilePath?: string | null }
@@ -1341,16 +1396,17 @@ export class UserDataService {
       e.snapshot?.directors?.forEach((d) => {
         if (!d.id && !d.name) return;
         const key = d.id ?? d.name;
+        const photo = d.profilePath || (d.id ? personPhotos[String(d.id)] : null) || (d.name ? personPhotos[d.name] : null) || null;
         const current = directorMap.get(key) || {
           id: d.id,
           name: d.name,
           count: 0,
           ratings: [],
-          profilePath: d.profilePath || null,
+          profilePath: photo,
         };
         current.count++;
-        if (d.profilePath && !current.profilePath) {
-          current.profilePath = d.profilePath;
+        if (photo && !current.profilePath) {
+          current.profilePath = photo;
         }
         if (typeof e.rating === 'number') current.ratings.push(e.rating);
         directorMap.set(key, current);
@@ -1383,17 +1439,18 @@ export class UserDataService {
       e.snapshot?.topCast?.forEach((c) => {
         if (!c.id && !c.name) return;
         const key = c.id ?? c.name;
+        const photo = c.profilePath || (c.id ? personPhotos[String(c.id)] : null) || (c.name ? personPhotos[c.name] : null) || null;
         const current = castMap.get(key) || {
           id: c.id,
           name: c.name,
           count: 0,
           ratings: [],
-          profilePath: c.profilePath || null,
+          profilePath: photo,
           gender: c.gender,
         };
         current.count++;
-        if (c.profilePath && !current.profilePath) {
-          current.profilePath = c.profilePath;
+        if (photo && !current.profilePath) {
+          current.profilePath = photo;
         }
         if (typeof c.gender === 'number' && c.gender > 0 && (!current.gender || current.gender === 0)) {
           current.gender = c.gender;
@@ -1458,8 +1515,7 @@ export class UserDataService {
 
     const productionCountries = Object.entries(countryCounts)
       .map(([country, count]) => ({ country, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+      .sort((a, b) => b.count - a.count);
 
     const languages = Object.entries(langCounts)
       .map(([language, count]) => ({ language, count }))
@@ -2136,8 +2192,9 @@ export class UserDataService {
       return;
     }
 
-    // 1. Harvest cast genders from any tmdb_cache_v2 entries in localStorage
+    // 1. Harvest cast genders & profile photos from any tmdb_cache_v2 entries in localStorage
     const personGenders = new Map<string | number, number>();
+    const personProfiles = new Map<string | number, string>();
     try {
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -2147,11 +2204,17 @@ export class UserDataService {
             const parsed = JSON.parse(raw);
             const data = parsed.data || {};
             const cast = data.credits?.cast || data.aggregate_credits?.cast || [];
-            if (Array.isArray(cast)) {
-              for (const c of cast) {
+            const crew = data.credits?.crew || data.aggregate_credits?.crew || [];
+            const allMembers = [...cast, ...crew];
+            if (Array.isArray(allMembers)) {
+              for (const c of allMembers) {
                 if (c && typeof c.gender === 'number' && (c.gender === 1 || c.gender === 2 || c.gender === 3)) {
                   if (c.id) personGenders.set(c.id, c.gender);
                   if (c.name) personGenders.set(c.name, c.gender);
+                }
+                if (c && c.profile_path) {
+                  if (c.id) personProfiles.set(c.id, c.profile_path);
+                  if (c.name) personProfiles.set(c.name, c.profile_path);
                 }
               }
             }
@@ -2162,16 +2225,45 @@ export class UserDataService {
       // ignore storage access errors
     }
 
-    // 2. Patch topCast in watched entries
+    if (personProfiles.size > 0) {
+      const photos = this.readJson<Record<string, string>>(this.PERSON_PHOTOS_KEY, {});
+      personProfiles.forEach((path, idOrName) => {
+        if (!photos[String(idOrName)]) {
+          photos[String(idOrName)] = path;
+        }
+      });
+      this.writeJson(this.PERSON_PHOTOS_KEY, photos);
+    }
+
+    // 2. Patch directors and topCast in watched entries
     const rawWatched = this.readJson<Record<string, any>>(this.WATCHED_KEY, {});
     let modified = false;
     const backfillStatus = this.getBackfillStatus();
     let statusModified = false;
 
     Object.values(rawWatched).forEach((entry) => {
+      if (entry && entry.snapshot && Array.isArray(entry.snapshot.directors)) {
+        entry.snapshot.directors.forEach((d: any) => {
+          if (!d.profilePath) {
+            const p = personProfiles.get(d.id) ?? personProfiles.get(d.name);
+            if (p) {
+              d.profilePath = p;
+              modified = true;
+            }
+          }
+        });
+      }
+
       if (entry && entry.snapshot && Array.isArray(entry.snapshot.topCast)) {
         let entryLacksGender = true;
         entry.snapshot.topCast.forEach((castMember: any) => {
+          if (!castMember.profilePath) {
+            const p = personProfiles.get(castMember.id) ?? personProfiles.get(castMember.name);
+            if (p) {
+              castMember.profilePath = p;
+              modified = true;
+            }
+          }
           if (typeof castMember.gender === 'number' && castMember.gender > 0) {
             entryLacksGender = false;
           } else {

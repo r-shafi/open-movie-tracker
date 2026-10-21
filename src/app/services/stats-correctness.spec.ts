@@ -397,5 +397,44 @@ describe('Analytics & Stats Correctness (Phase 1)', () => {
       expect(stats2023.ratingsDistribution['3.5']).toBe(1);
       expect(stats2023.ratingsDistribution['5.0']).toBe(0); // 5.0 is in 2022
     });
+
+    it('should preserve all explored production countries without arbitrary top-10 truncation', () => {
+      localStorage.clear();
+      localStorage.setItem('mva_schema_version', '5');
+
+      const countryCodes = ['US', 'GB', 'KR', 'JP', 'FR', 'DE', 'IT', 'ES', 'CN', 'HK', 'BD', 'IN', 'TR', 'DK', 'SE'];
+      const watchedRecord: Record<string, any> = {};
+      countryCodes.forEach((code, index) => {
+        watchedRecord[`movie:${index + 1}`] = {
+          id: index + 1,
+          media_type: 'movie',
+          title: `Film from ${code}`,
+          watchedAt: '2023-01-01',
+          snapshot: {
+            productionCountries: [code],
+          },
+        };
+      });
+      localStorage.setItem('mva_watched', JSON.stringify(watchedRecord));
+
+      const testUserData = new UserDataService(TestBed.inject(ToastService));
+      const stats = testUserData.getStats();
+
+      expect(stats.productionCountries.length).toBe(15);
+      const bdEntry = stats.productionCountries.find((c) => c.country === 'BD');
+      expect(bdEntry).toBeTruthy();
+      expect(bdEntry?.count).toBe(1);
+    });
+
+    it('should persist and retrieve cached person photos in UserDataService', () => {
+      localStorage.clear();
+      localStorage.setItem('mva_schema_version', '5');
+
+      const testUserData = new UserDataService(TestBed.inject(ToastService));
+      expect(testUserData.getPersonPhoto(525)).toBeNull();
+
+      testUserData.savePersonPhoto(525, '/nolan.jpg');
+      expect(testUserData.getPersonPhoto(525)).toBe('/nolan.jpg');
+    });
   });
 });
