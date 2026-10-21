@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.3](https://github.com/r-shafi/open-movie-tracker/compare/v0.16.2...v0.16.3) (2026-10-21)
+
+
+### Bug Fixes
+
+* **profile:** preserve all production countries and resolve missing people photos ([3a50201](https://github.com/r-shafi/open-movie-tracker/commit/3a50201e1454651adc2dc47d9eefe96dbcd4f7b1))
+
 ## [0.16.2](https://github.com/r-shafi/open-movie-tracker/compare/v0.16.1...v0.16.2) (2026-10-21)
 
 
