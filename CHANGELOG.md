@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.15.0](https://github.com/r-shafi/open-movie-tracker/compare/v0.14.0...v0.15.0) (2026-10-21)
+
+
+### Features
+
+* **profile:** overhaul cover, list cards, and analytics visualizations ([efefc51](https://github.com/r-shafi/open-movie-tracker/commit/efefc5102ba9de94f09872f8a9b368e469b779c0))
+* **tabs:** add centered quick-log button and modal flow ([cc92802](https://github.com/r-shafi/open-movie-tracker/commit/cc92802cf3fa6d33f1bf6ce9c8906cd4e4638bb7))
+
+
+### Bug Fixes
+
+* **analytics:** correct person aggregation, backfill coverage, and TV credits ([f1245d6](https://github.com/r-shafi/open-movie-tracker/commit/f1245d64f738a12414501e52041a8fc69f9ebc6c))
+
+
+### Performance
+
+* **navigation:** optimize storage reads, tab caching, and interactive feedback ([aee6883](https://github.com/r-shafi/open-movie-tracker/commit/aee6883169ff6bb3d4cf06c280fcef76a4832c06))
+
 ## [0.14.0](https://github.com/r-shafi/open-movie-tracker/compare/v0.13.0...v0.14.0) (2026-10-20)
 
 
