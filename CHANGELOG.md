@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.16.0](https://github.com/r-shafi/open-movie-tracker/compare/v0.15.0...v0.16.0) (2026-10-21)
+
+
+### Features
+
+* **analytics:** implement Phase 2 correctness, schema v4, and formatters ([0f444d0](https://github.com/r-shafi/open-movie-tracker/commit/0f444d0b8e99e02018106fa768e5d9e3a7805a9f))
+* **analytics:** implement pure taste, obscurity, and prediction engine ([96e6760](https://github.com/r-shafi/open-movie-tracker/commit/96e6760d7fcd96ccfbafc8c15d2b7fec3aa52796))
+* **profile:** enhance activity calendar, world map, actor gender split, and weekday chart ([6a7e999](https://github.com/r-shafi/open-movie-tracker/commit/6a7e999f75f007b943bd550592417c740e40be2c))
+* **profile:** redesign analytics with accessible charts and people carousel ([12721b8](https://github.com/r-shafi/open-movie-tracker/commit/12721b80f4ac24f0651210d2b76724cce376897a))
+
 ## [0.15.0](https://github.com/r-shafi/open-movie-tracker/compare/v0.14.0...v0.15.0) (2026-10-21)
 
 
