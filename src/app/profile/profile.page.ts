@@ -532,6 +532,9 @@ export class ProfilePage implements OnInit {
   }
 
   get ratedEntriesCount(): number {
+    if (this.selectedStatsYear && this.selectedStatsYear !== 'all' && this.stats?.ratingsDistribution) {
+      return Object.values(this.stats.ratingsDistribution).reduce((sum, count) => sum + count, 0);
+    }
     return this.watchedEntries.filter((e) => typeof e.rating === 'number').length;
   }
 

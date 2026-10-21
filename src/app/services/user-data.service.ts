@@ -171,8 +171,8 @@ export interface UserStats {
   decades: { decade: string; count: number }[];
   topDirectors: { id?: number; name: string; count: number; avgRating: number | null; profilePath?: string | null }[];
   topCast: { id?: number; name: string; count: number; avgRating: number | null; profilePath?: string | null; gender?: number }[];
-  topActors: { id?: number; name: string; count: number; avgRating: number | null; profilePath?: string | null }[];
-  topActresses: { id?: number; name: string; count: number; avgRating: number | null; profilePath?: string | null }[];
+  topActors: { id?: number; name: string; count: number; avgRating: number | null; profilePath?: string | null; gender?: number }[];
+  topActresses: { id?: number; name: string; count: number; avgRating: number | null; profilePath?: string | null; gender?: number }[];
   availableYears: string[];
   undatedCount: number;
   enrichedCount: number;
@@ -221,7 +221,7 @@ export interface BackfillItemStatus {
 
 @Injectable({ providedIn: 'root' })
 export class UserDataService {
-  readonly SCHEMA_VERSION = 4;
+  readonly SCHEMA_VERSION = 5;
   readonly SCHEMA_VERSION_KEY = 'mva_schema_version';
   readonly PROFILE_KEY = 'mva_profile';
   readonly WATCHED_KEY = 'mva_watched';
@@ -285,6 +285,7 @@ export class UserDataService {
     this.migrateToSchemaV2();
     this.migrateToSchemaV3();
     this.migrateToSchemaV4();
+    this.migrateToSchemaV5();
   }
 
   // ── Profile ──────────────────────────────────────────────────────────────
@@ -1241,7 +1242,8 @@ export class UserDataService {
       }
     });
 
-    const watchedByMonth = this.buildWatchedByMonth(watched);
+    const selectedYearNumber = (yearFilter && yearFilter !== 'all') ? parseInt(yearFilter, 10) : undefined;
+    const watchedByMonth = this.buildWatchedByMonth(watched, selectedYearNumber);
 
     // Compute real genres from snapshots if present, otherwise fall back to entry tags
     const genreCounts: Record<string, number> = {};
@@ -1393,7 +1395,7 @@ export class UserDataService {
         if (c.profilePath && !current.profilePath) {
           current.profilePath = c.profilePath;
         }
-        if (c.gender && !current.gender) {
+        if (typeof c.gender === 'number' && c.gender > 0 && (!current.gender || current.gender === 0)) {
           current.gender = c.gender;
         }
         if (typeof e.rating === 'number') current.ratings.push(e.rating);
@@ -1903,13 +1905,21 @@ export class UserDataService {
 
   private buildWatchedByMonth(
     watched: WatchedEntry[],
+    selectedYear?: number,
   ): { month: string; count: number }[] {
     const result: { month: string; count: number }[] = [];
-    const now = new Date();
-    for (let i = 11; i >= 0; i -= 1) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const key = this.monthKey(d);
-      result.push({ month: key, count: 0 });
+    if (selectedYear && !isNaN(selectedYear)) {
+      for (let m = 1; m <= 12; m++) {
+        const key = `${selectedYear}-${String(m).padStart(2, '0')}`;
+        result.push({ month: key, count: 0 });
+      }
+    } else {
+      const now = new Date();
+      for (let i = 11; i >= 0; i -= 1) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const key = this.monthKey(d);
+        result.push({ month: key, count: 0 });
+      }
     }
     const monthMap = new Map(result.map((m) => [m.month, m]));
     watched.forEach((entry) => {
@@ -2118,6 +2128,80 @@ export class UserDataService {
       this.writeJson(this.WATCHLIST_KEY, rawWatchlist);
     }
     localStorage.setItem(this.SCHEMA_VERSION_KEY, '4');
+  }
+
+  private migrateToSchemaV5(): void {
+    const currentVersion = Number(localStorage.getItem(this.SCHEMA_VERSION_KEY) || '1');
+    if (currentVersion >= 5) {
+      return;
+    }
+
+    // 1. Harvest cast genders from any tmdb_cache_v2 entries in localStorage
+    const personGenders = new Map<string | number, number>();
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('tmdb_cache_v2:')) {
+          const raw = localStorage.getItem(key);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            const data = parsed.data || {};
+            const cast = data.credits?.cast || data.aggregate_credits?.cast || [];
+            if (Array.isArray(cast)) {
+              for (const c of cast) {
+                if (c && typeof c.gender === 'number' && (c.gender === 1 || c.gender === 2 || c.gender === 3)) {
+                  if (c.id) personGenders.set(c.id, c.gender);
+                  if (c.name) personGenders.set(c.name, c.gender);
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch {
+      // ignore storage access errors
+    }
+
+    // 2. Patch topCast in watched entries
+    const rawWatched = this.readJson<Record<string, any>>(this.WATCHED_KEY, {});
+    let modified = false;
+    const backfillStatus = this.getBackfillStatus();
+    let statusModified = false;
+
+    Object.values(rawWatched).forEach((entry) => {
+      if (entry && entry.snapshot && Array.isArray(entry.snapshot.topCast)) {
+        let entryLacksGender = true;
+        entry.snapshot.topCast.forEach((castMember: any) => {
+          if (typeof castMember.gender === 'number' && castMember.gender > 0) {
+            entryLacksGender = false;
+          } else {
+            const foundGender = personGenders.get(castMember.id) ?? personGenders.get(castMember.name);
+            if (foundGender) {
+              castMember.gender = foundGender;
+              modified = true;
+              entryLacksGender = false;
+            }
+          }
+        });
+
+        // If after cache matching it still lacks gender, allow backfill to enrich it
+        if (entryLacksGender && entry.id && entry.media_type) {
+          const key = `${entry.media_type}:${entry.id}`;
+          if (backfillStatus[key]?.status === 'done') {
+            delete backfillStatus[key];
+            statusModified = true;
+          }
+        }
+      }
+    });
+
+    if (modified) {
+      this.writeJson(this.WATCHED_KEY, rawWatched);
+    }
+    if (statusModified) {
+      this.writeJson(this.BACKFILL_STATUS_KEY, backfillStatus);
+    }
+    localStorage.setItem(this.SCHEMA_VERSION_KEY, '5');
   }
 
   private migrateFromLegacy(): void {

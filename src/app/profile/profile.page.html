@@ -450,6 +450,7 @@
         [ratingsDistribution]="stats.ratingsDistribution"
         [averageRating]="stats.averageRating"
         [totalRated]="ratedEntriesCount"
+        [selectedYear]="selectedStatsYear"
       ></app-ratings-histogram>
 
       <!-- Diverging Crowd Delta Component -->
@@ -471,6 +472,7 @@
         [watchedByMonth]="stats.watchedByMonth"
         [undatedCount]="stats.undatedCount"
         [totalWatched]="stats.totalWatched"
+        [selectedYear]="selectedStatsYear"
       ></app-watch-velocity>
 
       <!-- 365-Day Activity Calendar & Streaks Component -->
@@ -532,8 +534,8 @@
         role="director"
       ></app-people-carousel>
 
-      <!-- Actors Row -->
-      @if (stats.topActors.length > 0) {
+      <!-- Actors & Actresses Rows (when gender split is available) -->
+      @if (stats.topActors.length > 0 && stats.topActresses.length > 0) {
       <app-people-carousel
         title="Top Actors"
         [people]="stats.topActors"
@@ -543,10 +545,7 @@
         [totalWatched]="stats.totalWatched"
         role="actor"
       ></app-people-carousel>
-      }
 
-      <!-- Actresses Row -->
-      @if (stats.topActresses.length > 0) {
       <app-people-carousel
         title="Top Actresses"
         [people]="stats.topActresses"
@@ -556,10 +555,8 @@
         [totalWatched]="stats.totalWatched"
         role="actor"
       ></app-people-carousel>
-      }
-
-      <!-- Fallback Cast Row if gender metadata is unpopulated -->
-      @if (stats.topActors.length === 0 && stats.topActresses.length === 0 && stats.topCast.length > 0) {
+      } @else if (stats.topCast.length > 0) {
+      <!-- Unified Cast Row if gender metadata is partial or unpopulated -->
       <app-people-carousel
         title="Top Cast"
         [people]="stats.topCast"

@@ -19,6 +19,7 @@ export class WatchVelocityComponent {
   @Input() watchedByMonth: { month: string; count: number }[] = [];
   @Input() undatedCount = 0;
   @Input() totalWatched = 0;
+  @Input() selectedYear?: string | number;
 
   private readonly monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 

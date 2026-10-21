@@ -2,7 +2,7 @@
   <div class="histogram-header">
     <div>
       <h3 class="histogram-title">Star Ratings</h3>
-      <span class="histogram-subtitle">{{ totalRated }} rated titles</span>
+      <span class="histogram-subtitle">{{ computedTotalRated }} rated titles{{ selectedYear && selectedYear !== 'all' ? (' in ' + selectedYear) : '' }}</span>
     </div>
     <div class="histogram-summary-chips">
       @if (peakRatingLabel) {

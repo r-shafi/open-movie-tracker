@@ -291,13 +291,111 @@ describe('Analytics & Stats Correctness (Phase 1)', () => {
 
       // Instantiating a new service triggers migration
       const migratedUserData = new UserDataService(TestBed.inject(ToastService));
-      expect(localStorage.getItem('mva_schema_version')).toBe('4');
+      expect(localStorage.getItem('mva_schema_version')).toBe('5');
 
       const watchlist = migratedUserData.getWatchlist();
       expect(watchlist.length).toBe(1);
       expect(watchlist[0].id).toBe(100);
       expect(watchlist[0].addedAt).toBeTruthy();
       expect(new Date(watchlist[0].addedAt).getTime()).not.toBeNaN();
+    });
+  });
+
+  describe('Schema V5 migration & Year Filtering', () => {
+    it('should migrate schema v4 to v5 and populate missing cast gender from tmdb_cache_v2', () => {
+      localStorage.clear();
+      localStorage.setItem('mva_schema_version', '4');
+      localStorage.setItem(
+        'tmdb_cache_v2:/movie/500',
+        JSON.stringify({
+          data: {
+            credits: {
+              cast: [
+                { id: 101, name: 'Florence Pugh', gender: 1 },
+                { id: 102, name: 'Cillian Murphy', gender: 2 },
+              ],
+            },
+          },
+        })
+      );
+      localStorage.setItem(
+        'mva_watched',
+        JSON.stringify({
+          'movie:500': {
+            id: 500,
+            media_type: 'movie',
+            title: 'Oppenheimer',
+            watchedAt: '2023-08-15',
+            rating: 4.5,
+            snapshot: {
+              topCast: [
+                { id: 101, name: 'Florence Pugh' },
+                { id: 102, name: 'Cillian Murphy' },
+              ],
+            },
+          },
+        })
+      );
+
+      const migratedUserData = new UserDataService(TestBed.inject(ToastService));
+      expect(localStorage.getItem('mva_schema_version')).toBe('5');
+
+      const stats = migratedUserData.getStats();
+      expect(stats.topActresses.length).toBe(1);
+      expect(stats.topActresses[0].name).toBe('Florence Pugh');
+      expect(stats.topActresses[0].gender).toBe(1);
+
+      expect(stats.topActors.length).toBe(1);
+      expect(stats.topActors[0].name).toBe('Cillian Murphy');
+      expect(stats.topActors[0].gender).toBe(2);
+    });
+
+    it('should generate all 12 calendar months for a selected year in watch velocity', () => {
+      localStorage.clear();
+      localStorage.setItem('mva_schema_version', '5');
+      localStorage.setItem(
+        'mva_watched',
+        JSON.stringify({
+          'movie:1': {
+            id: 1,
+            media_type: 'movie',
+            title: 'Film A',
+            watchedAt: '2023-01-10',
+            rating: 4.0,
+          },
+          'movie:2': {
+            id: 2,
+            media_type: 'movie',
+            title: 'Film B',
+            watchedAt: '2023-06-20',
+            rating: 3.5,
+          },
+          'movie:3': {
+            id: 3,
+            media_type: 'movie',
+            title: 'Film C',
+            watchedAt: '2022-12-31',
+            rating: 5.0,
+          },
+        })
+      );
+
+      const testUserData = new UserDataService(TestBed.inject(ToastService));
+      const stats2023 = testUserData.getStats('2023');
+
+      expect(stats2023.totalWatched).toBe(2);
+      expect(stats2023.watchedByMonth.length).toBe(12);
+      expect(stats2023.watchedByMonth[0].month).toBe('2023-01');
+      expect(stats2023.watchedByMonth[0].count).toBe(1);
+      expect(stats2023.watchedByMonth[5].month).toBe('2023-06');
+      expect(stats2023.watchedByMonth[5].count).toBe(1);
+      expect(stats2023.watchedByMonth[11].month).toBe('2023-12');
+      expect(stats2023.watchedByMonth[11].count).toBe(0);
+
+      // Verify year-specific ratings distribution
+      expect(stats2023.ratingsDistribution['4.0']).toBe(1);
+      expect(stats2023.ratingsDistribution['3.5']).toBe(1);
+      expect(stats2023.ratingsDistribution['5.0']).toBe(0); // 5.0 is in 2022
     });
   });
 });

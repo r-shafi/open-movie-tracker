@@ -20,6 +20,12 @@ export class RatingsHistogramComponent {
   @Input() ratingsDistribution: Record<string, number> = {};
   @Input() averageRating: number | null = null;
   @Input() totalRated = 0;
+  @Input() selectedYear?: string | number;
+
+  get computedTotalRated(): number {
+    if (this.totalRated > 0) return this.totalRated;
+    return Object.values(this.ratingsDistribution || {}).reduce((a, b) => a + b, 0);
+  }
 
   get formattedAverage(): string {
     return this.averageRating !== null ? formatRating(this.averageRating, 2) : '—';

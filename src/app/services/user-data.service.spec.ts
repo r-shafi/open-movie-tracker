@@ -25,9 +25,9 @@ describe('UserDataService', () => {
     sessionStorage.clear();
   });
 
-  it('should be created and initialize default schema v4', () => {
+  it('should be created and initialize default schema v5', () => {
     expect(service).toBeTruthy();
-    expect(localStorage.getItem(service.SCHEMA_VERSION_KEY)).toBe('4');
+    expect(localStorage.getItem(service.SCHEMA_VERSION_KEY)).toBe('5');
     const profile = service.getProfile();
     expect(profile.displayName).toBe('Movie Fan');
   });

@@ -1,8 +1,8 @@
 <div class="velocity-card" role="region" aria-label="12-Month watch velocity chart">
   <div class="velocity-header">
     <div>
-      <h3 class="velocity-title">12-Month Watch Velocity</h3>
-      <span class="velocity-subtitle">{{ total12MonthWatched }} logged in past year</span>
+      <h3 class="velocity-title">{{ selectedYear && selectedYear !== 'all' ? (selectedYear + ' Monthly Velocity') : '12-Month Watch Velocity' }}</h3>
+      <span class="velocity-subtitle">{{ total12MonthWatched }} logged {{ selectedYear && selectedYear !== 'all' ? ('in ' + selectedYear) : 'in past year' }}</span>
     </div>
     <div class="velocity-chips">
       <span class="velocity-chip">Avg: {{ averagePerMonth }}/mo</span>
