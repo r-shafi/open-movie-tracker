@@ -106,7 +106,8 @@ export class WorldMapComponent implements AfterViewInit, OnChanges {
     this.cdr.markForCheck();
   }
 
-  onMapClick(event: MouseEvent): void {
+  onMapClick(event?: MouseEvent): void {
+    if (!event) return;
     const target = event.target as Element;
     if (!target) return;
 
