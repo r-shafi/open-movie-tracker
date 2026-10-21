@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.1](https://github.com/r-shafi/open-movie-tracker/compare/v0.16.0...v0.16.1) (2026-10-21)
+
+
+### Bug Fixes
+
+* **profile:** pass event to world map click handler for production template type check ([d794dd7](https://github.com/r-shafi/open-movie-tracker/commit/d794dd779debf0c2109b42612a191af652f95df7))
+
 ## [0.16.0](https://github.com/r-shafi/open-movie-tracker/compare/v0.15.0...v0.16.0) (2026-10-21)
 
 
