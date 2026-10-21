@@ -18,6 +18,7 @@ import {
   WatchlistEntry,
 } from '../services/user-data.service';
 import { CalendarDate } from '../services/calendar-date';
+import { HapticFeedbackService } from '../services/haptic-feedback.service';
 import { ToastService } from '../services/toast.service';
 import { MetadataBackfillService } from '../services/metadata-backfill.service';
 import { ImageViewerComponent } from '../shared-module/image-viewer/image-viewer.component';
@@ -58,6 +59,8 @@ export class ProfilePage implements OnInit {
     '#84cc16', // Lime
   ];
 
+  private cachedCoverUrl: string | null = null;
+
   constructor(
     public userData: UserDataService,
     private modalCtrl: ModalController,
@@ -66,6 +69,7 @@ export class ProfilePage implements OnInit {
     private cdr: ChangeDetectorRef,
     private toast: ToastService,
     private metadataBackfill: MetadataBackfillService,
+    private haptics: HapticFeedbackService,
   ) {}
 
   ngOnInit(): void {
@@ -103,6 +107,48 @@ export class ProfilePage implements OnInit {
     this.cachedStats = null;
     this.cachedYear = null;
     this.cachedWatchedCount = null;
+    this.computeCoverUrl();
+  }
+
+  private computeCoverUrl(): void {
+    if (this.coverImageFailed) {
+      this.cachedCoverUrl = null;
+      return;
+    }
+
+    const custom = this.userData.getSettings().customCover;
+    if (custom?.backdropPath) {
+      this.cachedCoverUrl = `https://image.tmdb.org/t/p/w1280${custom.backdropPath}`;
+      return;
+    }
+
+    const favs = this.favorites;
+    if (favs.length > 0) {
+      if (favs[0].backdrop_path) {
+        this.cachedCoverUrl = `https://image.tmdb.org/t/p/w1280${favs[0].backdrop_path}`;
+        return;
+      }
+      const favEntry = this.userData.getWatchedEntry(favs[0].media_type, favs[0].id);
+      if (favEntry?.snapshot?.backdropPath) {
+        this.cachedCoverUrl = `https://image.tmdb.org/t/p/w1280${favEntry.snapshot.backdropPath}`;
+        return;
+      }
+    }
+
+    const highestRated = [...this.watchedEntries]
+      .filter((e) => typeof e.rating === 'number' && e.snapshot?.backdropPath)
+      .sort((a, b) => (b.rating || 0) - (a.rating || 0))[0];
+    if (highestRated?.snapshot?.backdropPath) {
+      this.cachedCoverUrl = `https://image.tmdb.org/t/p/w1280${highestRated.snapshot.backdropPath}`;
+      return;
+    }
+
+    if (this.profile.coverBase64) {
+      this.cachedCoverUrl = this.profile.coverBase64;
+      return;
+    }
+
+    this.cachedCoverUrl = null;
   }
 
   setStatsYear(year: string): void {
@@ -112,48 +158,14 @@ export class ProfilePage implements OnInit {
   }
 
   async refreshStatsData(): Promise<void> {
+    this.haptics.lightImpact();
     await this.metadataBackfill.refreshStats(true);
     this.refreshStatsCache();
     this.cdr.markForCheck();
   }
 
   get coverBackdropUrl(): string | null {
-    if (this.coverImageFailed) {
-      return null;
-    }
-
-    // 1. User-configured custom cover
-    const custom = this.userData.getSettings().customCover;
-    if (custom?.backdropPath) {
-      return `https://image.tmdb.org/t/p/w1280${custom.backdropPath}`;
-    }
-
-    // 2. Default: Top favorite movie's backdrop
-    const favs = this.favorites;
-    if (favs.length > 0) {
-      if (favs[0].backdrop_path) {
-        return `https://image.tmdb.org/t/p/w1280${favs[0].backdrop_path}`;
-      }
-      const favEntry = this.userData.getWatchedEntry(favs[0].media_type, favs[0].id);
-      if (favEntry?.snapshot?.backdropPath) {
-        return `https://image.tmdb.org/t/p/w1280${favEntry.snapshot.backdropPath}`;
-      }
-    }
-
-    // 3. Fallback: Highest-rated watched film with a backdrop
-    const highestRated = [...this.watchedEntries]
-      .filter((e) => typeof e.rating === 'number' && e.snapshot?.backdropPath)
-      .sort((a, b) => (b.rating || 0) - (a.rating || 0))[0];
-    if (highestRated?.snapshot?.backdropPath) {
-      return `https://image.tmdb.org/t/p/w1280${highestRated.snapshot.backdropPath}`;
-    }
-
-    // 4. Custom user uploaded base64
-    if (this.profile.coverBase64) {
-      return this.profile.coverBase64;
-    }
-
-    return null;
+    return this.cachedCoverUrl;
   }
 
   onCoverError(): void {
@@ -367,12 +379,14 @@ export class ProfilePage implements OnInit {
     next[index] = next[targetIndex];
     next[targetIndex] = current;
     this.userData.reorderFavorites(next);
+    this.haptics.lightImpact();
     this.refreshStatsCache();
     this.cdr.markForCheck();
   }
 
   removeFavorite(entry: FavoriteEntry): void {
     this.userData.removeFavorite(entry.media_type, entry.id);
+    this.haptics.lightImpact();
     this.refreshStatsCache();
     this.cdr.markForCheck();
   }

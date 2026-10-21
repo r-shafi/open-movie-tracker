@@ -61,6 +61,27 @@
         </ion-segment>
       </div>
     </div>
+
+    <div
+      class="settings-card settings-stack settings-stack--toggle mb-4 rounded-xl border px-3 py-3"
+      style="border-color: var(--ion-color-step-100)"
+    >
+      <div class="settings-stack__header">
+        <p class="m-0 text-[0.88rem] font-semibold">Haptic feedback</p>
+        <p
+          class="m-0 mt-[2px] text-[0.7rem]"
+          style="color: var(--ion-color-medium)"
+        >
+          Subtle tactile feedback for tabs, quick-actions, and saves
+        </p>
+      </div>
+      <div class="settings-stack__action settings-stack__action--end">
+        <ion-toggle
+          [checked]="settings.hapticsEnabled !== false"
+          (ionChange)="setHapticsEnabled($event.detail.checked)"
+        ></ion-toggle>
+      </div>
+    </div>
   </div>
 
   <div

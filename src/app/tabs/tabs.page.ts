@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { HapticFeedbackService } from '../services/haptic-feedback.service';
 import { QuickLogService } from '../shared-module/quick-log-modal/quick-log.service';
 
 @Component({
@@ -8,7 +9,14 @@ import { QuickLogService } from '../shared-module/quick-log-modal/quick-log.serv
   standalone: false,
 })
 export class TabsPage {
-  constructor(private quickLog: QuickLogService) {}
+  constructor(
+    private quickLog: QuickLogService,
+    private haptics: HapticFeedbackService,
+  ) {}
+
+  onTabChange(): void {
+    this.haptics.lightImpact();
+  }
 
   async openQuickLog(event?: Event): Promise<void> {
     if (event) {

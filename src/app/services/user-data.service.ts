@@ -191,8 +191,49 @@ export class UserDataService {
   readonly BACKUP_KEY = 'mva_backup_before_import';
   readonly BACKFILL_STATUS_KEY = 'mva_backfill_status';
 
+  private inMemoryCache = new Map<string, any>();
+
   constructor(private toast: ToastService) {
+    this.hookStorage();
     this.initializeStorage();
+  }
+
+  private hookStorage(): void {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return;
+    }
+    const origSet = localStorage.setItem.bind(localStorage);
+    const origRemove = localStorage.removeItem.bind(localStorage);
+    const origClear = localStorage.clear.bind(localStorage);
+
+    localStorage.setItem = (k: string, v: string) => {
+      origSet(k, v);
+      this.inMemoryCache.delete(k);
+    };
+    localStorage.removeItem = (k: string) => {
+      origRemove(k);
+      this.inMemoryCache.delete(k);
+    };
+    localStorage.clear = () => {
+      origClear();
+      this.inMemoryCache.clear();
+    };
+
+    window.addEventListener('storage', (e) => {
+      if (e.key) {
+        this.inMemoryCache.delete(e.key);
+      } else {
+        this.inMemoryCache.clear();
+      }
+    });
+  }
+
+  public invalidateCache(key?: string): void {
+    if (key) {
+      this.inMemoryCache.delete(key);
+    } else {
+      this.inMemoryCache.clear();
+    }
   }
 
   private initializeStorage(): void {
@@ -1701,12 +1742,17 @@ export class UserDataService {
   }
 
   readJson<T>(key: string, fallback: T): T {
+    if (this.inMemoryCache.has(key)) {
+      return this.inMemoryCache.get(key) as T;
+    }
     try {
       const raw = localStorage.getItem(key);
       if (!raw) {
         return fallback;
       }
-      return JSON.parse(raw) as T;
+      const parsed = JSON.parse(raw) as T;
+      this.inMemoryCache.set(key, parsed);
+      return parsed;
     } catch {
       return fallback;
     }
@@ -1715,12 +1761,14 @@ export class UserDataService {
   writeJson<T>(key: string, value: T): boolean {
     try {
       localStorage.setItem(key, JSON.stringify(value));
+      this.inMemoryCache.set(key, value);
       return true;
     } catch (err) {
       // Handle quota exceeded: purge volatile tmdb_cache_v2 entries first
       this.purgeVolatileCache();
       try {
         localStorage.setItem(key, JSON.stringify(value));
+        this.inMemoryCache.set(key, value);
         return true;
       } catch (retryErr) {
         this.toast.showToast('Storage quota exceeded. Please export and clear old logs.');

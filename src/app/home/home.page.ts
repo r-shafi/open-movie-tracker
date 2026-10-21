@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { forkJoin, Subscription } from 'rxjs';
+import { HapticFeedbackService } from '../services/haptic-feedback.service';
 import { NetworkService } from '../services/network.service';
 import { TmdbService } from '../services/tmdb.service';
 
@@ -27,6 +28,7 @@ export class HomePage implements OnInit, OnDestroy {
   constructor(
     private tmdb: TmdbService,
     private network: NetworkService,
+    private haptics: HapticFeedbackService,
   ) {}
 
   ngOnInit() {
@@ -108,6 +110,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   doRefresh(event: any) {
+    this.haptics.lightImpact();
     this.loadData(event);
   }
 }

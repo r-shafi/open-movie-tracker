@@ -7,6 +7,7 @@ import { AlertController, ModalController } from '@ionic/angular';
 import { finalize } from 'rxjs';
 import packageJson from '../../../package.json';
 import { applyPrimaryColor } from '../app.component';
+import { HapticFeedbackService } from '../services/haptic-feedback.service';
 import { ToastService } from '../services/toast.service';
 import { UpdateService } from '../services/update.service';
 import { AppSettings, UserDataService } from '../services/user-data.service';
@@ -181,6 +182,7 @@ export class SettingsPage {
     private letterboxdImport: LetterboxdImportService,
     private letterboxdExport: LetterboxdExportService,
     private metadataBackfill: MetadataBackfillService,
+    private haptics: HapticFeedbackService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -240,6 +242,13 @@ export class SettingsPage {
   setPrimaryColor(color: 'green' | 'red') {
     this.userData.saveSetting('primaryColor', color);
     applyPrimaryColor(color);
+  }
+
+  setHapticsEnabled(enabled: boolean) {
+    this.userData.saveSetting('hapticsEnabled', enabled);
+    if (enabled) {
+      this.haptics.lightImpact();
+    }
   }
 
   async editTmdbApiKey() {

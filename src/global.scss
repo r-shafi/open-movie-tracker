@@ -178,3 +178,41 @@ ion-modal.date-picker-modal ion-datetime {
   background: var(--ion-color-primary);
   color: #fff;
 }
+
+/* ── Touch Responsiveness & Instant Active Feedback ── */
+* {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+[role="button"],
+ion-button,
+ion-tab-button,
+.interactive-item,
+.result-card,
+.list-card {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button:active:not([disabled]),
+[role="button"]:active:not([disabled]),
+ion-button:active:not([disabled]),
+.interactive-item:active {
+  opacity: 0.88;
+  transform: scale(0.985);
+  transition: transform 0.05s ease, opacity 0.05s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
