@@ -1,0 +1,350 @@
+:host {
+  display: block;
+}
+
+.quick-log-header {
+  ion-toolbar {
+    --background: var(--app-shell-surface, var(--app-bg-secondary));
+    --color: var(--ion-text-color);
+    border-bottom: 1px solid var(--app-shell-border, rgba(255, 255, 255, 0.08));
+
+    ion-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+  }
+
+  ion-searchbar {
+    --background: var(--app-bg-secondary);
+    --color: var(--ion-text-color);
+    --placeholder-color: var(--ion-color-medium);
+    --icon-color: var(--ion-color-medium);
+    --border-radius: 10px;
+    padding: 0;
+  }
+}
+
+.quick-log-content {
+  --background: var(--app-bg);
+  --color: var(--ion-text-color);
+}
+
+.section-heading {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ion-color-medium);
+}
+
+.clear-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+
+  &:hover {
+    color: var(--ion-color-danger);
+  }
+}
+
+.recent-chip {
+  --background: var(--app-bg-secondary);
+  --color: var(--ion-text-color);
+  margin: 0;
+  font-size: 0.75rem;
+  border: 1px solid var(--app-border, rgba(255, 255, 255, 0.08));
+
+  ion-icon {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+  }
+}
+
+.result-card {
+  background: var(--app-bg-secondary);
+  border: 1px solid var(--app-border, rgba(255, 255, 255, 0.08));
+  border-radius: 12px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease;
+
+  &:active {
+    transform: scale(0.985);
+    background: var(--ion-color-step-100, rgba(255, 255, 255, 0.05));
+  }
+
+  .thumb-wrap {
+    width: 40px;
+    height: 60px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--app-bg);
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .no-thumb {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ion-color-medium);
+      font-size: 18px;
+    }
+  }
+
+  .title-text {
+    font-size: 0.88rem;
+    color: var(--ion-text-color);
+    margin: 0 0 4px 0;
+  }
+
+  .year-text {
+    font-size: 0.75rem;
+    color: var(--ion-color-medium);
+  }
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(var(--ion-color-primary-rgb), 0.16);
+  color: var(--ion-color-primary);
+
+  &.badge-tv {
+    background: rgba(116, 185, 255, 0.18);
+    color: #74b9ff;
+  }
+
+  &.badge-subtle {
+    background: var(--app-bg-secondary);
+    color: var(--ion-color-medium);
+    border: 1px solid var(--app-border);
+  }
+}
+
+.quick-action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--app-border, rgba(255, 255, 255, 0.12));
+  background: transparent;
+  color: var(--ion-color-medium);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  ion-icon {
+    font-size: 18px;
+  }
+
+  &:hover {
+    color: var(--ion-color-primary);
+    border-color: var(--ion-color-primary);
+  }
+
+  &.active {
+    background: rgba(var(--ion-color-primary-rgb), 0.18);
+    color: var(--ion-color-primary);
+    border-color: var(--ion-color-primary);
+  }
+}
+
+// ── Log Form Step ────────────────────────────────────────────────────────────
+
+.media-banner {
+  background: var(--app-bg-secondary);
+  border-color: var(--app-border, rgba(255, 255, 255, 0.08));
+
+  .banner-thumb {
+    width: 48px;
+    height: 72px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .no-thumb {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--app-bg);
+      color: var(--ion-color-medium);
+      font-size: 20px;
+    }
+  }
+
+  .status-chip {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+    background: rgba(var(--ion-color-primary-rgb), 0.12);
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
+}
+
+.form-section {
+  background: var(--app-bg-secondary);
+  border-color: var(--app-border, rgba(255, 255, 255, 0.08));
+}
+
+.unknown-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--app-border, rgba(255, 255, 255, 0.15));
+  background: transparent;
+  color: var(--ion-color-medium);
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  &.active {
+    background: rgba(var(--ion-color-primary-rgb), 0.16);
+    color: var(--ion-color-primary);
+    border-color: var(--ion-color-primary);
+  }
+}
+
+.date-input-wrap {
+  &.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .native-date {
+    width: 100%;
+    background: var(--app-bg);
+    color: var(--ion-text-color);
+    border: 1px solid var(--app-border, rgba(255, 255, 255, 0.12));
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.88rem;
+    outline: none;
+
+    &:focus {
+      border-color: var(--ion-color-primary);
+    }
+  }
+}
+
+.pill-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--app-border, rgba(255, 255, 255, 0.12));
+  background: var(--app-bg);
+  color: var(--ion-text-color);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  ion-icon {
+    font-size: 16px;
+  }
+
+  &.active {
+    background: rgba(var(--ion-color-primary-rgb), 0.18);
+    color: var(--ion-color-primary);
+    border-color: var(--ion-color-primary);
+  }
+}
+
+.review-textarea {
+  background: var(--app-bg);
+  color: var(--ion-text-color);
+  border: 1px solid var(--app-border, rgba(255, 255, 255, 0.12));
+  outline: none;
+  font-size: 0.82rem;
+  resize: vertical;
+
+  &:focus {
+    border-color: var(--ion-color-primary);
+  }
+}
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  color: var(--ion-text-color);
+  font-size: 0.72rem;
+
+  ion-icon {
+    font-size: 13px;
+    color: var(--ion-color-medium);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--ion-color-danger);
+    }
+  }
+}
+
+.tag-input {
+  background: var(--app-bg);
+  color: var(--ion-text-color);
+  border: 1px solid var(--app-border);
+  outline: none;
+
+  &:focus {
+    border-color: var(--ion-color-primary);
+  }
+}
+
+.add-tag-btn {
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  color: var(--ion-color-primary);
+}
+
+.save-btn {
+  background: var(--ion-color-primary);
+  color: var(--ion-color-primary-contrast);
+  border: none;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.15s ease;
+
+  &:active {
+    filter: brightness(0.9);
+    transform: scale(0.985);
+  }
+}
+
+.cancel-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}

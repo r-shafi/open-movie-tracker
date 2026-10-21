@@ -12,6 +12,7 @@ import { MovieCardComponent } from './movie-card/movie-card.component';
 import { OfflineBannerComponent } from './offline-banner/offline-banner.component';
 import { SafeUrlPipe } from './pipes/safe-url.pipe';
 import { PosterCardComponent } from './poster-card/poster-card.component';
+import { QuickLogModalComponent } from './quick-log-modal/quick-log-modal.component';
 import { SkeletonCardComponent } from './skeleton-card/skeleton-card.component';
 import { StarRatingComponent } from './star-rating/star-rating.component';
 
@@ -21,6 +22,7 @@ const COMPONENTS = [
   PosterCardComponent,
   ListCardComponent,
   LogSheetComponent,
+  QuickLogModalComponent,
   StarRatingComponent,
   MediaCarouselComponent,
   SkeletonCardComponent,
@@ -36,3 +38,4 @@ const COMPONENTS = [
 export class SharedModuleModule {}
 
 export { LogSheetService } from './log-sheet/log-sheet.service';
+export { QuickLogService } from './quick-log-modal/quick-log.service';

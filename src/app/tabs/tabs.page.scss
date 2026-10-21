@@ -1,0 +1,45 @@
+.quick-log-tab-button {
+  --ripple-color: transparent;
+  overflow: visible;
+  position: relative;
+  contain: none;
+
+  .quick-log-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--ion-color-primary);
+    color: var(--ion-color-primary-contrast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(var(--ion-color-primary-rgb), 0.45);
+    transform: translateY(-4px);
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+                filter 0.15s ease;
+
+    ion-icon {
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    &:active {
+      transform: translateY(-1px) scale(0.94);
+      filter: brightness(0.92);
+      box-shadow: 0 2px 8px rgba(var(--ion-color-primary-rgb), 0.3);
+    }
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}

@@ -1,0 +1,382 @@
+<ion-header class="ion-no-border quick-log-header">
+  <ion-toolbar>
+    @if (!selectedItem) {
+      <ion-title>Quick Log</ion-title>
+    } @else {
+      <ion-buttons slot="start">
+        <ion-button (click)="backToSearch()" aria-label="Back to search results">
+          <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-title>Log Title</ion-title>
+    }
+    <ion-buttons slot="end">
+      <ion-button (click)="close()" aria-label="Close modal">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  @if (!selectedItem) {
+    <div class="search-wrapper px-3 pb-2">
+      <ion-searchbar
+        #searchBar
+        mode="ios"
+        [value]="searchQuery"
+        (ionInput)="onSearchInput($event)"
+        [debounce]="300"
+        placeholder="Search films & TV shows..."
+        aria-label="Search films and TV shows"
+      ></ion-searchbar>
+    </div>
+  }
+</ion-header>
+
+<ion-content class="quick-log-content">
+  @if (!selectedItem) {
+    <!-- Search View -->
+    <div class="search-view px-3 py-2">
+      @if (searchQuery.trim().length < 2) {
+        <!-- Recent searches -->
+        @if (recentSearches.length > 0) {
+          <div class="section-group mb-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="section-heading">Recent Searches</span>
+              <button
+                type="button"
+                class="text-xs text-medium clear-btn"
+                (click)="clearRecentSearches()"
+              >
+                Clear
+              </button>
+            </div>
+            <div class="chips-wrap flex flex-wrap gap-2">
+              @for (term of recentSearches; track term) {
+                <ion-chip
+                  class="recent-chip"
+                  (click)="selectRecentSearch(term)"
+                >
+                  <ion-icon name="time-outline"></ion-icon>
+                  <ion-label>{{ term }}</ion-label>
+                </ion-chip>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Trending Suggestions -->
+        @if (trendingItems.length > 0) {
+          <div class="section-group">
+            <span class="section-heading mb-2 block">Trending Today</span>
+            <div class="results-list flex flex-col gap-2">
+              @for (item of trendingItems; track item.id) {
+                <div
+                  class="result-card flex items-center justify-between"
+                  (click)="selectItem(item)"
+                >
+                  <div class="flex items-center gap-3 overflow-hidden flex-1">
+                    <div class="thumb-wrap">
+                      @if (item.poster_path) {
+                        <img
+                          [src]="'https://image.tmdb.org/t/p/w92' + item.poster_path"
+                          [alt]="item.title || item.name || 'Poster'"
+                          loading="lazy"
+                        />
+                      } @else {
+                        <div class="no-thumb">
+                          <ion-icon name="film-outline"></ion-icon>
+                        </div>
+                      }
+                    </div>
+                    <div class="meta-wrap truncate">
+                      <p class="title-text truncate font-semibold">
+                        {{ item.title || item.name }}
+                      </p>
+                      <div class="sub-text flex items-center gap-2">
+                        <span class="badge" [class.badge-tv]="item.media_type === 'tv'">
+                          {{ item.media_type === 'tv' ? 'TV' : 'Film' }}
+                        </span>
+                        @if (getItemYear(item)) {
+                          <span class="year-text">{{ getItemYear(item) }}</span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="actions-wrap flex items-center gap-1">
+                    <button
+                      type="button"
+                      class="quick-action-btn"
+                      [class.active]="isWatchlisted(item)"
+                      (click)="quickWatchlist(item, $event)"
+                      [attr.aria-label]="isWatchlisted(item) ? 'Remove from watchlist' : 'Add to watchlist'"
+                    >
+                      <ion-icon [name]="isWatchlisted(item) ? 'bookmark' : 'bookmark-outline'"></ion-icon>
+                    </button>
+                    <button
+                      type="button"
+                      class="quick-action-btn"
+                      [class.active]="isWatched(item)"
+                      (click)="quickMarkWatched(item, $event)"
+                      aria-label="Mark watched now"
+                    >
+                      <ion-icon [name]="isWatched(item) ? 'checkmark-circle' : 'checkmark-circle-outline'"></ion-icon>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      } @else if (isLoading) {
+        <div class="loading-state py-8 text-center">
+          <ion-spinner name="crescent"></ion-spinner>
+          <p class="text-xs text-medium mt-2">Searching titles...</p>
+        </div>
+      } @else if (searchResults.length === 0) {
+        <div class="empty-state py-12 text-center text-medium">
+          <ion-icon name="search-outline" class="text-3xl mb-2"></ion-icon>
+          <p class="text-sm">No films or TV shows found for "{{ searchQuery }}".</p>
+        </div>
+      } @else {
+        <!-- Search Results List -->
+        <div class="results-list flex flex-col gap-2">
+          @for (item of searchResults; track item.id) {
+            <div
+              class="result-card flex items-center justify-between"
+              (click)="selectItem(item)"
+            >
+              <div class="flex items-center gap-3 overflow-hidden flex-1">
+                <div class="thumb-wrap">
+                  @if (item.poster_path) {
+                    <img
+                      [src]="'https://image.tmdb.org/t/p/w92' + item.poster_path"
+                      [alt]="item.title || item.name || 'Poster'"
+                      loading="lazy"
+                    />
+                  } @else {
+                    <div class="no-thumb">
+                      <ion-icon name="film-outline"></ion-icon>
+                    </div>
+                  }
+                </div>
+                <div class="meta-wrap truncate">
+                  <p class="title-text truncate font-semibold">
+                    {{ item.title || item.name }}
+                  </p>
+                  <div class="sub-text flex items-center gap-2">
+                    <span class="badge" [class.badge-tv]="item.media_type === 'tv'">
+                      {{ item.media_type === 'tv' ? 'TV' : 'Film' }}
+                    </span>
+                    @if (getItemYear(item)) {
+                      <span class="year-text">{{ getItemYear(item) }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <div class="actions-wrap flex items-center gap-1">
+                <button
+                  type="button"
+                  class="quick-action-btn"
+                  [class.active]="isWatchlisted(item)"
+                  (click)="quickWatchlist(item, $event)"
+                  [attr.aria-label]="isWatchlisted(item) ? 'Remove from watchlist' : 'Add to watchlist'"
+                >
+                  <ion-icon [name]="isWatchlisted(item) ? 'bookmark' : 'bookmark-outline'"></ion-icon>
+                </button>
+                <button
+                  type="button"
+                  class="quick-action-btn"
+                  [class.active]="isWatched(item)"
+                  (click)="quickMarkWatched(item, $event)"
+                  aria-label="Mark watched now"
+                >
+                  <ion-icon [name]="isWatched(item) ? 'checkmark-circle' : 'checkmark-circle-outline'"></ion-icon>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Compact Log Form -->
+    <div class="log-form-view px-4 py-3">
+      <!-- Media Header Banner -->
+      <div class="media-banner flex items-center gap-3 mb-4 p-3 rounded-xl border">
+        <div class="banner-thumb">
+          @if (selectedItem.poster_path) {
+            <img
+              [src]="'https://image.tmdb.org/t/p/w154' + selectedItem.poster_path"
+              [alt]="selectedItem.title || selectedItem.name || 'Poster'"
+            />
+          } @else {
+            <div class="no-thumb">
+              <ion-icon name="film-outline"></ion-icon>
+            </div>
+          }
+        </div>
+        <div class="banner-info flex-1 truncate">
+          <h2 class="title truncate font-bold text-base m-0">
+            {{ selectedItem.title || selectedItem.name }}
+          </h2>
+          <p class="meta text-xs text-medium m-0 mt-1">
+            {{ getItemYear(selectedItem) || 'Unknown year' }} ·
+            {{ selectedItem.media_type === 'tv' ? 'TV Series' : 'Film' }}
+          </p>
+          @if (existingEntry) {
+            <span class="status-chip mt-2 inline-block">Already in your diary</span>
+          }
+        </div>
+      </div>
+
+      <!-- Rating Section -->
+      <div class="form-section mb-4 p-3 rounded-xl border">
+        <div class="flex items-center justify-between mb-2">
+          <span class="section-title font-semibold text-sm">Rating</span>
+          <span class="rating-label text-xs font-bold" [style.color]="'var(--ion-color-primary)'">
+            {{ rating ? (rating | number: '1.1-1') + ' / 5.0' : 'No rating' }}
+          </span>
+        </div>
+        <div class="rating-stars flex justify-center py-1">
+          <app-star-rating
+            [rating]="rating"
+            (ratingChange)="rating = $event"
+          ></app-star-rating>
+        </div>
+      </div>
+
+      <!-- Watched Date Section -->
+      <div class="form-section mb-4 p-3 rounded-xl border">
+        <div class="flex items-center justify-between mb-2">
+          <span class="section-title font-semibold text-sm">Date Watched</span>
+          <button
+            type="button"
+            class="unknown-pill"
+            [class.active]="dateUnknown"
+            (click)="toggleDateUnknown()"
+          >
+            <ion-icon [name]="dateUnknown ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+            <span>Date unknown</span>
+          </button>
+        </div>
+        <div class="date-input-wrap" [class.disabled]="dateUnknown">
+          <input
+            type="date"
+            class="native-date"
+            [(ngModel)]="watchedDate"
+            [max]="maxDate"
+            [disabled]="dateUnknown"
+            aria-label="Watched date"
+          />
+        </div>
+      </div>
+
+      <!-- Toggles: Liked & Rewatch -->
+      <div class="form-section mb-4 p-3 rounded-xl border flex gap-3">
+        <button
+          type="button"
+          class="pill-toggle flex-1"
+          [class.active]="liked"
+          (click)="liked = !liked"
+        >
+          <ion-icon [name]="liked ? 'heart' : 'heart-outline'"></ion-icon>
+          <span>Liked</span>
+        </button>
+
+        <button
+          type="button"
+          class="pill-toggle flex-1"
+          [class.active]="rewatch"
+          (click)="rewatch = !rewatch"
+        >
+          <ion-icon name="repeat-outline"></ion-icon>
+          <span>Rewatch</span>
+        </button>
+      </div>
+
+      <!-- Review & Tags Accordion -->
+      <div class="form-section mb-4 p-3 rounded-xl border">
+        <button
+          type="button"
+          class="w-full flex items-center justify-between text-left"
+          (click)="showReviewAndTags = !showReviewAndTags"
+        >
+          <div class="flex items-center gap-2">
+            <ion-icon name="create-outline"></ion-icon>
+            <span class="text-sm font-semibold">Review & Tags</span>
+            @if (tags.length > 0 || review.trim().length > 0) {
+              <span class="badge badge-subtle">{{ tags.length ? tags.length + ' tags' : 'Drafted' }}</span>
+            }
+          </div>
+          <ion-icon [name]="showReviewAndTags ? 'chevron-up' : 'chevron-down'"></ion-icon>
+        </button>
+
+        @if (showReviewAndTags) {
+          <div class="mt-3 pt-3 border-t">
+            <!-- Review Textarea -->
+            <label class="block text-xs font-semibold text-medium mb-1">
+              Review (optional)
+            </label>
+            <textarea
+              class="review-textarea w-full p-2 rounded-lg"
+              rows="3"
+              maxlength="1000"
+              [(ngModel)]="review"
+              placeholder="Write your thoughts..."
+            ></textarea>
+            <div class="text-right text-[10px] text-medium mt-1">
+              {{ review.length }} / 1000
+            </div>
+
+            <!-- Tags -->
+            <label class="block text-xs font-semibold text-medium mb-1 mt-3">
+              Tags
+            </label>
+            @if (tags.length > 0) {
+              <div class="tags-list flex flex-wrap gap-1 mb-2">
+                @for (tag of tags; track tag) {
+                  <span class="tag-pill">
+                    {{ tag }}
+                    <ion-icon name="close-circle" (click)="removeTag(tag)"></ion-icon>
+                  </span>
+                }
+              </div>
+            }
+            <div class="flex gap-2">
+              <input
+                type="text"
+                class="tag-input flex-1 p-2 rounded-lg text-xs"
+                placeholder="Add tag and press Enter"
+                [(ngModel)]="tagInput"
+                (keydown.enter)="addTag()"
+              />
+              <button type="button" class="add-tag-btn px-3 rounded-lg text-xs font-semibold" (click)="addTag()">
+                Add
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="actions-row flex flex-col gap-2 mt-4">
+        <button
+          type="button"
+          class="save-btn w-full py-3 rounded-xl font-bold text-sm shadow-md"
+          (click)="saveLog()"
+        >
+          Save to Diary
+        </button>
+        <button
+          type="button"
+          class="cancel-btn w-full py-2 text-xs text-medium"
+          (click)="close()"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  }
+</ion-content>
