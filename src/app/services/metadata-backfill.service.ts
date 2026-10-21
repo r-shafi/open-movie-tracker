@@ -9,6 +9,7 @@ export interface BackfillProgress {
   completed: number;
   total: number;
   currentTitle: string;
+  failedCount?: number;
 }
 
 @Injectable({
@@ -21,6 +22,7 @@ export class MetadataBackfillService {
     completed: 0,
     total: 0,
     currentTitle: '',
+    failedCount: 0,
   });
 
   private shouldStop = false;
@@ -40,6 +42,18 @@ export class MetadataBackfillService {
           this.resume();
         }
       });
+
+      // Opportunistic background start if online and missing entries exist
+      setTimeout(() => {
+        if (
+          typeof navigator !== 'undefined' &&
+          navigator.onLine &&
+          !this.progress$.value.isRunning &&
+          this.userData.getMissingSnapshotTitles().length > 0
+        ) {
+          this.start();
+        }
+      }, 2500);
     }
   }
 
@@ -49,6 +63,13 @@ export class MetadataBackfillService {
 
   public get currentProgress(): BackfillProgress {
     return this.progress$.value;
+  }
+
+  public async refreshStats(resetFailures = true): Promise<void> {
+    if (resetFailures) {
+      this.userData.resetFailedBackfills();
+    }
+    await this.start();
   }
 
   public async start(): Promise<void> {
@@ -64,6 +85,7 @@ export class MetadataBackfillService {
         completed: 0,
         total: 0,
         currentTitle: '',
+        failedCount: 0,
       });
       return;
     }
@@ -75,10 +97,13 @@ export class MetadataBackfillService {
       completed: 0,
       total: missing.length,
       currentTitle: missing[0].title,
+      failedCount: 0,
     });
 
     let completed = 0;
+    let failedCount = 0;
     const total = missing.length;
+    let backoffMs = 0;
 
     for (const item of missing) {
       if (this.shouldStop) {
@@ -100,17 +125,33 @@ export class MetadataBackfillService {
         completed,
         total,
         currentTitle: item.title,
+        failedCount,
       });
+
+      if (backoffMs > 0) {
+        await new Promise((r) => setTimeout(r, backoffMs));
+      }
 
       try {
         await this.fetchAndSaveSnapshot(item.media_type, item.id);
-      } catch {
-        // Continue to next item on network or parse error
+        backoffMs = 0; // reset on success
+      } catch (err: any) {
+        failedCount++;
+        const isRateLimit = err?.status === 429;
+        backoffMs = isRateLimit ? Math.min((backoffMs || 1000) * 2, 16000) : 0;
+
+        const currentStatus = this.userData.getBackfillStatus()[`${item.media_type}:${item.id}`];
+        this.userData.setBackfillItemStatus(item.media_type, item.id, {
+          status: 'failed',
+          attempts: (currentStatus?.attempts || 0) + 1,
+          error: err?.message || (isRateLimit ? 'Rate limited (429)' : 'Fetch error'),
+          lastAttempt: new Date().toISOString(),
+        });
       }
 
       completed++;
 
-      // Yield to main thread and avoid hammering TMDb
+      // Yield to main thread and pace requests
       await new Promise((r) => setTimeout(r, 200));
     }
 
@@ -120,6 +161,7 @@ export class MetadataBackfillService {
       completed,
       total,
       currentTitle: '',
+      failedCount,
     });
   }
 
@@ -174,13 +216,15 @@ export class MetadataBackfillService {
         ? details.episode_run_time[0]
         : (details.last_episode_to_air?.runtime || undefined);
 
-      const topCast = details.credits?.cast
-        ? details.credits.cast.slice(0, 5).map((c: any) => ({ id: c.id, name: c.name }))
+      const topCast = (details.aggregate_credits?.cast || details.credits?.cast)
+        ? (details.aggregate_credits?.cast || details.credits?.cast).slice(0, 5).map((c: any) => ({ id: c.id, name: c.name }))
         : [];
 
-      const directors = details.created_by
+      const directors = details.created_by && details.created_by.length
         ? details.created_by.map((c: any) => ({ id: c.id, name: c.name }))
-        : [];
+        : (details.credits?.crew
+            ? details.credits.crew.filter((c: any) => c.job === 'Director').map((c: any) => ({ id: c.id, name: c.name }))
+            : []);
 
       const snapshot: MediaMetadataSnapshot = {
         runtimeMinutes: runtime,

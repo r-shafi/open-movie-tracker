@@ -126,10 +126,13 @@ export interface UserStats {
   firstWatches: number;
   rewatchPercentage: number;
   decades: { decade: string; count: number }[];
-  topDirectors: { name: string; count: number; avgRating: number | null }[];
-  topCast: { name: string; count: number; avgRating: number | null }[];
+  topDirectors: { id?: number; name: string; count: number; avgRating: number | null }[];
+  topCast: { id?: number; name: string; count: number; avgRating: number | null }[];
   availableYears: string[];
   undatedCount: number;
+  enrichedCount: number;
+  coveragePercentage: number;
+  coverageNotice?: string;
 
   // Letterboxd Pro Analytics
   activityHeatmap: { date: string; count: number; level: number }[];
@@ -157,6 +160,13 @@ export interface UserStats {
   };
 }
 
+export interface BackfillItemStatus {
+  status: 'pending' | 'done' | 'failed';
+  attempts: number;
+  lastAttempt?: string;
+  error?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class UserDataService {
   readonly SCHEMA_VERSION = 3;
@@ -171,6 +181,7 @@ export class UserDataService {
   readonly RECENT_LISTS_KEY = 'mva_recent_lists';
   readonly LIST_SCROLL_KEY = 'mva_list_scroll';
   readonly BACKUP_KEY = 'mva_backup_before_import';
+  readonly BACKFILL_STATUS_KEY = 'mva_backfill_status';
 
   constructor(private toast: ToastService) {
     this.initializeStorage();
@@ -456,6 +467,30 @@ export class UserDataService {
     }
   }
 
+  getBackfillStatus(): Record<string, BackfillItemStatus> {
+    return this.readJson<Record<string, BackfillItemStatus>>(this.BACKFILL_STATUS_KEY, {});
+  }
+
+  setBackfillItemStatus(mediaType: string, id: number, status: BackfillItemStatus): void {
+    const all = this.getBackfillStatus();
+    all[`${mediaType}:${id}`] = status;
+    this.writeJson(this.BACKFILL_STATUS_KEY, all);
+  }
+
+  resetFailedBackfills(): void {
+    const all = this.getBackfillStatus();
+    let modified = false;
+    Object.keys(all).forEach((k) => {
+      if (all[k]?.status === 'failed') {
+        delete all[k];
+        modified = true;
+      }
+    });
+    if (modified) {
+      this.writeJson(this.BACKFILL_STATUS_KEY, all);
+    }
+  }
+
   updateSnapshot(mediaType: string, id: number, snapshot: MediaMetadataSnapshot): void {
     const watched = this.getWatched();
     let modified = false;
@@ -469,24 +504,63 @@ export class UserDataService {
     if (modified) {
       this.writeJson(this.WATCHED_KEY, watched);
     }
+    this.setBackfillItemStatus(mediaType, id, {
+      status: 'done',
+      attempts: 1,
+      lastAttempt: new Date().toISOString(),
+    });
   }
 
   getMissingSnapshotTitles(): Array<{ media_type: 'movie' | 'tv'; id: number; title: string }> {
     const watched = Object.values(this.getWatched());
-    const seen = new Set<string>();
-    const missing: Array<{ media_type: 'movie' | 'tv'; id: number; title: string }> = [];
+    const seen = new Map<string, { media_type: 'movie' | 'tv'; id: number; title: string; watchedAt: string | null; rating: number | null }>();
+    const backfillStatus = this.getBackfillStatus();
 
     watched.forEach((e) => {
       const key = `${e.media_type}:${e.id}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        if (!e.snapshot || e.snapshot.runtimeMinutes === undefined || !e.snapshot.genres) {
-          missing.push({ media_type: e.media_type, id: e.id, title: e.title });
+      const status = backfillStatus[key];
+      // Skip if explicitly marked done or failed with max attempts >= 3
+      if (status && (status.status === 'done' || (status.status === 'failed' && status.attempts >= 3))) {
+        return;
+      }
+      const hasSnapshot = !!e.snapshot && (!!e.snapshot.directors || !!e.snapshot.genres || e.snapshot.runtimeMinutes !== undefined || !!e.snapshot.originalLanguage);
+      if (!hasSnapshot) {
+        const existing = seen.get(key);
+        if (!existing) {
+          seen.set(key, {
+            media_type: e.media_type,
+            id: e.id,
+            title: e.title,
+            watchedAt: e.watchedAt || null,
+            rating: typeof e.rating === 'number' ? e.rating : null,
+          });
+        } else {
+          if (e.watchedAt && (!existing.watchedAt || e.watchedAt > existing.watchedAt)) {
+            existing.watchedAt = e.watchedAt;
+          }
+          if (typeof e.rating === 'number' && (existing.rating === null || e.rating > existing.rating)) {
+            existing.rating = e.rating;
+          }
         }
       }
     });
 
-    return missing;
+    const missing = Array.from(seen.values());
+    missing.sort((a, b) => {
+      if (a.watchedAt && b.watchedAt) {
+        const cmp = b.watchedAt.localeCompare(a.watchedAt);
+        if (cmp !== 0) return cmp;
+      } else if (a.watchedAt && !b.watchedAt) {
+        return -1;
+      } else if (!a.watchedAt && b.watchedAt) {
+        return 1;
+      }
+      const ratingA = a.rating ?? -1;
+      const ratingB = b.rating ?? -1;
+      return ratingB - ratingA;
+    });
+
+    return missing.map((m) => ({ media_type: m.media_type, id: m.id, title: m.title }));
   }
 
   isWatched(mediaType: string, id: number): boolean {
@@ -1057,47 +1131,96 @@ export class UserDataService {
       }))
       .sort((a, b) => a.decade.localeCompare(b.decade));
 
-    // Top Directors with minimum sample rule (min 3 films)
-    const directorMap = new Map<string, { count: number; ratings: number[] }>();
+    // Metadata coverage
+    const enrichedEntries = watched.filter(
+      (e) =>
+        !!e.snapshot &&
+        (!!e.snapshot.directors ||
+          !!e.snapshot.genres ||
+          e.snapshot.runtimeMinutes !== undefined ||
+          !!e.snapshot.originalLanguage),
+    );
+    const enrichedCount = enrichedEntries.length;
+    const coveragePercentage =
+      totalWatched > 0 ? Math.round((enrichedCount / totalWatched) * 100) : 100;
+    const coverageNotice =
+      enrichedCount < totalWatched
+        ? `Based on ${enrichedCount} of ${totalWatched} titles, enriching the rest`
+        : undefined;
+
+    // Top Directors (aggregated by TMDb person id, fallback to name; min 3 ratings for avgRating)
+    const directorMap = new Map<
+      string | number,
+      { id?: number; name: string; count: number; ratings: number[] }
+    >();
     watched.forEach((e) => {
       e.snapshot?.directors?.forEach((d) => {
-        const current = directorMap.get(d.name) || { count: 0, ratings: [] };
+        if (!d.id && !d.name) return;
+        const key = d.id ?? d.name;
+        const current = directorMap.get(key) || {
+          id: d.id,
+          name: d.name,
+          count: 0,
+          ratings: [],
+        };
         current.count++;
         if (typeof e.rating === 'number') current.ratings.push(e.rating);
-        directorMap.set(d.name, current);
+        directorMap.set(key, current);
       });
     });
-    const topDirectors = Array.from(directorMap.entries())
-      .map(([name, data]) => ({
-        name,
+    const topDirectors = Array.from(directorMap.values())
+      .map((data) => ({
+        id: data.id,
+        name: data.name,
         count: data.count,
-        avgRating: data.count >= 3 && data.ratings.length >= 3
-          ? Number((data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length).toFixed(1))
-          : null,
+        avgRating:
+          data.ratings.length >= 3
+            ? Number(
+                (
+                  data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length
+                ).toFixed(1),
+              )
+            : null,
       }))
       .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
+      .slice(0, 10);
 
-    // Top Cast with minimum sample rule (min 3 films)
-    const castMap = new Map<string, { count: number; ratings: number[] }>();
+    // Top Cast (aggregated by TMDb person id, fallback to name; min 3 ratings for avgRating)
+    const castMap = new Map<
+      string | number,
+      { id?: number; name: string; count: number; ratings: number[] }
+    >();
     watched.forEach((e) => {
       e.snapshot?.topCast?.forEach((c) => {
-        const current = castMap.get(c.name) || { count: 0, ratings: [] };
+        if (!c.id && !c.name) return;
+        const key = c.id ?? c.name;
+        const current = castMap.get(key) || {
+          id: c.id,
+          name: c.name,
+          count: 0,
+          ratings: [],
+        };
         current.count++;
         if (typeof e.rating === 'number') current.ratings.push(e.rating);
-        castMap.set(c.name, current);
+        castMap.set(key, current);
       });
     });
-    const topCast = Array.from(castMap.entries())
-      .map(([name, data]) => ({
-        name,
+    const topCast = Array.from(castMap.values())
+      .map((data) => ({
+        id: data.id,
+        name: data.name,
         count: data.count,
-        avgRating: data.count >= 3 && data.ratings.length >= 3
-          ? Number((data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length).toFixed(1))
-          : null,
+        avgRating:
+          data.ratings.length >= 3
+            ? Number(
+                (
+                  data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length
+                ).toFixed(1),
+              )
+            : null,
       }))
       .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
+      .slice(0, 10);
 
     // Activity heatmap & streaks
     const activityHeatmap = UserDataService.calculateActivityHeatmap(watched);
@@ -1112,7 +1235,7 @@ export class UserDataService {
     // Runtime distribution
     const runtimeDistribution = UserDataService.calculateRuntimeDistribution(watched);
 
-    // Production countries & languages
+    // Production countries & languages (never defaulting missing languages)
     const countryCounts: Record<string, number> = {};
     const langCounts: Record<string, number> = {};
     watched.forEach((e) => {
@@ -1127,12 +1250,12 @@ export class UserDataService {
     const productionCountries = Object.entries(countryCounts)
       .map(([country, count]) => ({ country, count }))
       .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
+      .slice(0, 10);
 
     const languages = Object.entries(langCounts)
       .map(([language, count]) => ({ language, count }))
       .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
+      .slice(0, 10);
 
     // Crowd Delta & Controversy
     const { crowdDeltaAverage, controversialPicks } = UserDataService.calculateControversialPicks(watched);
@@ -1188,6 +1311,9 @@ export class UserDataService {
       topCast,
       availableYears,
       undatedCount,
+      enrichedCount,
+      coveragePercentage,
+      coverageNotice,
       activityHeatmap,
       currentStreak,
       longestStreak,

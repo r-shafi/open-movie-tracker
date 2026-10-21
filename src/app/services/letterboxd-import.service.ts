@@ -4,6 +4,7 @@ import { LetterboxdArchive } from './letterboxd-archive';
 import { CalendarDate } from './calendar-date';
 import { MatchResult, TmdbMatchCandidate, TmdbMatcher } from './tmdb-matcher';
 import { UserDataService, WatchedEntry, WatchlistEntry, UserList } from './user-data.service';
+import { MetadataBackfillService } from './metadata-backfill.service';
 
 export interface ImportOptions {
   importProfile: boolean; // Opt-in; default false
@@ -103,6 +104,7 @@ export class LetterboxdImportService {
   constructor(
     private userData: UserDataService,
     private matcher: TmdbMatcher,
+    private metadataBackfill: MetadataBackfillService,
   ) {}
 
   public hasBackup(): boolean {
@@ -896,6 +898,13 @@ export class LetterboxdImportService {
 
     // 8. Clear saved session on successful commit
     this.clearSession();
+
+    // 9. Opportunistically start metadata backfill for imported library
+    try {
+      this.metadataBackfill.start();
+    } catch {
+      // Ignore background kickoff error
+    }
 
     if (onProgress) {
       onProgress({ phase: 'done', current: 100, total: 100, message: 'Import completed successfully!' });

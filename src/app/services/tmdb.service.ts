@@ -304,7 +304,9 @@ export class TmdbService {
   }
 
   getTvDetails(id: number | string): Observable<any> {
-    return this.get(`/tv/${id}`, { append_to_response: 'content_ratings' });
+    return this.get(`/tv/${id}`, {
+      append_to_response: 'content_ratings,credits,aggregate_credits',
+    });
   }
 
   getTvCredits(id: number | string): Observable<any> {

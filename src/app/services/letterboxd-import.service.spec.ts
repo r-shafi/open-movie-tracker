@@ -3,6 +3,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { LetterboxdImportService } from './letterboxd-import.service';
 import { UserDataService } from './user-data.service';
 import { TmdbMatcher } from './tmdb-matcher';
+import { MetadataBackfillService } from './metadata-backfill.service';
 
 describe('LetterboxdImportService', () => {
   let service: LetterboxdImportService;
@@ -13,7 +14,7 @@ describe('LetterboxdImportService', () => {
     localStorage.clear();
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [LetterboxdImportService, UserDataService, TmdbMatcher],
+      providers: [LetterboxdImportService, UserDataService, TmdbMatcher, MetadataBackfillService],
     });
     service = TestBed.inject(LetterboxdImportService);
     userData = TestBed.inject(UserDataService);
