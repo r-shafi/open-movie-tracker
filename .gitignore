@@ -42,3 +42,7 @@ android/local.properties
 
 # Real user data exports - never commit
 letterboxd-*.zip
+.local-real-data/
+.cache/
+scripts/local-*.js
+scripts/local-*.py
