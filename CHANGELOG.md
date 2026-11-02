@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.4](https://github.com/r-shafi/open-movie-tracker/compare/v0.16.3...v0.16.4) (2026-11-02)
+
+
+### Bug Fixes
+
+* resolve tv season back navigation and enable auto update check ([#23](https://github.com/r-shafi/open-movie-tracker/issues/23)) ([3852af9](https://github.com/r-shafi/open-movie-tracker/commit/3852af93d6703ad8a231e1a995743d0a26aa4e12))
+
 ## [0.16.3](https://github.com/r-shafi/open-movie-tracker/compare/v0.16.2...v0.16.3) (2026-10-21)
 
 
