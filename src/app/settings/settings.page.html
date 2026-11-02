@@ -490,6 +490,27 @@
       </div>
     </button>
 
+    <div
+      class="settings-card settings-stack settings-stack--toggle mb-2 rounded-xl border px-3 py-3"
+      style="border-color: var(--ion-color-step-100)"
+    >
+      <div class="settings-stack__header">
+        <p class="m-0 text-[0.88rem] font-semibold">Check updates on launch</p>
+        <p
+          class="m-0 mt-[2px] text-[0.7rem]"
+          style="color: var(--ion-color-medium)"
+        >
+          Automatically check for new releases when app starts
+        </p>
+      </div>
+      <div class="settings-stack__action settings-stack__action--end">
+        <ion-toggle
+          [checked]="settings.autoCheckUpdates !== false"
+          (ionChange)="setAutoCheckUpdates($any($event).detail.checked)"
+        ></ion-toggle>
+      </div>
+    </div>
+
     <button
       class="settings-card settings-stack settings-stack--toggle mb-2 w-full rounded-xl border px-3 py-3 text-left transition-colors hover:bg-white/5"
       style="border-color: var(--ion-color-step-100)"

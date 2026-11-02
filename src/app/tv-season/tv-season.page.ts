@@ -54,4 +54,31 @@ export class TvSeasonPage implements OnInit {
       this.isEpisodeWatched(this.season.season_number, ep.episode_number),
     ).length;
   }
+
+  get isAllWatched(): boolean {
+    if (!this.season?.episodes?.length) {
+      return false;
+    }
+    return this.watchedCount === this.season.episodes.length;
+  }
+
+  toggleAllWatched() {
+    if (!this.season?.episodes?.length) {
+      return;
+    }
+    const epNums = this.season.episodes.map((ep: any) => ep.episode_number);
+    if (this.isAllWatched) {
+      this.userData.unmarkSeasonWatched(
+        this.tvId,
+        this.season.season_number,
+        epNums,
+      );
+    } else {
+      this.userData.markSeasonWatched(
+        this.tvId,
+        this.season.season_number,
+        epNums,
+      );
+    }
+  }
 }

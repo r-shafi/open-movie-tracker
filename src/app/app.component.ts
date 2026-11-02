@@ -76,7 +76,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private checkForUpdates(): void {
-    if (!this.userData.getSettings().autoCheckUpdates) {
+    if (this.userData.getSettings().autoCheckUpdates === false) {
       return;
     }
     this.updateService.checkForUpdate().subscribe({

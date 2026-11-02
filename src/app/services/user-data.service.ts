@@ -1682,6 +1682,30 @@ export class UserDataService {
     this.writeJson(this.SETTINGS_KEY, updated);
   }
 
+  unmarkSeasonWatched(tvId: number, season: number, episodes: number[]): void {
+    const settings = this.getSettingsRecord();
+    const map = { ...(settings.episodeWatched || {}) };
+    episodes.forEach((ep) => {
+      delete map[`${tvId}-${season}-${ep}`];
+    });
+    const updated: SettingsRecord = { ...settings, episodeWatched: map };
+    this.writeJson(this.SETTINGS_KEY, updated);
+  }
+
+  isSeasonFullyWatched(tvId: number, season: number, episodeCount: number): boolean {
+    if (!episodeCount || episodeCount <= 0) {
+      return false;
+    }
+    const settings = this.getSettingsRecord();
+    const map = settings.episodeWatched || {};
+    for (let ep = 1; ep <= episodeCount; ep++) {
+      if (!map[`${tvId}-${season}-${ep}`]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   // ── Export / Import Backup ───────────────────────────────────────────────
 
   exportBackup(): string {
@@ -1933,7 +1957,7 @@ export class UserDataService {
       defaultMediaTab: 'movies',
       primaryColor: 'green',
       tmdbApiKey: '',
-      autoCheckUpdates: false,
+      autoCheckUpdates: true,
     };
   }
 
@@ -1948,6 +1972,9 @@ export class UserDataService {
       return fresh;
     }
     const merged = { ...this.buildDefaultSettings(), ...stored };
+    if (stored.autoCheckUpdates === undefined) {
+      merged.autoCheckUpdates = true;
+    }
     if (!stored.displayName && stored.displayName !== '') {
       merged.displayName = 'Movie Fan';
     }

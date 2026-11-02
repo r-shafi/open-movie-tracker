@@ -231,6 +231,10 @@ export class SettingsPage {
     this.userData.saveSetting('fadeWatched', value);
   }
 
+  setAutoCheckUpdates(enabled: boolean) {
+    this.userData.saveSetting('autoCheckUpdates', enabled);
+  }
+
   setDefaultMediaTab(value: 'movies' | 'tv') {
     this.userData.saveSetting('defaultMediaTab', value);
   }

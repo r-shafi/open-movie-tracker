@@ -330,8 +330,9 @@
       <ion-list>
         @for (season of show.seasons; track season) {
         <ion-item
-          [routerLink]="['/tv', show.id, 'season', season.season_number]"
+          [button]="true"
           detail="true"
+          (click)="openSeason(season)"
         >
           <ion-thumbnail slot="start">
             <ion-img
@@ -349,11 +350,13 @@
             slot="end"
             fill="clear"
             size="small"
-            (click)="markSeasonWatched(season); $event.stopPropagation()"
+            (click)="toggleSeasonWatched(season); $event.stopPropagation()"
+            [attr.aria-label]="isSeasonWatched(season) ? 'Mark season unwatched' : 'Mark season watched'"
           >
             <ion-icon
               slot="icon-only"
-              name="checkmark-circle-outline"
+              [name]="isSeasonWatched(season) ? 'checkmark-circle' : 'checkmark-circle-outline'"
+              [color]="isSeasonWatched(season) ? 'primary' : 'medium'"
             ></ion-icon>
           </ion-button>
         </ion-item>

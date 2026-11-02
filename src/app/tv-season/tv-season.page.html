@@ -1,7 +1,24 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start"><ion-back-button></ion-back-button></ion-buttons>
+    <ion-buttons slot="start">
+      <ion-back-button [defaultHref]="'/tv/' + tvId"></ion-back-button>
+    </ion-buttons>
     <ion-title>{{ season?.name || 'Season' }}</ion-title>
+    @if (!isLoading && season?.episodes?.length) {
+      <ion-buttons slot="end">
+        <ion-button
+          fill="clear"
+          (click)="toggleAllWatched()"
+          [attr.aria-label]="isAllWatched ? 'Mark season unwatched' : 'Mark season watched'"
+        >
+          <ion-icon
+            slot="icon-only"
+            [name]="isAllWatched ? 'checkmark-circle' : 'checkmark-circle-outline'"
+            [color]="isAllWatched ? 'primary' : 'medium'"
+          ></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    }
   </ion-toolbar>
 </ion-header>
 

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController } from '@ionic/angular';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -37,6 +37,7 @@ export class TvPage implements OnInit {
   constructor(
     private tmdb: TmdbService,
     private route: ActivatedRoute,
+    private router: Router,
     private modalCtrl: ModalController,
     private actionSheetCtrl: ActionSheetController,
     private logSheet: LogSheetService,
@@ -397,6 +398,47 @@ export class TvPage implements OnInit {
 
   toggleEpisode(seasonNum: number, epNum: number) {
     this.userData.toggleEpisodeWatched(this.show.id, seasonNum, epNum);
+  }
+
+  openSeason(season: any) {
+    if (!this.show?.id || season?.season_number === undefined) {
+      return;
+    }
+    this.router.navigate(['/tv', this.show.id, 'season', season.season_number]);
+  }
+
+  isSeasonWatched(season: any): boolean {
+    if (!this.show?.id || !season?.episode_count) {
+      return false;
+    }
+    return this.userData.isSeasonFullyWatched(
+      this.show.id,
+      season.season_number,
+      season.episode_count,
+    );
+  }
+
+  toggleSeasonWatched(season: any) {
+    if (!this.show?.id || !season?.episode_count) {
+      return;
+    }
+    const epNums = Array.from(
+      { length: season.episode_count },
+      (_, i) => i + 1,
+    );
+    if (this.isSeasonWatched(season)) {
+      this.userData.unmarkSeasonWatched(
+        this.show.id,
+        season.season_number,
+        epNums,
+      );
+    } else {
+      this.userData.markSeasonWatched(
+        this.show.id,
+        season.season_number,
+        epNums,
+      );
+    }
   }
 
   markSeasonWatched(season: any) {
